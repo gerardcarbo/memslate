@@ -1,0 +1,2 @@
+# memslate
+Memorize your Translations
