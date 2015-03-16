@@ -6,12 +6,29 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
+var nodemon = require('gulp-nodemon');
+var jshint = require('gulp-jshint');
+var shell = require('gulp-shell');
 
 var paths = {
   sass: ['./scss/**/*.scss']
 };
 
-gulp.task('default', ['sass']);
+gulp.task('default', ['serve']);
+
+gulp.task('serve', function () {
+    nodemon({ script: '../server.js', ext: 'html js', ignore: ['/web'] })
+        .on('change', ['lint'])
+        .on('restart', function () {
+            console.log('restarted!')
+        })
+});
+
+//Ionic Serve Task
+gulp.task('run-ionic',shell.task([
+    'ionic serve'
+]));
+
 
 gulp.task('sass', function(done) {
   gulp.src('./scss/ionic.app.scss')
@@ -25,7 +42,13 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
-gulp.task('watch', function() {
+gulp.task('lint', function () {
+    gulp.src('./**/*.js')
+        .pipe(jshint())
+});
+
+
+gulp.task('watch sass', function() {
   gulp.watch(paths.sass, ['sass']);
 });
 
