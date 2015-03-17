@@ -14,21 +14,17 @@ var paths = {
   sass: ['./scss/**/*.scss']
 };
 
-gulp.task('default', ['serve']);
-
-gulp.task('serve', function () {
-    nodemon({ script: '../server.js', ext: 'html js', ignore: ['/ionic'] })
-        .on('change', ['lint'])
-        .on('restart', function () {
-            console.log('restarted!')
-        })
-});
+gulp.task('default', ['serve-ionic']);
 
 //Ionic Serve Task
-gulp.task('run-ionic',shell.task([
+gulp.task('serve-ionic',shell.task([
     'ionic serve'
 ]));
 
+//Ionic Serve Task
+gulp.task('run-ionic',shell.task([
+    'ionic run --livereload'
+]));
 
 gulp.task('sass', function(done) {
   gulp.src('./scss/ionic.app.scss')
