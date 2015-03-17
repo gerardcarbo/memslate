@@ -1,4 +1,4 @@
-angular.module('starter.controllers', ['starter.services'])
+angular.module('memslate.controllers', ['memslate.services'])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
   // Form data for the login modal
@@ -33,10 +33,10 @@ angular.module('starter.controllers', ['starter.services'])
   };
 })
 
-.controller('SessionsCtrl', function($scope, Session) {
-    $scope.sessions = Session.query();
+.controller('TranslationsCtrl', function($scope, Translations) {
+    this.translations = Translations.query();
 })
 
-.controller('SessionCtrl', function($scope, $stateParams, Session) {
-    $scope.session = Session.get({sessionId: $stateParams.sessionId});
+.controller('TranslationCtrl', function($scope, $stateParams, Translations) {
+    this.translation = Translations.get({translationId: $stateParams.translationId});
 });

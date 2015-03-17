@@ -1,0 +1,9 @@
+<ion-view view-title="Translations">
+    <ion-content>
+        <ion-list>
+            <ion-item ng-repeat="translation in translationsCtrl.translations" href="#/app/translations/{{translation.id}}">
+                {{translation.title}}
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

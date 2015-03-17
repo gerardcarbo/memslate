@@ -2,7 +2,6 @@ var express         = require('express'),
     config          = require('./server/config'),
     bodyParser      = require('body-parser'),
     methodOverride  = require('method-override'),
-    sessions        = require('./server/routes/sessions'),
     translations    = require('./server/routes/translations');
 
 
@@ -36,10 +35,6 @@ app.all('*', function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
 });
-
-app.get('/sessions', sessions.findAll);
-app.get('/sessions/:id', sessions.findById);
-
 
 app.get('/translations', translations.findAll);
 app.get('/translations/:id', translations.findById);
