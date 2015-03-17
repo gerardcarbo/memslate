@@ -17,7 +17,7 @@ var paths = {
 gulp.task('default', ['serve']);
 
 gulp.task('serve', function () {
-    nodemon({ script: '../server.js', ext: 'html js', ignore: ['/web'] })
+    nodemon({ script: '../server.js', ext: 'html js', ignore: ['/ionic'] })
         .on('change', ['lint'])
         .on('restart', function () {
             console.log('restarted!')

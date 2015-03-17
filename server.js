@@ -10,7 +10,7 @@ app = express();
 app.use(bodyParser());          // pull information from html in POST
 app.use(methodOverride());      // simulate DELETE and PUT
 
-app.use(express.static(__dirname+'/web/www'));
+app.use(express.static(__dirname+'/ionic/www'));
 
 // Logging
 logger = {
