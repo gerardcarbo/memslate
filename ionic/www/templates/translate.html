@@ -1,0 +1,16 @@
+<ion-view view-title="Translate">
+    <ion-content class="has-header">
+        <div class="row">
+            <ms-select id="selectFrom" name="From" title="From Language" items="translateCtrl.languages.items" selected-item="translateCtrl.languages.selectedFrom"></ms-select>
+            <a class="col col-10 button button-image" alt="Swap languages" title="Swap languages"
+               ng-click="translateCtrl.swapLanguages()"><img id="btnSwap" src="/img/swap2.png" class="image"></a>
+            <ms-select id="selectTo" name="To" title="To Language" items="translateCtrl.languages.items" selected-item="translateCtrl.languages.selectedTo"></ms-select>
+        </div>
+        <div class="list" style="padding:5px">
+            <label class="item item-input">
+                <i class="icon ion-search placeholder-icon"></i>
+                <input type="text" placeholder="Text to Translate">
+            </label>
+        </div>
+    </ion-content>
+</ion-view>

@@ -1,6 +1,8 @@
 /**
  * Created by gerard on 18/02/2015.
  */
+"use strict";
+
 angular.module('memslate.services', ['ngResource'])
 
 .factory('Translations', function ($resource) {
