@@ -1,16 +1,25 @@
 <ion-view view-title="Translate">
     <ion-content class="has-header">
         <div class="row">
-            <ms-select id="selectFrom" name="From" title="From Language" items="translateCtrl.languages.items" selected-item="translateCtrl.languages.selectedFrom"></ms-select>
-            <a class="col col-10 button button-image" alt="Swap languages" title="Swap languages"
-               ng-click="translateCtrl.swapLanguages()"><img id="btnSwap" src="/img/swap2.png" class="image"></a>
-            <ms-select id="selectTo" name="To" title="To Language" items="translateCtrl.languages.items" selected-item="translateCtrl.languages.selectedTo"></ms-select>
+                <ms-select id="fromLang" name="From" title="From Language" items="translateCtrl.languages.items" selected-item="translateCtrl.languages.selectedFrom"></ms-select>
+                <a class="col col-10 button button-image" alt="Swap languages" title="Swap languages"
+                   ng-click="translateCtrl.swapLanguages()"><img id="btnSwap" src="/img/swap2.png" class="image"></a>
+                <ms-select id="toLang" name="To" title="To Language" items="translateCtrl.languages.items" selected-item="translateCtrl.languages.selectedTo"></ms-select>
+
         </div>
-        <div class="list" style="padding:5px">
-            <label class="item item-input">
-                <i class="icon ion-search placeholder-icon"></i>
-                <input type="text" placeholder="Text to Translate">
-            </label>
+        <form id="translateForm" ng-submit="translateCtrl.translate()">
+        <div class="row" style="margin-top:1px">
+            <div  class="col item item-input">
+                <i class="icon ion-search placeholder-icon" style="font-size: x-large;"></i>
+                <input type="text" placeholder="Text to Translate" ng-model="translateCtrl.textToTranslate">
+                <a type="submit" class="button margin-horizontal" ng-click="translateCtrl.translate()">Translate</a>
+            </div>
+        </div>
+        </form>
+        <div class="row" style="margin-top:1px">
+            <div id="translationContens" class="col item" style="min-height:400px" >
+                <ms-translation translation="translateCtrl.translation"></ms-translation>
+            </div>
         </div>
     </ion-content>
 </ion-view>

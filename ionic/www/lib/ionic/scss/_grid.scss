@@ -18,6 +18,14 @@
   @include flex-wrap(wrap);
 }
 
+.row-no-padding {
+  padding: 0;
+
+  > .col {
+    padding: 0;
+  }
+}
+
 .row + .row {
   margin-top: ($grid-padding-width / 2) * -1;
   padding-top: 0;
@@ -25,7 +33,6 @@
 
 .col {
   @include flex(1);
-  display: block;
   padding: ($grid-padding-width / 2);
   width: 100%;
 }
@@ -94,43 +101,39 @@
 /* By default each grid column will evenly distribute */
 /* across the grid. However, you can specify individual */
 /* columns to take up a certain size of the available area */
-.row > .col-10 {
+.col-10 {
   @include flex(0, 0, 10%);
   max-width: 10%;
 }
-.row > .col-20 {
+.col-20 {
   @include flex(0, 0, 20%);
   max-width: 20%;
 }
-.row > .col-25 {
+.col-25 {
   @include flex(0, 0, 25%);
   max-width: 25%;
 }
-.row > .col-33, .col-34 {
+.col-33, .col-34 {
   @include flex(0, 0, 33.3333%);
   max-width: 33.3333%;
 }
-.row > .col-45 {
-  @include flex(0, 0, 45%);
-  max-width: 45%;
-}
-.row > .col-50 {
+.col-50 {
   @include flex(0, 0, 50%);
   max-width: 50%;
 }
-.row > .col-66, .col-67 {
+.col-66, .col-67 {
   @include flex(0, 0, 66.6666%);
   max-width: 66.6666%;
 }
-.row > .col-75 {
+.col-75 {
   @include flex(0, 0, 75%);
   max-width: 75%;
 }
-.row > .col-80 {
+.col-80 {
   @include flex(0, 0, 80%);
   max-width: 80%;
 }
-.row > .col-90 {
+.col-90 {
   @include flex(0, 0, 90%);
   max-width: 90%;
 }

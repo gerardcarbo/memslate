@@ -1,64 +1,142 @@
 "use strict";
 
-angular.module('memslate.controllers', ['memslate.services','ionic'])
-    
-    .controller('AppCtrl', function ($scope, $timeout) {
-        // Form data for the login modal
-        $scope.loginData = {};
+var module = angular.module('memslate.controllers', ['memslate.services', 'ionic']);
 
-        // Triggered in the login modal to close it
-        $scope.closeLogin = function () {
-            $scope.modal.hide();
-        };
+module.controller('AppCtrl', function ($scope, $timeout) {
+    // Form data for the login modal
+    $scope.loginData = {};
 
-        // Open the login modal
-        $scope.login = function () {
-            $scope.modal.show();
-        };
+    // Triggered in the login modal to close it
+    $scope.closeLogin = function () {
+        $scope.modal.hide();
+    };
 
-        // Perform the login action when the user submits the login form
-        $scope.doLogin = function () {
-            console.log('Doing login', $scope.loginData);
+    // Open the login modal
+    $scope.login = function () {
+        $scope.modal.show();
+    };
 
-            // Simulate a login delay. Remove this and replace with your login
-            // code if using a login system
-            $timeout(function () {
-                $scope.closeLogin();
-            }, 1000);
-        };
-    })
+    // Perform the login action when the user submits the login form
+    $scope.doLogin = function () {
+        console.log('Doing login', $scope.loginData);
 
-    .controller('TranslateCtrl', function ($scope) {
-        var translateCtrl=this;
-        this.options={};
-        this.languages={};
-        this.languages.items=[{"value":"ca*","name":"Catalan"},{"value":"es*","name":"Spanish"},{"value":"en*","name":"English"}];
-        this.languages.selectedFrom='ca*';
-        this.languages.selectedTo='en*';
+        // Simulate a login delay. Remove this and replace with your login
+        // code if using a login system
+        $timeout(function () {
+            $scope.closeLogin();
+        }, 1000);
+    };
+});
 
-        this.getFromLanguage=function()
+module.controller('TranslateCtrl', function ($scope, UI, TranslateService) {
+    var translateCtrl = this;
+    this.options = {};
+    this.languages = {};
+    this.languages.items = [{"value": "ca", "name": "Catalan"}, {"value": "es", "name": "Spanish"}, {
+        "value": "en",
+        "name": "English"
+    }];
+    this.languages.selectedFrom = 'es';
+    this.languages.selectedTo = 'en';
+    this.swappingFrom=false;
+    this.swappingTo=false;
+
+    this.swapLanguages = function () {
+        this.swappingFrom =  this.swappingTo = true;
+
+        var selectedFrom = this.languages.selectedFrom;
+        var selectedTo = this.languages.selectedTo;
+
+        $("#btnSwap").transition({rotate: '+=180deg'}, 1000, 'in');
+
+        $('#fromLang').children('b').fadeOut(500, function () {
+            translateCtrl.languages.selectedFrom = selectedTo;
+            $scope.$apply();
+            $('#fromLang').children('b').fadeIn(500);
+            translateCtrl.swappingFrom=false;
+        });
+        $('#toLang').children('b').fadeOut(500, function () {
+            translateCtrl.languages.selectedTo = selectedFrom;
+            $scope.$apply();
+            $('#toLang').children('b').fadeIn(500);
+            translateCtrl.swappingTo=false;
+        });
+
+        delete translateCtrl.translation;
+        delete translateCtrl.textToTranslate;
+
+    };
+
+    this.translate=function()
+    {
+        if(this.textToTranslate=="")
         {
-            return objectFindByKey(this.languages.items,"value", this.languages.selectedFrom)['name'];
+            UI.toast("Specify a text to translate.");
+            return;
         }
-        this.getToLanguage=function()
-        {
-            return objectFindByKey(this.languages.items,"value", this.languages.selectedTo)['name'];
-        }
-        this.swapLanguages=function()
-        {
-            var aux=this.languages.selectedFrom;
-            this.languages.selectedFrom=this.languages.selectedTo;
-            this.languages.selectedTo=aux;
+        var $inputs = $("#translateForm").find("input, select, button, textarea");
+        $inputs.prop("disabled", true);
 
-            angular.element(document.getElementById("btnSwap")).toggleClass("image_rotator");
-        };
+        translateCtrl.translation={};
+        translateCtrl.translation.error=null;
+        translateCtrl.translation.translating=true;
 
-    })
+        TranslateService.translate(this.languages.selectedFrom,this.languages.selectedTo,this.textToTranslate)
+            .then(
+            function (data) //success
+            {
+                $("#translatedSamples").html("");
+                $("#translatedSamples").hide();
 
-    .controller('TranslationsCtrl', function ($scope, Translations) {
-        this.translations = Translations.query();
-    })
+                translateCtrl.translation=data;
+                if(data.def && data.def.length > 0) //no error
+                {
+                    //return TranslateService.getTranslationSamples(translateCtrl.def.id);
+                }
+            },
+            function(data, status, header, config) //error
+            {
+                translateCtrl.translation.translating=false;
+                translateCtrl.translation.error= status || "Unknown Error";
 
-    .controller('TranslationCtrl', function ($scope, $stateParams, Translations) {
-        this.translation = Translations.get({translationId: $stateParams.translationId});
+                // log the error to the console
+                console.log("The following error occured: "+status);
+            })
+            .then(function (data) //translations samples success
+            {
+                if(data)
+                {
+                    translateCtrl.def.samples=data.data;
+                    $("#translatedSamples").show();
+                }
+            }
+        )
+            .finally(function ()	//finally
+            {
+                $inputs.prop("disabled", false);
+            });
+    };
+
+    $scope.$watch('translateCtrl.languages.selectedFrom',function(newValue, oldValue) {
+       if(!translateCtrl.swappingFrom && newValue!=oldValue && newValue==translateCtrl.languages.selectedTo)
+       {
+           UI.toast("From and to languages must be distinct",2000);
+           translateCtrl.languages.selectedFrom=oldValue;
+       }
     });
+    $scope.$watch('translateCtrl.languages.selectedTo',function(newValue, oldValue) {
+        if(!translateCtrl.swappingTo && newValue!=oldValue &&newValue==translateCtrl.languages.selectedFrom)
+        {
+            UI.toast("From and to languages must be distinct",2000);
+            translateCtrl.languages.selectedTo=oldValue;
+        }
+    });
+});
+
+module.controller('TranslationsCtrl', function ($scope, Translations) {
+    this.translations = Translations.query();
+});
+
+module.controller('TranslationCtrl', function ($scope, $stateParams, Translations) {
+    this.translation = Translations.get({translationId: $stateParams.translationId});
+});

@@ -7,7 +7,7 @@
         "type": "git",
         "url": "https://github.com/gerardcarbo/memslate"
     },
-    "author": "Christophe Coenraets",
+    "author": "Gerard Carbo",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/gerardcarbo/memslate/issues"
@@ -21,7 +21,11 @@
         "bookshelf": "^0.7.7",
         "knex": "^0.6.22",
         "node-uuid": "^1.4.1",
-        "pg": "^3.4.4"
+        "pg": "^3.4.4",
+        "validator": "~3.5.0",
+        "cors": "~2.5.3",
+        "when": "~3.7.2",
+        "lodash": "~3.6.0"
     },
     "devDependencies": {
       "gulp": "^3.5.6",
@@ -32,9 +36,10 @@
       "gulp-util": "^2.2.14",
       "gulp-nodemon":"^1.0.0",
       "gulp-jshint":"^1.9.0",
-      "gulp-shell":"^0.4.0"
+      "gulp-shell":"^0.4.0",
+      "debug": "~2.1.1"
     },
     "scripts": {
-        "start": "node server.js"
+        "start": "node bin/www.js"
     }
 }

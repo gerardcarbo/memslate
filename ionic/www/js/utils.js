@@ -9,3 +9,16 @@ function objectFindByKey(array, key, value) {
     }
     return null;
 }
+
+function decoratePromise(promise)
+{
+    //define success and error methods for the promise
+    promise.success = function(fn) {
+        promise.then(fn);
+        return promise;
+    };
+    promise.error = function(fn) {
+        promise.then(null, fn);
+        return promise;
+    };
+};

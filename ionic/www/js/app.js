@@ -1,6 +1,9 @@
 "use strict";
 
-angular.module('memslate', ['ionic', 'memslate.controllers','memslate.directives'])
+angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services', 'memslate.directives'])
+    /*.config(['$sceDelegateProvider', function($sceDelegateProvider) {
+        $sceDelegateProvider.resourceUrlWhitelist(['self', '.*']);
+    }])*/
 
     .run(function ($ionicPlatform) {
         $ionicPlatform.ready(function () {
@@ -16,7 +19,7 @@ angular.module('memslate', ['ionic', 'memslate.controllers','memslate.directives
         });
     })
 
-    .config(function ($stateProvider, $urlRouterProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         $stateProvider
 
             .state('app', {
@@ -58,4 +61,7 @@ angular.module('memslate', ['ionic', 'memslate.controllers','memslate.directives
 
         // if none of the above states are matched, use this as the fallback
         $urlRouterProvider.otherwise('/app/translate');
+
+        // Register middleware to ensure our auth token is passed to the server
+        $httpProvider.interceptors.push('TokenInterceptor');
     });
