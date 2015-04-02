@@ -18,12 +18,14 @@ var express         = require('express'),
 
 app = express();
 
+app.disable('etag');        //disable cache
+
 app.set('port', process.env.PORT || 5000);
 app.set('bookshelf',bookshelf);
 app.set('models',models);
 
-app.use(bodyParser());          // pull information from html in POST
-app.use(methodOverride());      // simulate DELETE and PUT
+app.use(bodyParser());      // pull information from html in POST
+app.use(methodOverride());  // simulate DELETE and PUT
 
 // Logging
 log = {

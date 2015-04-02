@@ -39,28 +39,18 @@ angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services'
                 }
             })
 
-            .state('app.translations', {
-                url: "/translations",
+            .state('app.memo', {
+                url: "/memo",
                 views: {
                     'menuContent': {
-                        templateUrl: "templates/translations.html",
-                        controller: 'TranslationsCtrl as translationsCtrl'
-                    }
-                }
-            })
-
-            .state('app.translation', {
-                url: "/translations/:translationId",
-                views: {
-                    'menuContent': {
-                        templateUrl: "templates/translation.html",
-                        controller: 'TranslationCtrl as translationCtrl'
+                        templateUrl: "templates/memo.html",
+                        controller: 'MemoCtrl as memoCtrl'
                     }
                 }
             });
 
         // if none of the above states are matched, use this as the fallback
-        $urlRouterProvider.otherwise('/app/translate');
+        $urlRouterProvider.otherwise('/app/memo');
 
         // Register middleware to ensure our auth token is passed to the server
         $httpProvider.interceptors.push('TokenInterceptor');

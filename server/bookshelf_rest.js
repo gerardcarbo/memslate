@@ -4,7 +4,7 @@ module.exports = function (model, resource, options) {
     options = options || {};
 
     var router = express.Router();
-    router.get('/' + resource, function (req, res, next) {
+    router.get('/' + resource, options.getAll || function (req, res, next) {
         var select = '*';
         if (req.query.select) {
             select = req.query.select;
@@ -17,7 +17,7 @@ module.exports = function (model, resource, options) {
         });
     });
 
-    router.get('/' + resource + "/:pkid", function (req, res, next) {
+    router.get('/' + resource + "/:pkid", options.get || function (req, res, next) {
         var pkid = req.params.pkid;
         new model({
             id: pkid
@@ -43,20 +43,21 @@ module.exports = function (model, resource, options) {
                 var p=save_item(item, res)
 
                 p.then(function(itemSaved){
-                    if(itemSaved)
-                    {
-                        options.post_save(req,res,itemSaved);
-                    }
                     if(options.post_save) {
-                        options.post_save(req,res);
+                        if(itemSaved)
+                        {
+                            options.post_save(req,res,itemSaved);
+                        }
+                        else
+                        {
+                            options.post_save(req,res);
+                        }
                     }
                 });
             });
         } else {
             save_item(req.body, res);
         }
-
-
     });
 
     return router;

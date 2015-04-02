@@ -1,12 +1,23 @@
+.no-padding
+{
+    padding:0px;
+}
+
+.smaller-font
+{
+    font-size: smaller;
+}
 
 .btn .caret {
     margin-left: 0;
 }
+
 .caret_left {
     float: right;
     margin-top: 8px;
     margin-right: 8px;
 }
+
 .caret {
     display: inline-block;
     width: 0;
@@ -66,4 +77,18 @@
 .ng-leave {
     opacity: 1;
 
+}
+
+.list .item.item-accordion {
+    line-height: 38px;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition: 0.09s all linear;
+}
+.list .item.item-accordion.ng-hide {
+    line-height: 0px;
+}
+.list .item.item-accordion.ng-hide-add,
+.list .item.item-accordion.ng-hide-remove {
+    display: block !important;
 }

@@ -39,12 +39,12 @@ module.service('YandexTranslateService',function($http, $q, TranslationRes){
                     translation.rawResult=data;
                     translation.transcription=data.def[0].ts;
 
-                    deferred.resolve(translation);
-
                     var translationRes=new TranslationRes(translation);
                     translationRes.$save(function(){
                         console.log('Translation Saved: id:'+translationRes.id);
                         translation.id=translationRes.id;
+
+                        deferred.resolve(translation);
                     });
                 }
                 else
@@ -64,7 +64,14 @@ module.service('YandexTranslateService',function($http, $q, TranslationRes){
                                 translation.provider='yt';
                                 translation.mainResult=data.text[0];
                                 translation.rawResult=data;
-                                deferred.resolve(translation);
+
+                                var translationRes=new TranslationRes(translation);
+                                translationRes.$save(function(){
+                                    console.log('Translation Saved: id:'+translationRes.id);
+                                    translation.id=translationRes.id;
+
+                                    deferred.resolve(translation);
+                                });
                             }
                             else
                             {
@@ -79,6 +86,11 @@ module.service('YandexTranslateService',function($http, $q, TranslationRes){
 
         return promise;
     };
+
+    this.getTranslations =  function(options,onSuccess,onError)
+    {
+        return TranslationRes.query(options,onSuccess,onError);
+    }
 });
 
 module.factory('TranslateService', function($injector,TranslationsProvider) {
