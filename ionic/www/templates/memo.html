@@ -1,7 +1,7 @@
 <ion-view view-title="Memo">
     <ion-content>
         <ion-list>
-            <div ng-repeat="translation in memoCtrl.translations">
+            <div ng-repeat="translation in memoCtrl.translations" id="memo_translation_div_{{translation.id}}">
                 <div class="item item-stable"
                           ng-click="memoCtrl.toggleTranslation(translation)"
                           ng-class="{active: memoCtrl.isTranslationShown(translation)}">

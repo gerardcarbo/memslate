@@ -59,7 +59,7 @@ module.service('YandexTranslateService',function($http, $q, TranslationRes){
                             }
                         }
                     ).success(function(data, status) {
-                            if(data.text && data.text.length>0)
+                            if(data.text && data.text.length>0 && data.text[0]!=translation.translate)
                             {
                                 translation.provider='yt';
                                 translation.mainResult=data.text[0];
@@ -87,21 +87,57 @@ module.service('YandexTranslateService',function($http, $q, TranslationRes){
         return promise;
     };
 
+
+});
+
+module.factory('TranslateService', function($injector, TranslationRes, TranslationSampleRes, TranslationsProvider)
+{
+    //own methods
     this.getTranslations =  function(options,onSuccess,onError)
     {
         return TranslationRes.query(options,onSuccess,onError);
-    }
-});
+    };
 
-module.factory('TranslateService', function($injector,TranslationsProvider) {
+    this.deleteTranslation = function(id)
+    {
+        return new TranslationRes({id:id}).$delete();
+    }
+
+    this.addTranslationSample = function(translationId,sample)
+    {
+        var translationSample=new TranslationSampleRes();
+        translationSample.translationId=translationId;
+        translationSample.sample=sample;
+        return translationSample.$save();
+    };
+
+    this.getTranslationSamples = function(translationId,onSuccess,onError)
+    {
+        return TranslationSampleRes.query({translationId:translationId},onSuccess,onError);
+    };
+
+    this.deleteTranslationSample = function(translationSampleId)
+    {
+        return TranslationSampleRes.delete({id:translationSampleId});
+    };
+
+    //configurable translations provider
     if(TranslationsProvider=='yandex')
-        return $injector.get('YandexTranslateService');
+    {
+        var yandexTranslate = $injector.get('YandexTranslateService');
+        return angular.extend(yandexTranslate,this);
+    }
     else
         return null;
 });
 
 module.factory('TranslationRes', function ($resource) {
-    return $resource('http://localhost:5000/resources/translations/:translationId');
+    return $resource('http://localhost:5000/resources/translations/:id',{id:'@id'});
+});
+
+module.factory('TranslationSampleRes', function ($resource) {
+    return $resource('http://localhost:5000/resources/translations/:translationId/samples/:id',
+                    {translationId:'@translationId',id:'@id'});
 });
 
 /**
@@ -134,7 +170,7 @@ module.service('UI', function($window, $ionicLoading) {
     };
 });
 
-module.service("ModalDialogService",['$ionicPopup','$q',function($modal,$q){
+module.service("ModalDialogService",['$ionicPopup','$q',function($ionicPopup,$q){
     this.showYesNoModal=function(title,msg)
     {
         var deferred = $q.defer();

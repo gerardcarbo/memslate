@@ -45,10 +45,10 @@ var Schema = {
             id: {type: 'increments', nullable: false, primary: true},
             userId: {type: 'integer', nullable: false, unsigned: true},
             translationId: {type: 'integer', nullable: false, unsigned: true},
-            userSample: {type: 'string', nullable: false }
+            sample: {type: 'string', nullable: false }
         },
         constrains: {
-            uniques: [['userId', 'translationId', 'userSample']]
+            uniques: [['userId', 'translationId', 'sample']]
         }
     }
 };

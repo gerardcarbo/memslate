@@ -83,19 +83,12 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService) {
             .then(
             function (data) //success
             {
-                $("#translatedSamples").html("");
-                $("#translatedSamples").hide();
-
                 translateCtrl.translation = data;
-                if (data.def && data.def.length > 0) //no error
-                {
-                    //return TranslateService.getTranslationSamples(translateCtrl.def.id);
-                }
             },
             function (data, status, header, config) //error
             {
                 translateCtrl.translation.translating = false;
-                translateCtrl.translation.error = status || "Unknown Error";
+                translateCtrl.translation.error = data || "Unknown Error";
 
                 // log the error to the console
                 console.log("The following error occured: " + status);
@@ -108,10 +101,10 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService) {
                 }
             }
         )
-            .finally(function ()	//finally
-            {
-                $inputs.prop("disabled", false);
-            });
+        .finally(function ()	//finally
+        {
+            $inputs.prop("disabled", false);
+        });
     };
 
     $scope.$watch('translateCtrl.languages.selectedFrom', function (newValue, oldValue) {
@@ -125,6 +118,12 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService) {
             UI.toast("From and to languages must be distinct", 2000);
             translateCtrl.languages.selectedTo = oldValue;
         }
+    });
+
+    $scope.$on('ms:translationDeleted',function(event, data)
+    {
+        translateCtrl.textToTranslate="";
+        event.stopPropagation();
     });
 });
 
@@ -146,7 +145,13 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
             {limit: self.limit, offset: self.offset},
             function (translations) {
                 var newTranslations = translations.map(function (item) {
-                    item.rawResult = JSON.parse(item.rawResult);
+                    try
+                    {
+                        item.rawResult = JSON.parse(item.rawResult);
+                    }
+                    catch(e){
+                        console.log('exc parsing rawResult:'+item.rawResult);
+                    }
                     item.insertTime = new Date(item.insertTime);
                     return item;
                 });
@@ -177,9 +182,17 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
             self.shownTranslation = translation;
         }
     };
+
     self.isTranslationShown = function (translation) {
         return self.shownTranslation === translation;
     };
+
+    $scope.$on('ms:translationDeleted',function(event, data)
+    {
+        console.log('translationDeleted:'+data);
+        angular.element("#memo_translation_div_"+data).remove();
+        event.stopPropagation();
+    });
 
 });
 

@@ -1,3 +1,8 @@
+.width-100
+{
+    width:100%;
+}
+
 .no-padding
 {
     padding:0px;
@@ -6,6 +11,11 @@
 .smaller-font
 {
     font-size: smaller;
+}
+
+.padding-bottom-min
+{
+    padding-bottom: 1px;
 }
 
 .btn .caret {
@@ -56,6 +66,9 @@
     color: rgb(131, 38, 38);
 }
 
+/**
+* hide/show data with fades
+*/
 .ng-enter,
 .ng-leave
 {
@@ -79,6 +92,9 @@
 
 }
 
+/**
+ * Accordion in memo
+ */
 .list .item.item-accordion {
     line-height: 38px;
     padding-top: 0;
@@ -91,4 +107,78 @@
 .list .item.item-accordion.ng-hide-add,
 .list .item.item-accordion.ng-hide-remove {
     display: block !important;
+}
+
+/**
+* translations style
+*/
+.translationSamples
+{
+    padding: 10px;
+}
+
+.translation_def
+{
+    margin-bottom:15px;
+}
+
+.response_main
+{
+    font-weight: bold;
+}
+
+.response_transcript
+{
+    color: #419641;
+}
+
+.response_type
+{
+    color: #696969;
+}
+
+.response_def
+{
+    color: #3276b1;
+}
+
+.response_mean
+{
+    color: #eb9316;
+}
+
+.powered_by
+{
+    margin-top:3px;
+    text-align: center;
+    width:100%;
+    padding-right: 5px;
+}
+
+.translate  .scroll{
+    width: 100%;
+    height: 100% !important;
+    display: flex;
+    flex-flow: column;
+}
+
+.translation_area
+{
+    background-color: rgb(244, 244, 244);
+    overflow: auto;
+    box-sizing: border-box;
+    margin: 3px auto !important;
+    padding: 10px !important;
+}
+
+.no_align_top
+{
+    vertical-align: baseline;
+}
+
+
+.rest_of_height
+{
+    flex: 1 ;
+
 }

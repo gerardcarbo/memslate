@@ -1,5 +1,5 @@
 <div ng-if="translation==null">
-	<span class="text-muted">Translated text area...</span>
+    <span class="text-muted">Translated text area...</span>
 </div>
 <div ng-if="translation.translating==true">
     <span class="text-muted">Searching ...</span>
@@ -11,45 +11,65 @@
 
     <div id="translationYt" ng-show="translation.provider=='yt'" class="translation_def">
         <span class='response_main'>{{translation.translate}}</span>
+
         <p>
-			<span class='response_main' ng-repeat="text in translation.rawResult.text">{{text}}<span ng-show="!$last">, </span></span>
-		</p>
-	</div>
-	
-	<div id="translationYd" ng-show="translation.provider == 'yd'" ng-repeat="def in translation.rawResult.def" class="translation_def">
-		<p>
-			<span class='response_main'>{{def.text}}</span>
-			<span class='response_transcript' ng-show="def.ts"> [{{def.ts}}] </span>
-			&gt; <span class='response_main'>{{def.tr[0].text}}</span>
-		</p>
-		<p ng-repeat="tr in def.tr">
-			<span class='response_type'>{{tr.pos}}:</span> 
+            <span class='response_main' ng-repeat="text in translation.rawResult.text">{{text}}
+                <span ng-show="!$last">, </span>
+            </span>
+        </p>
+    </div>
+
+    <div id="translationYd" ng-show="translation.provider == 'yd'"
+         ng-repeat="def in translation.rawResult.def"
+         class="translation_def">
+        <p>
+            <b>
+                <span class='response_main'>{{def.text}}</span>
+                <span class='response_transcript' ng-show="def.ts"> [{{def.ts}}] </span>
+                &gt; <span class='response_main'>{{def.tr[0].text}}</span>
+            </b>
+        </p>
+
+        <p ng-repeat="tr in def.tr">
+            <span class='response_type'>{{tr.pos}}:</span>
 			<span class='response_def'>{{tr.text}}<span ng-repeat="syn in tr.syn">, {{syn.text}}</span>
 			</span>
-			<span class='response_mean' ng-show="tr.mean[0].text">({{tr.mean[0].text}})</span>
-		</p>
-	</div>
-	
-	<div id="translationSamples" ng-show="translation.samples.length>0"><p><b>samples &gt;</b><p>
-		<p ng-repeat="sample in translation.samples">
-			<span style="min-width:120px;display: inline-block;">{{sample.user_sample}}&nbsp;&nbsp;</span>
-			<button id="del_sample_{{sample.id}}" ng-click="msTranslationCtrl.deleteTranslationSample($index,sample.id);" class="btn btn-warning">Delete Sample</button>
-		</p>
-	</div>
-	
-	<div class="containter" ng-show="translation">
-		<ul class="row">
-			<li class="col item item-input">
-				<input ng-model="msTranslationCtrl.translationSample" type="text" id="sampleValue" 
-					placeholder="Add a translation sample with '{{translation.translate}}'..." class="form-control" required />
-                <button id="btnAddSample" ng-click="msTranslationCtrl.saveTranslationSample();" class="btn btn-success">Add Sample</button>
-			</li>
-			<li class="col">
-			</li>
-		</ul>
-	</div>
-	
-	<div ng-if="translation.data!=undefined && msTranslationCtrl.getUser().canDelete" style="padding-left: 5px;">
-		<a class="button" id="btnDelTranslation" ng-click="msTranslationCtrl.deleteTranslation(translation.id);" class="btn btn-danger">Delete Translation</a>
-	</div>
+            <span class='response_mean' ng-show="tr.mean[0].text">({{tr.mean[0].text}})</span>
+        </p>
+    </div>
+
+    <div class="translationSamples">
+        <div ng-show="translation.samples.length>0">
+            <p>
+                <b>samples &gt;</b>
+            </p>
+            <div class="padding-bottom-min" ng-repeat="sample in translation.samples">
+                <span style="min-width:50%;display: inline-block;padding:2px">{{sample.sample}}</span>
+                <button class="button button-ligh no_align_top" id="del_sample_{{sample.id}}"
+                        ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);"
+                        class="btn btn-warning">
+                    Delete Sample
+                </button>
+            </div>
+        </div>
+        <div ng-show="translation">
+            <div class="row">
+                <form class="width-100" ng-submit="msTranslationCtrl.saveTranslationSample();">
+                    <div class="col item item-input">
+                        <input ng-model="msTranslationCtrl.translationSample" type="text" id="sampleValue"
+                               placeholder="Add sample with '{{translation.translate}}'..." class="form-control"
+                               required/>
+                        <button class="button button-stable btn-success">
+                            Add Sample
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="translation!=undefined" style="padding-left: 5px;">
+        <a class="button" id="btnDelTranslation" ng-click="msTranslationCtrl.deleteTranslation(translation.id);"
+           class="btn btn-danger">Delete Translation</a>
+    </div>
 </div>

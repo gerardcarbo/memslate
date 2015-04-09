@@ -57,6 +57,7 @@ app.use('/login', auth.login);
 app.all('/resources/*', auth.authenticate);
 
 app.use('/resources', routes.translations);
+app.use('/resources', routes.translationsSamples);
 
 app.listen(app.get('port'), function () {
     log.debug('Express server listening on port ' + app.get('port'));
