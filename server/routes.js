@@ -23,6 +23,7 @@ module.exports = function (models) {
                     log.debug('translation found for:' + req.translation.translate);
                     req.translation.id = model.get("id");
                     res.status(200).send(req.translation);
+                    saveUserTranslation(req, res, req.translation)
                 }
                 else {
                     saveTranslation(req.translation);

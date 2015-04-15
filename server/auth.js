@@ -21,7 +21,7 @@ module.exports = function (models) {
     }
 
     function clean_user(user) {
-        delete user['crypted_password'];
+        delete user['cryptedPassword'];
         return user;
     }
 
@@ -43,7 +43,7 @@ module.exports = function (models) {
             email: user.email
         }).fetch().then(function (model) {
                 if (model) {
-                    return next(Error("That email is already registered"));
+                    return res.status(500).send("That email is already registered");
                 } else {
                     var hash = utils.encryptPassword(user.password);
 
@@ -76,7 +76,7 @@ module.exports = function (models) {
 
                 console.log("Compare user ", user, " to model ", model.attributes);
 
-                comparePassword(user.password, model.get("crypted_password"), function (err, match) {
+                comparePassword(user.password, model.get("cryptedPassword"), function (err, match) {
                     if (err) {
                         console.log(err);
                         return res.status(401).send("Invalid Credentials");

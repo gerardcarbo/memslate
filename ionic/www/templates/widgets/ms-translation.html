@@ -7,16 +7,16 @@
 <div ng-if="translation.error">
     <span class="text-error">Error while translating: {{translation.error}}</span>
 </div>
-<div id="translationDiv" ng-if="!translation.error && !translation.translating">
+<div class="translation_div" ng-if="!translation.error && !translation.translating">
 
     <div id="translationYt" ng-show="translation.provider=='yt'" class="translation_def">
         <span class='response_main'>{{translation.translate}}</span>
-
-        <p>
+        &nbsp;>&nbsp;
+        <span>
             <span class='response_main' ng-repeat="text in translation.rawResult.text">{{text}}
                 <span ng-show="!$last">, </span>
             </span>
-        </p>
+        </span>
     </div>
 
     <div id="translationYd" ng-show="translation.provider == 'yd'"

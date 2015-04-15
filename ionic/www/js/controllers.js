@@ -2,33 +2,134 @@
 
 var module = angular.module('memslate.controllers', ['memslate.services', 'ionic']);
 
-module.controller('AppCtrl', function ($scope, $timeout) {
+module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopup, RegistrationService, UserService)
+{
     // Form data for the login modal
     $scope.loginData = {};
+    $scope.registerData = {};
+
+      // Create the login modal that we will use later
+    $ionicModal.fromTemplateUrl('templates/login.html', {
+        scope: $scope
+    }).then(function(modal) {
+        $scope.loginModal = modal;
+    });
+
+    // Create the register modal
+    $ionicModal.fromTemplateUrl('templates/register.html', {
+        scope: $scope
+    }).then(function(modal) {
+        $scope.registerModal = modal;
+    });
 
     // Triggered in the login modal to close it
-    $scope.closeLogin = function () {
-        $scope.modal.hide();
+    $scope.closeLogin = function() {
+        $scope.loginModal.hide();
+    };
+
+    $scope.closeRegisterLogin = function() {
+        $scope.registerModal.hide();
     };
 
     // Open the login modal
-    $scope.login = function () {
-        $scope.modal.show();
+    $scope.login = function() {
+        $scope.loginModal.show();
     };
+
+    $scope.register = function() {
+        $scope.registerModal.show();
+    };
+
+    $scope.openRegister = function() {
+        $scope.loginModal.hide().then(function(){
+            $scope.register();
+        });
+    };
+
+    $scope.openLogin = function() {
+        $scope.registerModal.hide().then(function(){
+            $scope.login();
+        });
+    };
+
+    $scope.userLoggedin = function()
+    {
+        return UserService.isAuthenticated();
+    }
 
     // Perform the login action when the user submits the login form
-    $scope.doLogin = function () {
+    $scope.doLogin = function(loginForm) {
+        if (!loginForm.$valid) return false;
         console.log('Doing login', $scope.loginData);
-
-        // Simulate a login delay. Remove this and replace with your login
-        // code if using a login system
-        $timeout(function () {
-            $scope.closeLogin();
-        }, 1000);
+        RegistrationService.login($scope.loginData.email, $scope.loginData.password).then(function(login){
+            if(login.done) {
+                $scope.loginModal.hide();
+                console.log('Login done!')
+            }
+            else
+            {
+                $ionicPopup.alert({
+                    title: 'Login Failed',
+                    content: login.err.data
+                });
+            }
+        })
     };
+
+    $scope.doLogout = function() {
+        RegistrationService.logout();
+    };
+
+    $scope.isAuthenticated = function() {
+        return UserService.isAuthenticated();
+    }
+
+    $scope.userName = function(){
+        return UserService.name();
+    };
+
+    $scope.doRegister =  function(registerForm) {
+        if (!registerForm.$valid) return false;
+        console.log('Doing register', $scope.registerData);
+        if($scope.registerData.password!=$scope.registerData.password2)
+        {
+            $ionicPopup.alert({
+                title: 'Registration Failed',
+                content: 'Passwords does not match.'
+            });
+            return;
+        }
+        RegistrationService.register($scope.registerData).then(function(register) {
+            if(register.done)
+            {
+                $scope.registerModal.hide();
+                console.log('register done!')
+            }
+            else
+            {
+                $ionicPopup.alert({
+                    title: 'Registration Failed',
+                    content: register.err.data
+                });
+            }
+        });
+    }
+
+    //Cleanup the modal when we're done with it!
+    $scope.$on('$destroy', function() {
+        $scope.loginModal.remove();
+        $scope.registerModal.remove();
+    });
+
+    // Execute action on hide modal
+    $scope.$on('loginModal.hidden', function() {
+    });
+    $scope.$on('registerModal.hidden', function() {
+    });
 });
 
-module.controller('TranslateCtrl', function ($scope, UI, TranslateService) {
+module.controller('TranslateCtrl', function ($scope, UI, TranslateService)
+{
     var translateCtrl = this;
     this.options = {};
     this.languages = {};
@@ -107,6 +208,11 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService) {
         });
     };
 
+    this.reset=function(){
+        translateCtrl.textToTranslate=undefined;
+        translateCtrl.translation=undefined;
+    };
+
     $scope.$watch('translateCtrl.languages.selectedFrom', function (newValue, oldValue) {
         if (!translateCtrl.swappingFrom && newValue != oldValue && newValue == translateCtrl.languages.selectedTo) {
             UI.toast("From and to languages must be distinct", 2000);
@@ -122,8 +228,17 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService) {
 
     $scope.$on('ms:translationDeleted',function(event, data)
     {
-        translateCtrl.textToTranslate="";
-        event.stopPropagation();
+        translateCtrl.reset();
+    });
+
+    $scope.$on('ms:login', function(event, data)
+    {
+        translateCtrl.reset();
+    });
+
+    $scope.$on('ms:logout', function(event, data)
+    {
+        translateCtrl.reset();
     });
 });
 
@@ -196,6 +311,6 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
 
 });
 
-module.controller('TranslationCtrl', function ($scope, $stateParams, Translations) {
-    this.translation = Translations.get({translationId: $stateParams.translationId});
+module.controller('UserCtrl', function ($scope, UserService) {
+    this.User=UserService;
 });

@@ -162,6 +162,11 @@
     flex-flow: column;
 }
 
+.translation_div
+{
+    margin: 5px;
+}
+
 .translation_area
 {
     background-color: rgb(244, 244, 244);
@@ -176,9 +181,7 @@
     vertical-align: baseline;
 }
 
-
 .rest_of_height
 {
     flex: 1 ;
-
 }

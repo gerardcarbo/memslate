@@ -7,6 +7,11 @@
             <ion-nav-buttons side="left">
                 <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
                 </button>
+
+            </ion-nav-buttons>
+            <ion-nav-buttons side="right" >
+                <button class="button button-icon button-clear ion-person" ui-sref="app.user" ng-show="userLoggedin()">
+                </button>
             </ion-nav-buttons>
         </ion-nav-bar>
         <ion-nav-view name="menuContent"></ion-nav-view>
@@ -18,8 +23,11 @@
         </ion-header-bar>
         <ion-content>
             <ion-list>
-                <ion-item nav-clear menu-close ng-click="login()">
+                <ion-item nav-clear menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
                     Login
+                </ion-item>
+                <ion-item nav-clear menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
+                    Logout {{userName()}}
                 </ion-item>
                 <ion-item nav-clear menu-close ui-sref="app.translate">
                     Translate
