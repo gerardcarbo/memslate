@@ -1,0 +1,9 @@
+#CORDOVA
+
+npm update -g cordoba
+
+ionic platform android -> adds android
+
+ionic browser add crosswalk -> chromium browser replacement for webkit
+
+cordova plugin add https://github.com/apache/cordova-plugin-whitelist.git -> allows $http calls

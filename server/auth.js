@@ -22,6 +22,8 @@ module.exports = function (models) {
 
     function clean_user(user) {
         delete user['cryptedPassword'];
+        delete user['password'];
+        delete user['password2'];
         return user;
     }
 
@@ -49,6 +51,7 @@ module.exports = function (models) {
 
                     user.token = uuid.v4();
                     user.cryptedPassword = hash;
+                    user.isAdmin = false;
 
                     delete user['password'];
                     delete user['password2'];
@@ -57,6 +60,7 @@ module.exports = function (models) {
                         if (register_callback) {
                             register_callback(model);
                         }
+                        console.log("Registered: ", model.attributes);
                         res.json(clean_user(model.attributes));
 
                     }).catch(next);

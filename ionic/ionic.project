@@ -1,4 +1,11 @@
 {
   "name": "memslate",
-  "app_id": ""
+  "app_id": "2a36b748",
+  "browsers": [
+    {
+      "platform": "android",
+      "browser": "crosswalk",
+      "version": "12.41.296.5"
+    }
+  ]
 }

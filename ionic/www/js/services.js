@@ -13,7 +13,8 @@ module.config(function ($httpProvider) {
 });
 
 module.constant('TranslationsProvider', 'yandex');
-module.constant('BaseUrl', 'http://localhost:5000/');
+//module.constant('BaseUrl', 'http://localhost:5000/');
+module.constant('BaseUrl', 'https://memslate.herokuapp.com/');
 
 /**
  * Translation services
@@ -222,6 +223,7 @@ module.factory('TranslateService', function ($injector, TranslationRes, Translat
 });
 
 module.factory('TranslationRes', function ($resource, BaseUrl) {
+    console.log("BaseUrl: "+BaseUrl);
     return $resource(BaseUrl + 'resources/translations/:id', {id: '@id'});
 });
 
@@ -419,12 +421,7 @@ module.factory('RegistrationService', function ($window, $http, $ionicPopup, $ro
 
         register: function (user) {
             return $http.post(BaseUrl + 'register', user).then(function (result) {
-                $rootScope.user = result.data;
-
-                UserService.isAuthenticated(true);
-                UserService.isAdmin(result.data.isAdmin);
-                UserService.name(result.data.name);
-                UserService.token(result.data.token);
+                UserService.login(result.data);
 
                 $rootScope.$broadcast('ms:register');
                 $rootScope.$broadcast('ms:login');
