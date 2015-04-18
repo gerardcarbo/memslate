@@ -2,10 +2,14 @@
  * Created by gerard on 01/04/2015.
  */
 var restful = require('./bookshelf_rest');
-var log     = require('./config');
+var config  = require('./config');
 var _       = require('lodash');
+var locale  = require('locale');
 
-module.exports = function (models) {
+var log=config;
+
+module.exports = function (models)
+{
     /**
      * Translations routes
      */
@@ -23,25 +27,61 @@ module.exports = function (models) {
                     log.debug('translation found for:' + req.translation.translate);
                     req.translation.id = model.get("id");
                     res.status(200).send(req.translation);
-                    saveUserTranslation(req, res, req.translation)
+                    saveUserTranslation(req, res, req.translation);
                 }
                 else {
                     saveTranslation(req.translation);
                 }
             });
+
+        addToUserLanguages(req);
     }
 
-    function saveUserTranslation(req, res, translation) {
-        if (translation) {
+    function saveUserTranslation(req, res, translation)
+    {
+        if (translation)
+        {
             log.debug('saveUserTranslation: translationId:' + translation.id);
 
             var userTranslation = {};
             userTranslation.translationId = translation.id;
             userTranslation.userId = req.user.id;
 
-            models.UserTranslations.forge(userTranslation).save().then(function (item) {
-                log.debug('saveUserTranslation: saved Id:' + item.id);
-            })
+            models.UserTranslations.forge(userTranslation).fetch().then(function(model) {
+                if (!model) {
+                    models.UserTranslations.forge(userTranslation).save().then(function (item) {
+                        log.debug('saveUserTranslation: saved Id:' + item.id);
+                    });
+                }
+            });
+        }
+    }
+
+    function addToUserLanguages(req)
+    {
+        var translation=req.translation;
+
+        if(req.user.id != config.ANONIMOUS_USER_ID)
+        {
+            new models.UserLanguages({userId:req.user.id}).fetch().then(function(ulModel)
+            {
+                var prefered;
+                if(ulModel)
+                {
+                    prefered=ulModel.attributes.prefered.arr; //arr is used because of a bug when storing json arrays
+                    addPrefered(prefered,[translation.fromLang,translation.toLang]);
+                    ulModel.save({fromLang:translation.fromLang,toLang:translation.toLang,prefered:{arr:prefered}});
+                }
+                else
+                {
+                    //create new one
+                    console.log('creating UserLanguages');
+                    var locales=new locale.Locales(req.headers["accept-language"]);
+                    prefered=[translation.fromLang,translation.toLang];
+                    addPrefered(prefered,[locales[0] && locales[0].language,locales[1] && locales[1].language,locales[2] && locales[2].language,locales[3] && locales[3].language]);
+                    models.UserLanguages.forge({userId:req.user.id,fromLang:translation.fromLang,toLang:translation.toLang,prefered:{arr:prefered}}).save();
+                }
+            });
         }
     }
 
@@ -131,8 +171,7 @@ module.exports = function (models) {
      * Translations Samples
      */
     var translationsSamples = restful(models.UserTranslationsSamples,
-        'translations/:translationId/samples',
-        {
+        'translations/:translationId/samples', {
             pre_save: function (req, res, doSave) {
                 //check that translation sample does not already exists
                 req.translationSample = req.body;
@@ -174,11 +213,81 @@ module.exports = function (models) {
                         res.status(500).json({error: true, data: {message: err.message}});
                     });
             }
+        }
+    );
+
+    var addPrefered = function(prefered,languages)
+    {
+        _.forEach(languages,function(language){
+            console.log('addPrefered: trying '+language);
+            if(language)
+            {
+                var pos=prefered.indexOf(language);
+                if(pos!=-1)
+                {
+                    prefered.splice(pos,1);
+                }
+                prefered.unshift(language);
+                if(prefered.length>4)
+                {
+                    prefered.pop();
+                }
+                console.log('addPrefered: done for '+language+' -> '+JSON.stringify(prefered));
+            }
+        });
+    };
+
+    var createDefaultUserLanguages=function(req)
+    {
+        var userLanguages={};
+        userLanguages.userId=req.user.id;
+        userLanguages.fromLang='en';
+        var locales=new locale.Locales(req.headers["accept-language"]);
+        userLanguages.toLang=(userLanguages.fromLang!=locales[0].language ? locales[0].language : locales[1].language);
+        userLanguages.prefered=[userLanguages.fromLang,userLanguages.toLang];
+
+        addPrefered(userLanguages.prefered,[locales[0] && locales[0].language,locales[1] && locales[1].language,locales[2] && locales[2].language,locales[3] && locales[3].language]);
+
+        return userLanguages;
+    };
+
+    var userLanguages = restful(models.UserLanguages,
+        'userLanguages',
+        {
+            getAll: function (req, res, next)
+            {
+                if(req.user.id==config.ANONIMOUS_USER_ID)
+                {
+                    var userLanguages=createDefaultUserLanguages(req);
+                    res.json(userLanguages);
+                    return;
+                }
+
+                models.UserLanguages.query({
+                    select: '*'
+                }).where({userId: req.user.id})
+                    .fetch()
+                    .then(function (userLanguages) {
+                        if (userLanguages)
+                        {
+                            userLanguages.attributes.prefered=userLanguages.attributes.prefered.arr; //arr is used because of a bug when storing json arrays
+                            res.json(userLanguages);
+                        }
+                        else {
+                            userLanguages=createDefaultUserLanguages(req);
+
+                            res.json(userLanguages);
+
+                            new  models.UserLanguages(userLanguages).save();
+                        }
+                    });
+            }
         });
 
     return {
         translations: translations,
-        translationsSamples: translationsSamples
-    }
+        translationsSamples: translationsSamples,
+        userLanguages: userLanguages
+    };
 };
 

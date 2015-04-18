@@ -6469,8 +6469,8 @@ progress {
   position: relative;
   display: inline-block;
   margin: 0;
-  padding: 0 12px;
-  min-width: 52px;
+  padding: 0 9px;
+  min-width: 43px;
   min-height: 47px;
   border-width: 1px;
   border-style: solid;
@@ -7395,6 +7395,15 @@ a.button {
   background-color: #ffc900; }
 
 .energized-border {
+  border-color: #e6b400; }
+
+.energizedMs, a.energizedMs {
+  color: #E5B500; }
+
+.energizedMs-bg {
+  background-color: #E5B500; }
+
+.energizedMs-border {
   border-color: #e6b400; }
 
 .royal, a.royal {

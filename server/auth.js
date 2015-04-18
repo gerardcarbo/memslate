@@ -21,9 +21,9 @@ module.exports = function (models) {
     }
 
     function clean_user(user) {
-        delete user['cryptedPassword'];
-        delete user['password'];
-        delete user['password2'];
+        delete user.cryptedPassword;
+        delete user.password;
+        delete user.password2;
         return user;
     }
 
@@ -53,8 +53,8 @@ module.exports = function (models) {
                     user.cryptedPassword = hash;
                     user.isAdmin = false;
 
-                    delete user['password'];
-                    delete user['password2'];
+                    delete user.password;
+                    delete user.password2;
 
                     new models.User(user).save().then(function (model) {
                         if (register_callback) {
@@ -106,7 +106,7 @@ module.exports = function (models) {
     }
 
     function authenticate(req, res, next) {
-        var token = req.headers['authorization'];
+        var token = req.headers.authorization;
         if (token) {
             token = token.split(' ')[1];
         } else {
@@ -168,5 +168,5 @@ module.exports = function (models) {
         on_register: on_register,
         authenticate: authenticate,
         clear_leaders: clear_leaders
-    }
+    };
 };

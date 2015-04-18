@@ -14,7 +14,7 @@ module.exports = function (bookshelf) {
         setAdmin: function () {
             var self = this;
             return bookshelf.knex('Users').count().then(function (result) {
-                if (result[0] && result[0].count == 0) {
+                if (result[0] && result[0].count === 0) {
                     console.log("Marking first user " + self.get("email") + " as admin");
                     self.set('isAdmin', true);
                 }
@@ -52,21 +52,26 @@ module.exports = function (bookshelf) {
     var UserTranslations = bookshelf.Model.extend({
         tableName: 'UserTranslations',
         translation: function () {
-            return this.belongsTo(Translations, "translationId")
+            return this.belongsTo(Translations, "translationId");
         }
     });
 
     var UserTranslationsSamples = bookshelf.Model.extend({
         tableName: 'UserTranslationsSamples',
         translation: function () {
-            return this.belongsTo(Translations, "translationId")
+            return this.belongsTo(Translations, "translationId");
         }
+    });
+
+    var UserLanguages =  bookshelf.Model.extend({
+        tableName: 'UserLanguages'
     });
 
     return {
         User: User,
         Translations: Translations,
         UserTranslations: UserTranslations,
-        UserTranslationsSamples: UserTranslationsSamples
-    }
+        UserTranslationsSamples: UserTranslationsSamples,
+        UserLanguages: UserLanguages
+    };
 };

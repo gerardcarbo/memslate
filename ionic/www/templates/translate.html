@@ -1,19 +1,20 @@
-<ion-view view-title="Translate" class="translate">
+<ion-view view-title="Memslate > Translate" class="translate">
     <ion-content class="has-header">
         <div class="row">
-            <ms-select id="fromLang" name="From" title="From Language" items="translateCtrl.languages.items"
-                       selected-item="translateCtrl.languages.selectedFrom"></ms-select>
+            <ms-select id="fromLang" name="From" title="From Language" items="translateCtrl.languages.items" prefered-items="translateCtrl.languages.prefered"
+                       selected-item="translateCtrl.languages.selectedFrom" style="border-right: 1px;border-top-right-radius: 0px;border-bottom-right-radius: 0px;"></ms-select>
             <a class="col col-10 button button-image" alt="Swap languages" title="Swap languages"
-               ng-click="translateCtrl.swapLanguages()"><img id="btnSwap" src="/img/swap2.png" class="image"></a>
-            <ms-select id="toLang" name="To" title="To Language" items="translateCtrl.languages.items"
-                       selected-item="translateCtrl.languages.selectedTo"></ms-select>
+               ng-click="translateCtrl.swapLanguages()" style="border-radius: 0px;border-right: 0px;border-left: 0px;"><img id="btnSwap" src="img/swap2.png" class="image"></a>
+            <ms-select id="toLang" name="To" title="To Language" items="translateCtrl.languages.items"  prefered-items="translateCtrl.languages.prefered"
+                       selected-item="translateCtrl.languages.selectedTo" style="border-left: 1px;border-top-left-radius: 0px;border-bottom-left-radius: 0px;"></ms-select>
         </div>
         <div class="row" style="margin-top:1px">
             <form id="translateForm" ng-submit="translateCtrl.translate()" class="width-100">
                 <div class="col item item-input">
-                    <i class="icon ion-search placeholder-icon" style="font-size: x-large;"></i>
-                    <input type="text" placeholder="Text to Translate" ng-model="translateCtrl.textToTranslate">
-                    <a type="submit" class="button margin-horizontal" ng-click="translateCtrl.translate()">Translate</a>
+
+                    <input type="text" class="center-text" placeholder="Text to Translate" ng-model="translateCtrl.textToTranslate">
+                    <button  type="submit" class="button icon icon-left ion-search" style="min-width: 115px;" ng-click="translateCtrl.translate()">
+                        Translate</button >
                 </div>
             </form>
         </div>

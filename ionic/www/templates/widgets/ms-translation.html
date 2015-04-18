@@ -1,5 +1,5 @@
 <div ng-if="translation==null">
-    <span class="text-muted">Translated text area...</span>
+    <span class="text-muted">...</span>
 </div>
 <div ng-if="translation.translating==true">
     <span class="text-muted">Searching ...</span>
@@ -7,7 +7,7 @@
 <div ng-if="translation.error">
     <span class="text-error">Error while translating: {{translation.error}}</span>
 </div>
-<div class="translation_div" ng-if="!translation.error && !translation.translating">
+<div class="translation_div" ng-show="translation && !translation.error && !translation.translating">
 
     <div id="translationYt" ng-show="translation.provider=='yt'" class="translation_def">
         <span class='response_main'>{{translation.translate}}</span>
@@ -39,28 +39,26 @@
     </div>
 
     <div class="translationSamples">
-        <div ng-show="translation.samples.length>0">
+        <div ng-show="translation">
             <p>
                 <b>samples &gt;</b>
             </p>
-            <div class="padding-bottom-min" ng-repeat="sample in translation.samples">
+            <div class="padding-5 padding-bottom-min" style="clear: both;" ng-repeat="sample in translation.samples">
                 <span style="min-width:50%;display: inline-block;padding:2px">{{sample.sample}}</span>
-                <button class="button button-ligh no_align_top" id="del_sample_{{sample.id}}"
+                <button class="button button-ligh icon ion-minus-round" id="del_sample_{{sample.id}}" style="float: right"
                         ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);"
                         class="btn btn-warning">
-                    Delete Sample
+                    Delete
                 </button>
             </div>
-        </div>
-        <div ng-show="translation">
             <div class="row">
                 <form class="width-100" ng-submit="msTranslationCtrl.saveTranslationSample();">
                     <div class="col item item-input">
                         <input ng-model="msTranslationCtrl.translationSample" type="text" id="sampleValue"
-                               placeholder="Add sample with '{{translation.translate}}'..." class="form-control"
+                               placeholder="... with '{{translation.translate}}'" class="form-control"
                                required/>
-                        <button class="button button-stable btn-success">
-                            Add Sample
+                        <button class="button button-stable btn-success icon ion-plus-round">
+                            Add
                         </button>
                     </div>
                 </form>
@@ -68,8 +66,8 @@
         </div>
     </div>
 
-    <div ng-if="translation!=undefined" style="padding-left: 5px;">
-        <a class="button" id="btnDelTranslation" ng-click="msTranslationCtrl.deleteTranslation(translation.id);"
-           class="btn btn-danger">Delete Translation</a>
+    <div ng-if="translation" style="padding-left: 5px;">
+        <button class="button icon ion-trash-b" id="btnDelTranslation" ng-click="msTranslationCtrl.deleteTranslation(translation.id);"
+           class="btn btn-danger">&nbsp;Delete Translation</button>
     </div>
 </div>

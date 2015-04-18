@@ -2,23 +2,20 @@
 /**
  * Created by gerard on 25/03/2015.
  */
-var express         = require('express'),
-    bodyParser      = require('body-parser'),
-    methodOverride  = require('method-override'),
-    path            = require('path'),
-    cors            = require('cors'),
-    config          = require('../server/config'),
-    knex            = require('knex')(config.knex_options),
-    bookshelf       = require('bookshelf')(knex),
-    models          = require('../server/models')(bookshelf),
-    auth            = require('../server/auth')(models),
-    routes          = require('../server/routes')(models);
+var express         = require('express');
+var bodyParser      = require('body-parser');
+var methodOverride  = require('method-override');
+var cors            = require('cors');
+var config          = require('../server/config');
+var knex            = require('knex')(config.knex_options);
+var bookshelf       = require('bookshelf')(knex);
+var models          = require('../server/models')(bookshelf);
+var auth            = require('../server/auth')(models);
+var routes          = require('../server/routes')(models);
 
-//debug           = require('debug')('memslate:server');
+var app = express();
 
-app = express();
-
-app.disable('etag');        //disable cache
+app.disable('etag');        //Disable cache!!!
 
 app.set('port', process.env.PORT || 5000);
 app.set('bookshelf',bookshelf);
@@ -58,6 +55,7 @@ app.all('/resources/*', auth.authenticate);
 
 app.use('/resources', routes.translations);
 app.use('/resources', routes.translationsSamples);
+app.use('/resources', routes.userLanguages);
 
 app.listen(app.get('port'), function () {
     log.debug('Express server listening on port ' + app.get('port'));

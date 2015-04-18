@@ -1,14 +1,14 @@
 var Schema = {
     Translations: {
         fields: {
-            id: {type: 'increments', nullable: false, primary: true},
-            fromLang: {type: 'string', maxlength: 2, nullable: false },
-            toLang: {type: 'string', maxlength: 2, nullable: false },
+            id: {type: 'increments',  primary: true},
+            fromLang: {type: 'string', maxlength: 4, nullable: false },
+            toLang: {type: 'string', maxlength: 4, nullable: false },
             translate: {type: 'string',nullable: false },
             transcription: {type: 'string', nullable: true},
             mainResult: {type: 'string', nullable: false },
             rawResult: {type: 'text', nullable: false },
-            provider: {type: 'string', maxlength: 2, nullable: false },
+            provider: {type: 'string', maxlength: 4, nullable: false },
             insertTime: {type: 'timestamp', defaultToRaw:'now()'}
         },
         constrains: {
@@ -17,7 +17,7 @@ var Schema = {
     },
     Users: {
         fields: {
-            id: {type: 'increments', nullable: false, primary: true},
+            id: {type: 'increments',  primary: true},
             name: {type:'string'},
             email: {type:'string',index:'btree'},
             cryptedPassword: {type:'string'},
@@ -32,9 +32,9 @@ var Schema = {
     },
     UserTranslations: {
         fields: {
-            id: {type: 'increments', nullable: false, primary: true},
-            userId: {type: 'integer', nullable: false, unsigned: true},
-            translationId: {type: 'integer', nullable: false, unsigned: true}
+            id: {type: 'increments',  primary: true},
+            userId: {type: 'integer',  unsigned: true},
+            translationId: {type: 'integer',  unsigned: true}
         },
         constrains: {
             uniques: [['userId', 'translationId']]
@@ -42,13 +42,25 @@ var Schema = {
     },
     UserTranslationsSamples: {
         fields: {
-            id: {type: 'increments', nullable: false, primary: true},
-            userId: {type: 'integer', nullable: false, unsigned: true},
-            translationId: {type: 'integer', nullable: false, unsigned: true},
-            sample: {type: 'string', nullable: false }
+            id: {type: 'increments',  primary: true},
+            userId: {type: 'integer',  unsigned: true},
+            translationId: {type: 'integer',  unsigned: true},
+            sample: {type: 'string' }
         },
         constrains: {
             uniques: [['userId', 'translationId', 'sample']]
+        }
+    },
+    UserLanguages: {
+        fields: {
+            id: {type: 'increments',  primary: true},
+            userId: {type: 'integer',  unsigned: true},
+            fromLang: {type: 'string', maxlength: 4},
+            toLang: {type: 'string', maxlength: 4},
+            prefered: {type: 'json', nullable: true}
+        },
+        constrains: {
+            uniques: [['userId']]
         }
     }
 };

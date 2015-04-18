@@ -29,18 +29,26 @@ app.directive('msEnterPressed', function () {
 app.directive("msSelect", function ($ionicModal) {
     return {
         restrict: 'E',
-        templateUrl: '../templates/widgets/ms-select.html',
+        templateUrl: 'templates/widgets/ms-select.html',
         replace: true,
         scope: {
             items: '=',
             selectedItem: '=',
+            preferedItems: '=',
             name: '@',
             title: '@'
         },
-        link: function ($scope, $elem, $attr) {
+        link: function ($scope, $elem, $attr)
+        {
+            $scope.selectedItemPrefered=$scope.selectedItem;
             $scope.onSelected = function (value) {
                 $scope.selectedItem = value;
                 $scope.modalSelect.hide();
+            };
+
+            $scope.notPrefered = function(item)
+            {
+                return (this.preferedItems.indexOf(item.value)==-1);
             };
 
             $ionicModal.fromTemplateUrl('select-modal.html', {
@@ -56,8 +64,14 @@ app.directive("msSelect", function ($ionicModal) {
                 $scope.modalSelect.remove();
             });
 
+            $scope.getName=function(value)
+            {
+                var item=objectFindByKey($scope.items, "value", value);
+                return item && item['name'];
+            };
+
             $scope.getSelected = function () {
-                return objectFindByKey($scope.items, "value", $scope.selectedItem)['name'];
+                return $scope.getName($scope.selectedItem);
             };
         }
     };
@@ -66,7 +80,7 @@ app.directive("msSelect", function ($ionicModal) {
 app.directive('msTranslation', ['TranslateService',function (TranslateService) {
     return {
         restrict: 'E',
-        templateUrl: '../templates/widgets/ms-translation.html',
+        templateUrl: 'templates/widgets/ms-translation.html',
         scope: {
             translation: '='
         },

@@ -38,9 +38,10 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
-gulp.task('lint', function () {
-    gulp.src('./**/*.js')
+gulp.task('lint client', function () {
+    gulp.src('./www/js/*.js')
         .pipe(jshint())
+        .pipe(jshint.reporter('default'));
 });
 
 

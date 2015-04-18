@@ -243,7 +243,19 @@
 .energized-bg {
   background-color: $energized;
 }
+
 .energized-border {
+  border-color: $button-energized-border;
+}
+
+.energizedMs, a.energizedMs {
+  color: $energizedMs;
+}
+.energizedMs-bg {
+  background-color: $energizedMs;
+}
+
+.energizedMs-border {
   border-color: $button-energized-border;
 }
 

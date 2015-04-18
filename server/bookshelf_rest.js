@@ -13,7 +13,7 @@ module.exports = function (model, resource, options)
         var select = '*';
         if (req.query.select) {
             select = req.query.select;
-            delete req.query['select'];
+            delete req.query.select;
         }
 
         _.extend(req.query,req.params); //extend query with URL params
@@ -70,7 +70,7 @@ module.exports = function (model, resource, options)
             res.status(500).send(err);
             return false;
         });
-    };
+    }
 
     router.delete('/' + resource + "/:id", options.delete || function (req, res, next)
     {
@@ -120,7 +120,7 @@ module.exports = function (model, resource, options)
             res.status(500).json({error: true, data: {message: err.message}});
             return false;
         });
-    };
+    }
 
     return router;
 };

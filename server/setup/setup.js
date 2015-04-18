@@ -26,7 +26,14 @@ function createTable(tableName) {
                 column = table[fields[key].type](key, fields[key].maxlength);
             }
             else {
-                column = table[fields[key].type](key);
+                try
+                {
+                    column = table[fields[key].type](key);
+                }
+                catch(e)
+                {
+                    column = table.specificType(key,fields[key].type);
+                }
             }
             if (fields[key].hasOwnProperty('nullable') && fields[key].nullable === true) {
                 column.nullable();
@@ -72,10 +79,10 @@ function createTables () {
             if (!exists) {
                 return function () {
                     return createTable(tableName);
-                }
+                };
             }
             console.log(tableName+' already exists');
-            return function(){return null};
+            return function(){return null;};
         });
     });
     return sequence(tables);

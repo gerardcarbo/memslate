@@ -11,22 +11,24 @@ exports.knex_options = {
   debug: exports.SQL_DEBUG
 };
 
+exports.ANONIMOUS_USER_ID=2;
+
 exports.debug = function() {
   if (DEBUG) {
     console.log.apply(console, ["[debug]"].concat(Array.prototype.slice.call(arguments, 0)));
   }
-}
+};
 
 exports.info = function() {
   if (DEBUG) {
     console.log.apply(console, ["[info]"].concat(Array.prototype.slice.call(arguments, 0)));
   }
-}
+};
 
 exports.warn = function() {
   console.log.apply(console, ["[WARN]"].concat(Array.prototype.slice.call(arguments, 0)));
-}
+};
 
 exports.error = function() {
   console.log.apply(console, ["[ERROR]"].concat(Array.prototype.slice.call(arguments, 0)));
-}
+};

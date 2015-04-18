@@ -128,25 +128,23 @@ module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopu
     });
 });
 
-module.controller('TranslateCtrl', function ($scope, UI, TranslateService)
+module.controller('TranslateCtrl', function ($scope, UI, TranslateService, LanguagesService)
 {
     var translateCtrl = this;
     this.options = {};
-    this.languages = {};
-    this.languages.items = [{"value": "ca", "name": "Catalan"}, {"value": "es", "name": "Spanish"}, {
-        "value": "en",
-        "name": "English"
-    }];
-    this.languages.selectedFrom = 'es';
-    this.languages.selectedTo = 'en';
     this.swappingFrom = false;
     this.swappingTo = false;
+
+    LanguagesService.getLanguages().then(function(languages){
+        console.log(languages);
+        translateCtrl.languages=languages;
+    });
 
     this.swapLanguages = function () {
         this.swappingFrom = this.swappingTo = true;
 
-        var selectedFrom = this.languages.selectedFrom;
-        var selectedTo = this.languages.selectedTo;
+        var selectedFrom = LanguagesService.languages.selectedFrom;
+        var selectedTo = LanguagesService.languages.selectedTo;
 
         $("#btnSwap").transition({rotate: '+=180deg'}, 1000, 'in');
 
@@ -169,21 +167,26 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService)
     };
 
     this.translate = function () {
-        if (this.textToTranslate == "") {
-            UI.toast("Specify a text to translate.");
+        if (!this.textToTranslate || this.textToTranslate == "") {
+            UI.toast("Please, specify a text to translate.");
             return;
         }
         var $inputs = $("#translateForm").find("input, select, button, textarea");
         $inputs.prop("disabled", true);
 
-        translateCtrl.translation = {};
-        translateCtrl.translation.error = null;
-        translateCtrl.translation.translating = true;
+        this.translation = {};
+        this.translation.error = null;
+        this.translation.translating = true;
 
-        TranslateService.translate(this.languages.selectedFrom, this.languages.selectedTo, this.textToTranslate)
-            .then(
-            function (data) //success
+
+
+        TranslateService.translate(LanguagesService.languages.selectedFrom,
+                                    LanguagesService.languages.selectedTo,
+                                    this.textToTranslate)
+            .then(function (data) //success
             {
+                LanguagesService.addPrefered(LanguagesService.languages.selectedFrom);
+                LanguagesService.addPrefered(LanguagesService.languages.selectedTo);
                 translateCtrl.translation = data;
             },
             function (data, status, header, config) //error
@@ -194,23 +197,22 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService)
                 // log the error to the console
                 console.log("The following error occured: " + status);
             })
-            .then(function (data) //translations samples success
+            .finally(function ()	//finally
             {
-                if (data) {
-                    translateCtrl.def.samples = data.data;
-                    $("#translatedSamples").show();
-                }
-            }
-        )
-        .finally(function ()	//finally
-        {
-            $inputs.prop("disabled", false);
-        });
+                $inputs.prop("disabled", false);
+            });
     };
 
     this.reset=function(){
         translateCtrl.textToTranslate=undefined;
         translateCtrl.translation=undefined;
+
+        LanguagesService.getUserLanguages().then(function(userLangs){
+            translateCtrl.languages.selectedFrom=userLangs.fromLang;
+            translateCtrl.languages.selectedTo=userLangs.toLang;
+            translateCtrl.languages.prefered=userLangs.prefered;
+        });
+        
     };
 
     $scope.$watch('translateCtrl.languages.selectedFrom', function (newValue, oldValue) {
@@ -234,20 +236,26 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService)
     $scope.$on('ms:login', function(event, data)
     {
         translateCtrl.reset();
+
     });
 
     $scope.$on('ms:logout', function(event, data)
     {
-        translateCtrl.reset();
+        translateCtrl.reset();       
     });
 });
 
 module.controller('MemoCtrl', function ($scope, TranslateService) {
     var self = this;
-    self.translations = [];
-    self.limit = 10;
-    self.offset = 0;
-    self.moreDataAvailable = true;
+
+    self.init = function(){
+        self.translations = [];
+        self.limit = 10;
+        self.offset = 0;
+        self.moreDataAvailable = true;
+    };
+
+    self.init();
 
     self.moreDataCanBeLoaded = function()
     {
@@ -286,6 +294,12 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
             });
     };
 
+    self.reset = function()
+    {
+        self.init();
+        self.addItems();
+    };
+
     /*
      * if given group is the selected group, deselect it
      * else, select the given group
@@ -307,6 +321,14 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
         console.log('translationDeleted:'+data);
         angular.element("#memo_translation_div_"+data).remove();
         event.stopPropagation();
+    });
+
+    $scope.$on('ms:login',function(event,data){
+        self.reset();
+    });
+
+    $scope.$on('ms:logout',function(event,data){
+        self.reset();
     });
 
 });

@@ -16,108 +16,129 @@ module.constant('TranslationsProvider', 'yandex');
 //module.constant('BaseUrl', 'http://localhost:5000/');
 module.constant('BaseUrl', 'https://memslate.herokuapp.com/');
 
+module.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
+module.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
+
+var DesAuthorizable = {};
+DesAuthorizable.deleteAuthorizationHeader = function(d,headersGetter) {
+    var headers = headersGetter();
+    delete headers['Authorization'];
+
+    return JSON.stringify(d);
+};
+
+module.service('LanguagesService', function ($q, $rootScope, $http, $resource,
+                                                YandexTranslateApiKey, BaseUrl)
+{
+    var self=this;
+    angular.extend(this,DesAuthorizable);
+
+    this.getLanguages = function()
+    {
+        if(this.languages)
+        {
+            var deferred = $q.defer();
+            deferred.resolve(this.languages);
+            return deferred.promise;
+        }
+
+        this.languages = {};
+
+        var yandexGet = $q.defer();
+        var promiseYandex = yandexGet.promise;
+
+
+        $http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs',
+            {
+                params: {
+                    key: YandexTranslateApiKey,
+                    ui: 'en'
+                },
+                transformRequest: this.deleteAuthorizationHeader
+            }
+        ).success(function (data, status)
+            {
+                yandexGet.resolve(data);
+            })
+            .error(function(data, status)
+            {
+                yandexGet.reject(status);
+            });
+
+        var promiseUserLangs=this.getUserLanguages();
+
+        var allPromise = $q.all([promiseYandex,promiseUserLangs]).then(function(data)
+        {
+            self.languages.items=Object.keys(data[0].langs).map(function(item){
+                return {value:item, name:data[0].langs[item]};
+            });
+            self.languages.dirs=data[0].dirs;
+            self.languages.selectedFrom=data[1].fromLang;
+            self.languages.selectedTo=data[1].toLang;
+            self.languages.prefered=data[1].prefered;
+
+            return self.languages;
+        });
+        decoratePromise(allPromise);
+        return allPromise;
+    };
+
+    this.getUserLanguages = function()
+    {
+        var deferedGet = $q.defer();
+        var promiseGetUserLanguages = deferedGet.promise;
+
+        $resource(BaseUrl + 'resources/userLanguages/').get({},
+            function(data){deferedGet.resolve(data)},
+            function(err){deferedGet.reject(err)});
+
+        return promiseGetUserLanguages
+    }
+
+    this.addPrefered = function(language)
+    {
+        if(language)
+        {
+            var pos=this.languages.prefered.indexOf(language);
+            if(pos!=-1)
+            {
+                this.languages.prefered.splice(pos,1);
+            }
+            this.languages.prefered.unshift(language);
+            if(this.languages.prefered.length>4)
+            {
+                this.languages.prefered.pop();
+            }
+        }
+    };
+
+    this.getLanguages();
+});
+
 /**
  * Translation services
  */
-module.service('YandexTranslateService', function ($rootScope, $http, $q, $timeout, TranslationRes, UserService) 
+module.service('YandexTranslateService', function ($rootScope, $http, $resource, $q, $timeout,
+                                                   TranslationRes, UserService,
+                                                   YandexTranslateApiKey, YandexDictionaryApiKey)
 {
     var self=this;
-    this.removeHeaders=true;
 
-    this.deleteAuthorizationHeader = function(d,headersGetter) {
-        if (self.removeHeaders) {
-            var headers = headersGetter();
-            delete headers['Authorization'];
-        }
-        return JSON.stringify(d);
-    };
+    angular.extend(this,DesAuthorizable);
 
-    this.translate = function (fromLang, toLang, text) {
+    this.translate = function (fromLang, toLang, text)
+    {
         var deferred = $q.defer();
         var promise = deferred.promise;
         decoratePromise(promise);
 
         /*
-        * used if $http.get does not work because of CORS problem related with Authorization header (fixed using UserService.disableToken(true);)
-        $.ajax({
-            url: "https://dictionary.yandex.net/api/v1/dicservice.json/lookup",
-            data: {
-                key: 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb',
-                lang: fromLang + "-" + toLang,
-                text: text,
-                ui: 'en'
-            },
-            type: 'GET',
-            dataType: 'json'
-        }).done(function (data) {
-            $rootScope.$apply(function () {
-                var translation = {};
-                translation.fromLang = fromLang;
-                translation.toLang = toLang;
-                translation.translate = text;
-
-                if (data.def && data.def.length > 0) {
-                    translation.provider = 'yd';
-                    translation.mainResult = data.def[0].tr[0].text;
-                    translation.rawResult = data;
-                    translation.transcription = data.def[0].ts;
-
-                    var translationRes = new TranslationRes(translation);
-                    translationRes.$save(function () {
-                        console.log('Translation Saved: id:' + translationRes.id);
-                        translation.id = translationRes.id;
-
-                        deferred.resolve(translation);
-                    });
-                }
-                else {
-                    $.ajax({
-                        url: 'https://translate.yandex.net/api/v1.5/tr.json/translate',
-                        data: {
-                            key: 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430',
-                            lang: fromLang + "-" + toLang,
-                            text: text,
-                            ui: 'en'
-
-                        },
-                        type: 'GET',
-                        dataType: 'json'
-                    }).done(function (data) {
-                        $rootScope.$apply(function () {
-                            if (data.text && data.text.length > 0 && data.text[0] != translation.translate) {
-                                translation.provider = 'yt';
-                                translation.mainResult = data.text[0];
-                                translation.rawResult = data;
-
-                                var translationRes = new TranslationRes(translation);
-                                translationRes.$save(function () {
-                                    console.log('Translation Saved: id:' + translationRes.id);
-                                    translation.id = translationRes.id;
-
-                                    deferred.resolve(translation);
-                                });
-                            }
-                            else {
-                                deferred.reject("Translation not found");
-                            }
-                        });
-                    });
-                }
-            });
-        }).fail(function (data) {
-            $rootScope.$apply(function () {
-                deferred.reject(data);
-            });
-        });*/
-
-        /*
-         * CORS not working when user logged in -> disable Authorization token
+         * CORS not working when user logged in -> delete Authorization token with deleteAuthorizationHeader
          */
-
         $http.get('https://dictionary.yandex.net/api/v1/dicservice.json/lookup',
             {
                 params: {
-                    key: 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb',
+                    key: YandexDictionaryApiKey,
                     lang: fromLang + "-" + toLang,
                     text: text,
                     ui: 'en'
@@ -126,13 +147,12 @@ module.service('YandexTranslateService', function ($rootScope, $http, $q, $timeo
             }
         ).success(function (data, status)
             {
-
                 var translation = {};
                 translation.fromLang = fromLang;
                 translation.toLang = toLang;
                 translation.translate = text;
 
-                if (data.def && data.def.length > 0)
+                if (data && data.def && data.def.length > 0)
                 {
                     translation.provider = 'yd';
                     translation.mainResult = data.def[0].tr[0].text;
@@ -152,7 +172,7 @@ module.service('YandexTranslateService', function ($rootScope, $http, $q, $timeo
                     $http.get('https://translate.yandex.net/api/v1.5/tr.json/translate',
                         {
                             params: {
-                                key: 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430',
+                                key: YandexTranslateApiKey,
                                 lang: fromLang + "-" + toLang,
                                 text: text,
                                 ui: 'en'
@@ -180,7 +200,6 @@ module.service('YandexTranslateService', function ($rootScope, $http, $q, $timeo
                 }
             }
         ).error(function (data, status) {
-                UserService.disableToken(false);
                 deferred.reject(status);
             });
 
@@ -300,7 +319,7 @@ module.factory('UserService', function ($window)
         $window.sessionStorage.tokenDisabled="false";
     }
 
-    var auth = {
+    var user = {
         isAuthenticated: function (val) {
             if (val !== undefined) {
                 $window.sessionStorage.isAuthenticated = val;
@@ -358,7 +377,7 @@ module.factory('UserService', function ($window)
         }
     };
 
-    return auth;
+    return user;
 });
 
 module.factory('TokenInterceptor', function ($q, $window, $location, UserService) {
