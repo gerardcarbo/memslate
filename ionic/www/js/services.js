@@ -3,34 +3,34 @@
  */
 "use strict";
 
-var module = angular.module('memslate.services', ['ngResource', 'ionic']);
+var servicesMod = angular.module('memslate.services', ['ngResource', 'ionic']);
 
-module.config(function ($httpProvider) {
+servicesMod.config(function ($httpProvider) {
     //Enable cross domain calls
     $httpProvider.defaults.useXDomain = true;
     //Remove the header used to identify ajax call  that would prevent CORS from working
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 });
 
-module.constant('TranslationsProvider', 'yandex');
-//module.constant('BaseUrl', 'http://localhost:5000/');
-module.constant('BaseUrl', 'https://memslate.herokuapp.com/');
+servicesMod.constant('TranslationsProvider', 'yandex');
+servicesMod.constant('BaseUrl', 'http://localhost:5000/');
+//servicesMod.constant('BaseUrl', 'https://memslate.herokuapp.com/');
 
-module.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
-module.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
+servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
+servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
 
 var DesAuthorizable = {};
 DesAuthorizable.deleteAuthorizationHeader = function(d,headersGetter) {
     var headers = headersGetter();
-    delete headers['Authorization'];
+    delete headers.Authorization;
 
     return JSON.stringify(d);
 };
 
-module.service('LanguagesService', function ($q, $rootScope, $http, $resource,
+servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resource,
                                                 YandexTranslateApiKey, BaseUrl)
 {
-    var self=this;
+    var self = this;
     angular.extend(this,DesAuthorizable);
 
     this.getLanguages = function()
@@ -56,7 +56,7 @@ module.service('LanguagesService', function ($q, $rootScope, $http, $resource,
                 },
                 transformRequest: this.deleteAuthorizationHeader
             }
-        ).success(function (data, status)
+        ).success(function (data)
             {
                 yandexGet.resolve(data);
             })
@@ -65,21 +65,21 @@ module.service('LanguagesService', function ($q, $rootScope, $http, $resource,
                 yandexGet.reject(status);
             });
 
-        var promiseUserLangs=this.getUserLanguages();
+        var promiseUserLangs = this.getUserLanguages();
 
-        var allPromise = $q.all([promiseYandex,promiseUserLangs]).then(function(data)
+        var allPromise = $q.all([promiseYandex, promiseUserLangs]).then(function(data)
         {
-            self.languages.items=Object.keys(data[0].langs).map(function(item){
-                return {value:item, name:data[0].langs[item]};
+            self.languages.items = Object.keys(data[0].langs).map(function(item){
+                return {value: item, name: data[0].langs[item]};
             });
-            self.languages.dirs=data[0].dirs;
-            self.languages.selectedFrom=data[1].fromLang;
-            self.languages.selectedTo=data[1].toLang;
-            self.languages.prefered=data[1].prefered;
+            self.languages.dirs = data[0].dirs;
+            self.languages.selectedFrom = data[1].fromLang;
+            self.languages.selectedTo = data[1].toLang;
+            self.languages.prefered = data[1].prefered;
 
             return self.languages;
         });
-        decoratePromise(allPromise);
+        msUtils.decoratePromise(allPromise);
         return allPromise;
     };
 
@@ -89,23 +89,23 @@ module.service('LanguagesService', function ($q, $rootScope, $http, $resource,
         var promiseGetUserLanguages = deferedGet.promise;
 
         $resource(BaseUrl + 'resources/userLanguages/').get({},
-            function(data){deferedGet.resolve(data)},
-            function(err){deferedGet.reject(err)});
+            function(data){ deferedGet.resolve(data); },
+            function(err){ deferedGet.reject(err); });
 
-        return promiseGetUserLanguages
-    }
+        return promiseGetUserLanguages;
+    };
 
     this.addPrefered = function(language)
     {
         if(language)
         {
-            var pos=this.languages.prefered.indexOf(language);
-            if(pos!=-1)
+            var pos = this.languages.prefered.indexOf(language);
+            if(pos !== -1)
             {
-                this.languages.prefered.splice(pos,1);
+                this.languages.prefered.splice(pos, 1);
             }
             this.languages.prefered.unshift(language);
-            if(this.languages.prefered.length>4)
+            if(this.languages.prefered.length > 4)
             {
                 this.languages.prefered.pop();
             }
@@ -118,11 +118,11 @@ module.service('LanguagesService', function ($q, $rootScope, $http, $resource,
 /**
  * Translation services
  */
-module.service('YandexTranslateService', function ($rootScope, $http, $resource, $q, $timeout,
+servicesMod.service('YandexTranslateService', function ($rootScope, $http, $resource, $q, $timeout,
                                                    TranslationRes, UserService,
                                                    YandexTranslateApiKey, YandexDictionaryApiKey)
 {
-    var self=this;
+    var self = this;
 
     angular.extend(this,DesAuthorizable);
 
@@ -130,7 +130,7 @@ module.service('YandexTranslateService', function ($rootScope, $http, $resource,
     {
         var deferred = $q.defer();
         var promise = deferred.promise;
-        decoratePromise(promise);
+        msUtils.decoratePromise(promise);
 
         /*
          * CORS not working when user logged in -> delete Authorization token with deleteAuthorizationHeader
@@ -145,7 +145,7 @@ module.service('YandexTranslateService', function ($rootScope, $http, $resource,
                 },
                 transformRequest: this.deleteAuthorizationHeader
             }
-        ).success(function (data, status)
+        ).success(function (data)
             {
                 var translation = {};
                 translation.fromLang = fromLang;
@@ -179,16 +179,16 @@ module.service('YandexTranslateService', function ($rootScope, $http, $resource,
                             },
                             transformRequest: self.deleteAuthorizationHeader
                         }
-                    ).success(function (data, status) {
-                            if (data.text && data.text.length > 0 && data.text[0] != translation.translate) {
+                    ).success(function (dataTranslate) {
+                            if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
                                 translation.provider = 'yt';
-                                translation.mainResult = data.text[0];
-                                translation.rawResult = data;
+                                translation.mainResult = dataTranslate.text[0];
+                                translation.rawResult = dataTranslate;
 
-                                var translationRes = new TranslationRes(translation);
-                                translationRes.$save(function () {
-                                    console.log('Translation Saved: id:' + translationRes.id);
-                                    translation.id = translationRes.id;
+                                var translationRes2 = new TranslationRes(translation);
+                                translationRes2.$save(function () {
+                                    console.log('Translation Saved: id:' + translationRes2.id);
+                                    translation.id = translationRes2.id;
 
                                     deferred.resolve(translation);
                                 });
@@ -207,7 +207,7 @@ module.service('YandexTranslateService', function ($rootScope, $http, $resource,
     };
 });
 
-module.factory('TranslateService', function ($injector, TranslationRes, TranslationSampleRes, TranslationsProvider) {
+servicesMod.factory('TranslateService', function ($injector, TranslationRes, TranslationSampleRes, TranslationsProvider) {
     //own methods
     this.getTranslations = function (options, onSuccess, onError) {
         return TranslationRes.query(options, onSuccess, onError);
@@ -233,20 +233,22 @@ module.factory('TranslateService', function ($injector, TranslationRes, Translat
     };
 
     //configurable translations provider
-    if (TranslationsProvider == 'yandex') {
+    if (TranslationsProvider === 'yandex') {
         var yandexTranslate = $injector.get('YandexTranslateService');
         return angular.extend(yandexTranslate, this);
     }
     else
+    {
         return null;
+    }
 });
 
-module.factory('TranslationRes', function ($resource, BaseUrl) {
-    console.log("BaseUrl: "+BaseUrl);
+servicesMod.factory('TranslationRes', function ($resource, BaseUrl) {
+    console.log("BaseUrl: " + BaseUrl);
     return $resource(BaseUrl + 'resources/translations/:id', {id: '@id'});
 });
 
-module.factory('TranslationSampleRes', function ($resource, BaseUrl) {
+servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrl) {
     return $resource(BaseUrl + 'resources/translations/:translationId/samples/:id',
         {translationId: '@translationId', id: '@id'});
 });
@@ -254,20 +256,23 @@ module.factory('TranslationSampleRes', function ($resource, BaseUrl) {
 /**
  * Graphical User Interface services
  */
-module.service('UI', function ($window, $ionicLoading) {
+servicesMod.service('UI', function ($window, $ionicLoading) {
     this.toast = function (msg, duration, position) {
         if (!duration)
+        {
             duration = 1500;
+        }
         if (!position)
+        {
             position = 'top';
+        }
 
         // PhoneGap? Use native:
         if ($window.plugins) {
             if ($window.plugins.toast)
-                $window.plugins.toast.show(msg, duration, position,
-                    function (a) {
-                    }, function (err) {
-                    });
+            {
+                $window.plugins.toast.show(msg, duration, position);
+            }
             return;
         }
 
@@ -281,7 +286,7 @@ module.service('UI', function ($window, $ionicLoading) {
     };
 });
 
-module.service("ModalDialogService", ['$ionicPopup', '$q', function ($ionicPopup, $q) {
+servicesMod.service("ModalDialogService", ['$ionicPopup', '$q', function ($ionicPopup, $q) {
     this.showYesNoModal = function (title, msg) {
         var deferred = $q.defer();
         var promise = deferred.promise;
@@ -305,18 +310,18 @@ module.service("ModalDialogService", ['$ionicPopup', '$q', function ($ionicPopup
 /**
  * Authentication services
  */
-module.factory('UserService', function ($window)
+servicesMod.factory('UserService', function ($window)
 {
-    var anonymousEmail='anonymous@memslate.com';
-    var anonymousUser='Anonymous';
+    var anonymousEmail = 'anonymous@memslate.com';
+    var anonymousUser = 'Anonymous';
 
     if(!$window.sessionStorage.name) //user not already defined
     {
-        $window.sessionStorage.name=anonymousUser;
-        $window.sessionStorage.email=anonymousEmail;
-        $window.sessionStorage.isAuthenticated="false";
-        $window.sessionStorage.isAdmin="false";
-        $window.sessionStorage.tokenDisabled="false";
+        $window.sessionStorage.name = anonymousUser;
+        $window.sessionStorage.email = anonymousEmail;
+        $window.sessionStorage.isAuthenticated = "false";
+        $window.sessionStorage.isAdmin = "false";
+        $window.sessionStorage.tokenDisabled = "false";
     }
 
     var user = {
@@ -362,25 +367,25 @@ module.factory('UserService', function ($window)
         },
         logout: function () {
             delete $window.sessionStorage.token;
-            $window.sessionStorage.name=anonymousEmail;
-            $window.sessionStorage.email=anonymousUser;
-            $window.sessionStorage.isAdmin=false;
-            $window.sessionStorage.isAuthenticated=false;
+            $window.sessionStorage.name = anonymousEmail;
+            $window.sessionStorage.email = anonymousUser;
+            $window.sessionStorage.isAdmin = false;
+            $window.sessionStorage.isAuthenticated = false;
         },
-        login:function(user)
+        login: function(usr)
         {
-            $window.sessionStorage.token=user.token;
-            $window.sessionStorage.name=user.name;
-            $window.sessionStorage.email=user.email;
-            $window.sessionStorage.isAdmin=user.isAdmin;
-            $window.sessionStorage.isAuthenticated=true;
+            $window.sessionStorage.token = usr.token;
+            $window.sessionStorage.name = usr.name;
+            $window.sessionStorage.email = usr.email;
+            $window.sessionStorage.isAdmin = usr.isAdmin;
+            $window.sessionStorage.isAuthenticated = true;
         }
     };
 
     return user;
 });
 
-module.factory('TokenInterceptor', function ($q, $window, $location, UserService) {
+servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserService) {
     return {
         request: function (config) {
             config.headers = config.headers || {};
@@ -396,7 +401,7 @@ module.factory('TokenInterceptor', function ($q, $window, $location, UserService
 
         /* Set Authentication.isAuthenticated to true if 200 received */
         response: function (response) {
-            if (response != null && response.status == 200 && UserService.token() && !UserService.isAuthenticated()) {
+            if (response != null && response.status === 200 && UserService.token() && !UserService.isAuthenticated()) {
                 UserService.isAuthenticated(true);
             }
             return response || $q.when(response);
@@ -414,7 +419,7 @@ module.factory('TokenInterceptor', function ($q, $window, $location, UserService
     };
 });
 
-module.factory('RegistrationService', function ($window, $http, $ionicPopup, $rootScope, UserService, BaseUrl) {
+servicesMod.factory('RegistrationService', function ($window, $http, $ionicPopup, $rootScope, UserService, BaseUrl) {
     return {
         login: function (email, password) {
             return $http.post(BaseUrl + 'login', {
@@ -450,5 +455,5 @@ module.factory('RegistrationService', function ($window, $http, $ionicPopup, $ro
                 return {done: false, err: err};
             });
         }
-    }
+    };
 });

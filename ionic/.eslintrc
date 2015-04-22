@@ -8,7 +8,11 @@
   },
   "globals": {
     //place settings for globals here, such as
-    "exampleGlobalVariable": true
+    "angular": true,
+    "StatusBar": true,
+    "$": true,
+    "msUtils": true,
+    "cordova": true
   },
   "rules": {
     //enable ESLint rules, such as

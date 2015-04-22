@@ -38,9 +38,9 @@ app.directive("msSelect", function ($ionicModal) {
             name: '@',
             title: '@'
         },
-        link: function ($scope, $elem, $attr)
+        link: function ($scope)
         {
-            $scope.selectedItemPrefered=$scope.selectedItem;
+            $scope.selectedItemPrefered = $scope.selectedItem;
             $scope.onSelected = function (value) {
                 $scope.selectedItem = value;
                 $scope.modalSelect.hide();
@@ -48,7 +48,7 @@ app.directive("msSelect", function ($ionicModal) {
 
             $scope.notPrefered = function(item)
             {
-                return (this.preferedItems.indexOf(item.value)==-1);
+                return (this.preferedItems.indexOf(item.value) === -1);
             };
 
             $ionicModal.fromTemplateUrl('select-modal.html', {
@@ -64,10 +64,10 @@ app.directive("msSelect", function ($ionicModal) {
                 $scope.modalSelect.remove();
             });
 
-            $scope.getName=function(value)
+            $scope.getName = function(value)
             {
-                var item=objectFindByKey($scope.items, "value", value);
-                return item && item['name'];
+                var item = msUtils.objectFindByKey($scope.items, "value", value);
+                return item && item.name;
             };
 
             $scope.getSelected = function () {
@@ -88,21 +88,21 @@ app.directive('msTranslation', ['TranslateService',function (TranslateService) {
             function ($scope, TranslationSampleRes, ModalDialogService, UI) {
 
             this.saveTranslationSample = function () {
-                if ($scope.translation.translate != undefined &&
-                        this.translationSample.toUpperCase().indexOf($scope.translation.translate.toUpperCase()) == -1) {
-                    if (this.translationSample != "") {
+                if ($scope.translation.translate !== undefined &&
+                        this.translationSample.toUpperCase().indexOf($scope.translation.translate.toUpperCase()) === -1) {
+                    if (this.translationSample !== "") {
                         UI.toast("The translation sample must contain the translated word '" + $scope.translation.translate + "'...");
                     }
                     return;
                 }
 
                 var translationCtrl = this;
-                var tsPr=TranslateService.addTranslationSample($scope.translation.id, this.translationSample)
+                var tsPr = TranslateService.addTranslationSample($scope.translation.id, this.translationSample);
                 tsPr.then(function (data) {
-                        if ($scope.translation.samples == undefined) {
+                        if ($scope.translation.samples === undefined) {
                             $scope.translation.samples = [];
                         }
-                        $scope.translation.samples.push(new TranslationSampleRes({id: data.id, translationId:$scope.translation.id, sample: translationCtrl.translationSample}));
+                        $scope.translation.samples.push(new TranslationSampleRes({id: data.id, translationId: $scope.translation.id, sample: translationCtrl.translationSample}));
                         translationCtrl.translationSample = "";
                     });
             };
@@ -116,7 +116,7 @@ app.directive('msTranslation', ['TranslateService',function (TranslateService) {
             this.deleteTranslation = function (id) {
                 ModalDialogService.showYesNoModal("Delete Translation", "Do you really want to delete the translation '" + $scope.translation.translate + "' ?")
                     .then(function (res) {
-                        if (res == 'yes') {
+                        if (res === 'yes') {
                             TranslateService.deleteTranslation(id).then(function(){
                                 $scope.$emit('ms:translationDeleted', id);
                                 $scope.translation = undefined;
@@ -127,13 +127,13 @@ app.directive('msTranslation', ['TranslateService',function (TranslateService) {
         }],
         controllerAs: 'msTranslationCtrl',
         link: function ($scope) {
-            var scope=$scope;
+            var scope = $scope;
             $scope.$watch('translation', function(translation)
             {
                 if(translation && translation.id)
                 {
                     TranslateService.getTranslationSamples(translation.id,function(samples){
-                        scope.translation.samples=samples;
+                        scope.translation.samples = samples;
                     });
                 }
             });

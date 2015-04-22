@@ -1,7 +1,8 @@
-var uuid    = require('node-uuid');
-var _       = require('lodash');
-var utils   = require('./utils');
-var log     = require('./config');
+"use strict";
+
+var uuid = require('node-uuid');
+var utils = require('./utils');
+var log = require('./config');
 
 module.exports = function (bookshelf) {
     var User = bookshelf.Model.extend({
@@ -15,27 +16,27 @@ module.exports = function (bookshelf) {
             var self = this;
             return bookshelf.knex('Users').count().then(function (result) {
                 if (result[0] && result[0].count === 0) {
-                    console.log("Marking first user " + self.get("email") + " as admin");
+                    log.debug("Marking first user " + self.get("email") + " as admin");
                     self.set('isAdmin', true);
                 }
             });
         }
     }, {
         createUser: function (user) {
-            console.log('createUser: creating "' + user.name + '"...');
+            log.debug('createUser: creating "' + user.name + '"...');
 
             var p = bookshelf.knex('Users').where({
                 email: user.email
             }).count().then(function (result) {
                 if (result[0] && result[0].count > 0) {
-                    console.log('createUser: user "' + user.name + '" already exists.');
+                    log.debug('createUser: user "' + user.name + '" already exists.');
                     return true;
                 } else {
                     user.token = uuid.v4();
                     user.cryptedPassword = utils.encryptPassword(user.password);
                     delete user.password;
                     return bookshelf.knex('Users').insert(user).then(function () {
-                        console.log('createUser: user "' + user.name + '" created');
+                        log.debug('createUser: user "' + user.name + '" created');
                         return true; //important! must return something -> new promise created
                     });
                 }
@@ -63,7 +64,7 @@ module.exports = function (bookshelf) {
         }
     });
 
-    var UserLanguages =  bookshelf.Model.extend({
+    var UserLanguages = bookshelf.Model.extend({
         tableName: 'UserLanguages'
     });
 

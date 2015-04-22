@@ -1,9 +1,6 @@
 "use strict";
 
 angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services', 'memslate.directives'])
-    /*.config(['$sceDelegateProvider', function($sceDelegateProvider) {
-        $sceDelegateProvider.resourceUrlWhitelist(['self', '.*']);
-    }])*/
 
     .run(function ($ionicPlatform) {
         $ionicPlatform.ready(function () {

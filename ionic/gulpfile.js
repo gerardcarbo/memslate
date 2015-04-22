@@ -9,6 +9,9 @@ var sh = require('shelljs');
 var nodemon = require('gulp-nodemon');
 var jshint = require('gulp-jshint');
 var shell = require('gulp-shell');
+var ngmin = require("gulp-ngmin"); // NEW
+var uglify = require("gulp-uglify");
+var eslint = require('gulp-eslint');
 
 var paths = {
   sass: ['./scss/**/*.scss']
@@ -38,11 +41,25 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
-gulp.task('lint client', function () {
+gulp.task('lint_client', function () {
     gulp.src('./www/js/*.js')
         .pipe(jshint())
-        .pipe(jshint.reporter('default'));
+        .pipe(jshint.reporter('jshint-path-reporter'));
 });
+
+gulp.task('eslint_client', function () {
+    gulp.src(['www/js/*.js'])
+        // eslint() attaches the lint output to the eslint property
+        // of the file object so it can be used by other modules.
+        .pipe(eslint())
+        // eslint.format() outputs the lint results to the console.
+        // Alternatively use eslint.formatEach() (see Docs).
+        .pipe(eslint.format('node_modules\\eslint-path-formatter'));
+    // To have the process exit with an error code (1) on
+    // lint error, return the stream and pipe to failOnError last.
+    //.pipe(eslint.failOnError());
+});
+
 
 
 gulp.task('watch sass', function() {
@@ -68,3 +85,14 @@ gulp.task('git-check', function(done) {
   }
   done();
 });
+
+gulp.task("dist", function() {
+  gulp.src(["www/js/*.js"])            // Read the files
+      .pipe(concat("ng-memslate.js"))   // Combine into 1 file
+      .pipe(gulp.dest("www/js/dist"))            // Write non-minified to disk
+      .pipe(ngmin())                     // Minify
+      .pipe(uglify())                     // Minify
+      .pipe(rename({extname: ".min.js"})) // Rename to ng-quick-date.min.js
+      .pipe(gulp.dest("www/js/dist"))            // Write minified to disk
+});
+

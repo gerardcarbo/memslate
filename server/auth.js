@@ -1,3 +1,5 @@
+"use strict";
+
 var bcrypt = require('bcryptjs'),
     uuid = require('node-uuid'),
     utils = require('./utils'),
@@ -6,8 +8,8 @@ var bcrypt = require('bcryptjs'),
 
 module.exports = function (models) {
 
-    var user_cache = {};
-    var register_callback = null;
+    var userCache = {};
+    var registerCallback = null;
 
     function comparePassword(password, hash, callback) {
         console.log("Comparing ", password, " to hash ", hash);
@@ -20,7 +22,7 @@ module.exports = function (models) {
         });
     }
 
-    function clean_user(user) {
+    function cleanUser(user) {
         delete user.cryptedPassword;
         delete user.password;
         delete user.password2;
@@ -56,12 +58,12 @@ module.exports = function (models) {
                     delete user.password;
                     delete user.password2;
 
-                    new models.User(user).save().then(function (model) {
-                        if (register_callback) {
-                            register_callback(model);
+                    new models.User(user).save().then(function (userModel) {
+                        if (registerCallback) {
+                            registerCallback(userModel);
                         }
-                        console.log("Registered: ", model.attributes);
-                        res.json(clean_user(model.attributes));
+                        console.log("Registered: ", userModel.attributes);
+                        res.json(cleanUser(userModel.attributes));
 
                     }).catch(next);
                 }
@@ -88,8 +90,8 @@ module.exports = function (models) {
                     if (match) {
                         model.token = uuid.v4();
 
-                        model.save().then(function (model) {
-                            res.json(clean_user(model.attributes));
+                        model.save().then(function (savedUser) {
+                            res.json(cleanUser(savedUser.attributes));
 
                         }).catch(next);
 
@@ -101,8 +103,8 @@ module.exports = function (models) {
             });
     }
 
-    function on_register(callback) {
-        register_callback = callback;
+    function onRegister(callback) {
+        registerCallback = callback;
     }
 
     function authenticate(req, res, next) {
@@ -114,8 +116,8 @@ module.exports = function (models) {
             delete req.query.token;
         }
 
-        if (token in user_cache) {
-            req.user = user_cache[token];
+        if (token in userCache) {
+            req.user = userCache[token];
             next();
         } else {
             console.log("Checking token '" + token + "'");
@@ -124,7 +126,7 @@ module.exports = function (models) {
                     email: 'anonymous@memslate.com'
                 }).fetch().then(function (model) {
                         if (model) {
-                            user_cache[token] = model;
+                            userCache[token] = model;
                             req.user = model;
                             return next();
                         }
@@ -136,7 +138,7 @@ module.exports = function (models) {
                     token: token
                 }).fetch().then(function (model) {
                         if (model) {
-                            user_cache[token] = model;
+                            userCache[token] = model;
                             req.user = model;
                             return next();
                         } else {
@@ -148,12 +150,12 @@ module.exports = function (models) {
         }
     }
 
-    function clear_leaders(req, res, next) {
-        user_cache = {};
-        return models.clear_leaders(req, res, next);
+    function clearLeaders(req, res, next) {
+        userCache = {};
+        return models.clearLeaders(req, res, next);
     }
 
-    function require_admin(req, res, next) {
+    function requireAdmin(req, res, next) {
         if (!req.user.get('isAdmin')) {
             res.status(401).send("Unauthorized");
         } else {
@@ -164,9 +166,9 @@ module.exports = function (models) {
     return {
         register: register,
         login: login,
-        require_admin: require_admin,
-        on_register: on_register,
+        requireAdmin: requireAdmin,
+        onRegister: onRegister,
         authenticate: authenticate,
-        clear_leaders: clear_leaders
+        clearLeaders: clearLeaders
     };
 };

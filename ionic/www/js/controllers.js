@@ -1,8 +1,8 @@
 "use strict";
 
-var module = angular.module('memslate.controllers', ['memslate.services', 'ionic']);
+var controllersMod = angular.module('memslate.controllers', ['memslate.services', 'ionic']);
 
-module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopup, RegistrationService, UserService)
+controllersMod.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopup, RegistrationService, UserService)
 {
     // Form data for the login modal
     $scope.loginData = {};
@@ -55,16 +55,16 @@ module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopu
     $scope.userLoggedin = function()
     {
         return UserService.isAuthenticated();
-    }
+    };
 
     // Perform the login action when the user submits the login form
     $scope.doLogin = function(loginForm) {
-        if (!loginForm.$valid) return false;
+        if (!loginForm.$valid) { return false; }
         console.log('Doing login', $scope.loginData);
         RegistrationService.login($scope.loginData.email, $scope.loginData.password).then(function(login){
             if(login.done) {
                 $scope.loginModal.hide();
-                console.log('Login done!')
+                console.log('Login done!');
             }
             else
             {
@@ -73,7 +73,7 @@ module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopu
                     content: login.err.data
                 });
             }
-        })
+        });
     };
 
     $scope.doLogout = function() {
@@ -82,28 +82,28 @@ module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopu
 
     $scope.isAuthenticated = function() {
         return UserService.isAuthenticated();
-    }
+    };
 
     $scope.userName = function(){
         return UserService.name();
     };
 
     $scope.doRegister =  function(registerForm) {
-        if (!registerForm.$valid) return false;
+        if (!registerForm.$valid) { return false; }
         console.log('Doing register', $scope.registerData);
-        if($scope.registerData.password!=$scope.registerData.password2)
+        if($scope.registerData.password !== $scope.registerData.password2)
         {
             $ionicPopup.alert({
                 title: 'Registration Failed',
                 content: 'Passwords does not match.'
             });
-            return;
+            return null;
         }
         RegistrationService.register($scope.registerData).then(function(register) {
             if(register.done)
             {
                 $scope.registerModal.hide();
-                console.log('register done!')
+                console.log('register done!');
             }
             else
             {
@@ -113,7 +113,7 @@ module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopu
                 });
             }
         });
-    }
+    };
 
     //Cleanup the modal when we're done with it!
     $scope.$on('$destroy', function() {
@@ -128,7 +128,7 @@ module.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopu
     });
 });
 
-module.controller('TranslateCtrl', function ($scope, UI, TranslateService, LanguagesService)
+controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateService, LanguagesService)
 {
     var translateCtrl = this;
     this.options = {};
@@ -137,7 +137,7 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService, Langu
 
     LanguagesService.getLanguages().then(function(languages){
         console.log(languages);
-        translateCtrl.languages=languages;
+        translateCtrl.languages = languages;
     });
 
     this.swapLanguages = function () {
@@ -167,7 +167,7 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService, Langu
     };
 
     this.translate = function () {
-        if (!this.textToTranslate || this.textToTranslate == "") {
+        if (!this.textToTranslate || this.textToTranslate === "") {
             UI.toast("Please, specify a text to translate.");
             return;
         }
@@ -189,7 +189,7 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService, Langu
                 LanguagesService.addPrefered(LanguagesService.languages.selectedTo);
                 translateCtrl.translation = data;
             },
-            function (data, status, header, config) //error
+            function (data, status) //error
             {
                 translateCtrl.translation.translating = false;
                 translateCtrl.translation.error = data || "Unknown Error";
@@ -203,49 +203,48 @@ module.controller('TranslateCtrl', function ($scope, UI, TranslateService, Langu
             });
     };
 
-    this.reset=function(){
-        translateCtrl.textToTranslate=undefined;
-        translateCtrl.translation=undefined;
+    this.reset = function(){
+        translateCtrl.textToTranslate = undefined;
+        translateCtrl.translation = undefined;
 
         LanguagesService.getUserLanguages().then(function(userLangs){
-            translateCtrl.languages.selectedFrom=userLangs.fromLang;
-            translateCtrl.languages.selectedTo=userLangs.toLang;
-            translateCtrl.languages.prefered=userLangs.prefered;
+            translateCtrl.languages.selectedFrom = userLangs.fromLang;
+            translateCtrl.languages.selectedTo = userLangs.toLang;
+            translateCtrl.languages.prefered = userLangs.prefered;
         });
-        
     };
 
     $scope.$watch('translateCtrl.languages.selectedFrom', function (newValue, oldValue) {
-        if (!translateCtrl.swappingFrom && newValue != oldValue && newValue == translateCtrl.languages.selectedTo) {
+        if (!translateCtrl.swappingFrom && newValue !== oldValue && newValue === translateCtrl.languages.selectedTo) {
             UI.toast("From and to languages must be distinct", 2000);
             translateCtrl.languages.selectedFrom = oldValue;
         }
     });
     $scope.$watch('translateCtrl.languages.selectedTo', function (newValue, oldValue) {
-        if (!translateCtrl.swappingTo && newValue != oldValue && newValue == translateCtrl.languages.selectedFrom) {
+        if (!translateCtrl.swappingTo && newValue !== oldValue && newValue === translateCtrl.languages.selectedFrom) {
             UI.toast("From and to languages must be distinct", 2000);
             translateCtrl.languages.selectedTo = oldValue;
         }
     });
 
-    $scope.$on('ms:translationDeleted',function(event, data)
+    $scope.$on('ms:translationDeleted',function()
     {
         translateCtrl.reset();
     });
 
-    $scope.$on('ms:login', function(event, data)
+    $scope.$on('ms:login', function()
     {
         translateCtrl.reset();
 
     });
 
-    $scope.$on('ms:logout', function(event, data)
+    $scope.$on('ms:logout', function()
     {
-        translateCtrl.reset();       
+        translateCtrl.reset();
     });
 });
 
-module.controller('MemoCtrl', function ($scope, TranslateService) {
+controllersMod.controller('MemoCtrl', function ($scope, TranslateService) {
     var self = this;
 
     self.init = function(){
@@ -273,7 +272,7 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
                         item.rawResult = JSON.parse(item.rawResult);
                     }
                     catch(e){
-                        console.log('exc parsing rawResult:'+item.rawResult);
+                        console.log('exc parsing rawResult:' + item.rawResult);
                     }
                     item.insertTime = new Date(item.insertTime);
                     return item;
@@ -281,9 +280,9 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
                 self.translations.push.apply(self.translations, newTranslations);
                 console.log(self.translations);
 
-                if (translations.length == 0)
+                if (translations.length === 0)
                 {
-                    self.moreDataAvailable=false;
+                    self.moreDataAvailable = false;
                 }
 
                 $scope.$broadcast('scroll.infiniteScrollComplete');
@@ -318,21 +317,21 @@ module.controller('MemoCtrl', function ($scope, TranslateService) {
 
     $scope.$on('ms:translationDeleted',function(event, data)
     {
-        console.log('translationDeleted:'+data);
-        angular.element("#memo_translation_div_"+data).remove();
+        console.log('translationDeleted:' + data);
+        angular.element("#memo_translation_div_" + data).remove();
         event.stopPropagation();
     });
 
-    $scope.$on('ms:login',function(event,data){
+    $scope.$on('ms:login',function(){
         self.reset();
     });
 
-    $scope.$on('ms:logout',function(event,data){
+    $scope.$on('ms:logout',function(){
         self.reset();
     });
 
 });
 
-module.controller('UserCtrl', function ($scope, UserService) {
-    this.User=UserService;
+controllersMod.controller('UserCtrl', function ($scope, UserService) {
+    this.User = UserService;
 });

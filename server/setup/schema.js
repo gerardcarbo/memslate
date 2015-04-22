@@ -9,7 +9,7 @@ var Schema = {
             mainResult: {type: 'string', nullable: false },
             rawResult: {type: 'text', nullable: false },
             provider: {type: 'string', maxlength: 4, nullable: false },
-            insertTime: {type: 'timestamp', defaultToRaw:'now()'}
+            insertTime: {type: 'timestamp', defaultToRaw: 'now()'}
         },
         constrains: {
             uniques: [['fromLang','toLang','translate']]
@@ -18,13 +18,13 @@ var Schema = {
     Users: {
         fields: {
             id: {type: 'increments',  primary: true},
-            name: {type:'string'},
-            email: {type:'string',index:'btree'},
-            cryptedPassword: {type:'string'},
-            token: {type:'string',index:'btree'},
-            isAdmin: {type:'boolean', defaultTo:false},
-            createdAt: {type: 'timestamp', defaultToRaw:'now()'},
-            updatedAt: {type: 'timestamp', defaultToRaw:'now()'}
+            name: {type: 'string'},
+            email: {type: 'string',index: 'btree'},
+            cryptedPassword: {type: 'string'},
+            token: {type: 'string',index: 'btree'},
+            isAdmin: {type: 'boolean', defaultTo: false},
+            createdAt: {type: 'timestamp', defaultToRaw: 'now()'},
+            updatedAt: {type: 'timestamp', defaultToRaw: 'now()'}
         },
         constrains: {
             uniques: [['email']]

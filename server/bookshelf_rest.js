@@ -1,14 +1,16 @@
+"use strict";
+
 var express = require('express');
 var log     = require('./config');
 var _       = require('lodash');
 
-module.exports = function (model, resource, options)
+module.exports = function (Model, resource, options)
 {
     options = options || {};
 
     var router = express.Router();
 
-    router.get('/' + resource, options.getAll || function (req, res, next)
+    router.get('/' + resource, options.getAll || function (req, res)
     {
         var select = '*';
         if (req.query.select) {
@@ -18,51 +20,24 @@ module.exports = function (model, resource, options)
 
         _.extend(req.query,req.params); //extend query with URL params
 
-        model.query({
+        Model.query({
             select: select
         }).where(req.query).fetchAll().then(function (collection) {
             res.json(collection);
         });
     });
 
-    router.get('/' + resource + "/:id", options.get || function (req, res, next)
+    router.get('/' + resource + "/:id", options.get || function (req, res)
     {
-        new model(req.params).fetch().then(function (result) {
+        new Model(req.params).fetch().then(function (result) {
                 res.json(result);
             });
     });
 
-    router.post('/' + resource, function (req, res, next)
-    {
-        if (options.pre_save)
-        {
-            options.pre_save(req, res, function (item)
-            {
-                var p=save_item(item, res);
-                p.then(function(itemSaved)
-                {
-                    log.debug('router.post '+resource+' id:'+itemSaved.id);
-                    if(options.post_save)
-                    {
-                        if(itemSaved)
-                        {
-                            options.post_save(req,res,itemSaved);
-                        }
-                        else
-                        {
-                            options.post_save(req,res);
-                        }
-                    }
-                });
-            });
-        } else {
-            save_item(req.body, res);
-        }
-    });
 
-    function save_item(item, res)
+    function saveItem(item, res)
     {
-        return new model(item).save().then(function (row) {
+        return new Model(item).save().then(function (row) {
             res.json(row);
             return row;
         }).catch(function (err) {
@@ -72,55 +47,83 @@ module.exports = function (model, resource, options)
         });
     }
 
-    router.delete('/' + resource + "/:id", options.delete || function (req, res, next)
+    router.post('/' + resource, function (req, res)
     {
-        if (options.pre_delete)
+        if (options.preSave)
         {
-            options.pre_delete(req, res, function (item)
+            options.preSave(req, res, function (item)
             {
-                delete_item(item, res).then(function(itemDeleted)
+                saveItem(item, res).then(function(itemSaved)
                 {
-                    if(itemDeleted)
+                    log.debug('router.post ' + resource + ' id:' + itemSaved.id);
+                    if(options.postSave)
                     {
-                        log.debug('router.delete '+resource+' id:'+itemDeleted.id);
-                        if(options.post_delete)
+                        if(itemSaved)
                         {
-                            options.post_delete(req,res,itemDeleted,function(){
-                                res.json({error: false, data: {id:itemDeleted.id, message: 'Successfully deleted'}});
-                            });
+                            options.postSave(req, res, itemSaved);
                         }
                         else
                         {
-                            res.json({error: false, data: {id:itemDeleted.id, message: 'Successfully deleted'}});
+                            options.postSave(req, res);
                         }
                     }
                 });
             });
         } else {
-            delete_item(req.params, res);
+            saveItem(req.body, res);
         }
     });
 
-    function delete_item(item,res)
+
+    function deleteItem(item,res)
     {
-        return new model(item)
-        .fetch({require: true})
-        .then(function (modelItem) {
-            var id=modelItem.get('id');
-            return modelItem.destroy()
-                .then(function () {
-                    return item;
-                })
-                .otherwise(function (err) {
-                    res.status(500).json({error: true, data: {message: err.message}});
-                    return false;
-                });
-        })
-        .otherwise(function (err) {
-            res.status(500).json({error: true, data: {message: err.message}});
-            return false;
-        });
+        return new Model(item)
+            .fetch({require: true})
+            .then(function (modelItem) {
+                return modelItem.destroy()
+                    .then(function () {
+                        return item;
+                    })
+                    .otherwise(function (err) {
+                        res.status(500).json({error: true, data: {message: err.message}});
+                        return false;
+                    });
+            })
+            .otherwise(function (err) {
+                res.status(500).json({error: true, data: {message: err.message}});
+                return false;
+            });
     }
+
+    router.delete('/' + resource + "/:id", options.delete || function (req, res)
+    {
+        if (options.preDelete)
+        {
+            options.preDelete(req, res, function (item)
+            {
+                deleteItem(item, res).then(function(itemDeleted)
+                {
+                    if(itemDeleted)
+                    {
+                        log.debug('router.delete ' + resource + ' id:' + itemDeleted.id);
+                        if(options.postDelete)
+                        {
+                            options.postDelete(req, res, itemDeleted,function(){
+                                res.json({error: false, data: {id: itemDeleted.id, message: 'Successfully deleted'}});
+                            });
+                        }
+                        else
+                        {
+                            res.json({error: false, data: {id: itemDeleted.id, message: 'Successfully deleted'}});
+                        }
+                    }
+                });
+            });
+        } else {
+            deleteItem(req.params, res);
+        }
+    });
+
 
     return router;
 };

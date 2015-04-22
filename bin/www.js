@@ -2,6 +2,8 @@
 /**
  * Created by gerard on 25/03/2015.
  */
+"use strict";
+
 var express         = require('express');
 var bodyParser      = require('body-parser');
 var methodOverride  = require('method-override');
@@ -12,27 +14,28 @@ var bookshelf       = require('bookshelf')(knex);
 var models          = require('../server/models')(bookshelf);
 var auth            = require('../server/auth')(models);
 var routes          = require('../server/routes')(models);
+var path            = require('path');
 
 var app = express();
 
 app.disable('etag');        //Disable cache!!!
 
 app.set('port', process.env.PORT || 5000);
-app.set('bookshelf',bookshelf);
-app.set('models',models);
+app.set('bookshelf', bookshelf);
+app.set('models', models);
 
 app.use(bodyParser());      // pull information from html in POST
 app.use(methodOverride());  // simulate DELETE and PUT
 
 // Logging
-log = {
+var log = {
     debug: config.debug,
     warn: config.warn,
     error: config.error
 };
 
-var staticContent=__dirname+'/../ionic/www';
-log.debug('Serving Static content from: '+staticContent);
+var staticContent = path.resolve(__dirname,'/../ionic/www');
+log.debug('Serving Static content from: ' + staticContent);
 app.use(express.static(staticContent));
 
 app.use(function(req, res, next) {

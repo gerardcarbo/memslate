@@ -1,22 +1,23 @@
 /**
  * Created by gerard on 26/03/2015.
  */
+"use strict";
+
 var Schema          = require('./schema');
 var config          = require('../config');
 var knex            = require('knex')(config.knex_options);
 var bookshelf       = require('bookshelf')(knex);
 var models          = require('../models')(bookshelf);
-var auth            = require('../auth')(models);
 var sequence        = require('when/sequence');
 var _               = require('lodash');
 var uuid            = require('node-uuid');
 
 function createTable(tableName) {
-    console.log('Creating table '+tableName+'...');
+    console.log('Creating table ' + tableName + '...');
     return knex.schema.createTable(tableName, function (table)
     {
         var column;
-        var fields=Schema[tableName].fields;
+        var fields = Schema[tableName].fields;
         var columnKeys = _.keys(fields);
         _.each(columnKeys, function (key) {
             if (fields[key].type === 'text' && fields[key].hasOwnProperty('fieldtype')) {
@@ -60,11 +61,11 @@ function createTable(tableName) {
                 column.defaultTo(knex.raw(fields[key].defaultToRaw));
             }
             if (fields[key].hasOwnProperty('index')) {
-                column.index('index_'+key+'_'+fields[key].index,fields[key].index);
+                column.index('index_' + key + '_' + fields[key].index,fields[key].index);
             }
         });
 
-        var uniques=Schema[tableName].constrains.uniques;
+        var uniques = Schema[tableName].constrains.uniques;
         _.each(uniques, function (unique) {
             table.unique(unique);
         });
@@ -81,8 +82,11 @@ function createTables () {
                     return createTable(tableName);
                 };
             }
-            console.log(tableName+' already exists');
-            return function(){return null;};
+            console.log(tableName + ' already exists');
+            return function()
+            {
+                return null;
+            };
         });
     });
     return sequence(tables);
@@ -94,14 +98,14 @@ function createUsers ()
         name: 'Memslate admin user',
         email: 'admin@memslate.com',
         password: '_.,$late_',
-        token : uuid.v4()
+        token: uuid.v4()
     };
 
     var anonymous = {
         name: 'Memslate anonymous user',
         email: 'anonymous@memslate.com',
         password: 'Memolate_',
-        token : uuid.v4()
+        token: uuid.v4()
     };
 
     var p = models.User.createUser(admin).then(function(){
@@ -120,15 +124,11 @@ createTables()
     .then(function() {
         console.log('Tables created!!');
 
-        var promise=createUsers();
-        promise.then(function () {
+        createUsers.then(function () {
             console.log('Users created!!!');
-
-            process.exit(0);
         });
 
     })
     .otherwise(function (error) {
         console.log(error.stack);
-        process.exit(0);
     });
