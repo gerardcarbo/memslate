@@ -36,11 +36,11 @@ app.directive("msSelect", function ($ionicModal) {
             selectedItem: '=',
             preferedItems: '=',
             name: '@',
+            selectorClass: '@selectorClass',
             title: '@'
         },
         link: function ($scope)
         {
-            $scope.selectedItemPrefered = $scope.selectedItem;
             $scope.onSelected = function (value) {
                 $scope.selectedItem = value;
                 $scope.modalSelect.hide();
@@ -48,7 +48,8 @@ app.directive("msSelect", function ($ionicModal) {
 
             $scope.notPrefered = function(item)
             {
-                return (this.preferedItems.indexOf(item.value) === -1);
+                if(!this.preferedItems) return true;
+                return this.preferedItems.indexOf(item.value) === -1;
             };
 
             $ionicModal.fromTemplateUrl('select-modal.html', {
@@ -57,9 +58,11 @@ app.directive("msSelect", function ($ionicModal) {
             }).then(function (modal) {
                 $scope.modalSelect = modal;
             });
+
             $scope.openSelectModal = function () {
                 $scope.modalSelect.show();
             };
+
             $scope.$on('$destroy', function () {
                 $scope.modalSelect.remove();
             });
@@ -81,6 +84,7 @@ app.directive('msTranslation', ['TranslateService',function (TranslateService) {
     return {
         restrict: 'E',
         templateUrl: 'templates/widgets/ms-translation.html',
+        replace: true,
         scope: {
             translation: '='
         },

@@ -1,73 +1,80 @@
-<div ng-if="translation==null">
-    <span class="text-muted">...</span>
-</div>
-<div ng-if="translation.translating==true">
-    <span class="text-muted">Searching ...</span>
-</div>
-<div ng-if="translation.error">
-    <span class="text-error">Error while translating: {{translation.error}}</span>
-</div>
-<div class="translation_div" ng-show="translation && !translation.error && !translation.translating">
+<div id="translation_{{translation.id}}">
+    <div class="null_translation_div" ng-if="translation==null">
+        <span class="text-muted">...</span>
+    </div>
+    <div class="translating_translation_div" ng-if="translation.translating==true">
+        <span class="text-muted">Searching ...</span>
+    </div>
 
-    <div id="translationYt" ng-show="translation.provider=='yt'" class="translation_def">
-        <span class='response_main'>{{translation.translate}}</span>
-        &nbsp;>&nbsp;
-        <span>
-            <span class='response_main' ng-repeat="text in translation.rawResult.text">{{text}}
-                <span ng-show="!$last">, </span>
+    <div class="translation_div" ng-if="translation && !translation.translating">
+        <div ng-if="!translation.error">
+            <div class="translation_def translation_yt" ng-if="translation.provider=='yt'">
+                <span class='response_main'>{{translation.translate}}</span>
+                &nbsp;>&nbsp;
+            <span>
+                <span class='response_main' ng-repeat="text in translation.rawResult.text">{{text}}
+                    <span ng-show="!$last">, </span>
+                </span>
             </span>
-        </span>
-    </div>
-
-    <div id="translationYd" ng-show="translation.provider == 'yd'"
-         ng-repeat="def in translation.rawResult.def"
-         class="translation_def">
-        <p>
-            <b>
-                <span class='response_main'>{{def.text}}</span>
-                <span class='response_transcript' ng-show="def.ts"> [{{def.ts}}] </span>
-                &gt; <span class='response_main'>{{def.tr[0].text}}</span>
-            </b>
-        </p>
-
-        <p ng-repeat="tr in def.tr">
-            <span class='response_type'>{{tr.pos}}:</span>
-			<span class='response_def'>{{tr.text}}<span ng-repeat="syn in tr.syn">, {{syn.text}}</span>
-			</span>
-            <span class='response_mean' ng-show="tr.mean[0].text">({{tr.mean[0].text}})</span>
-        </p>
-    </div>
-
-    <div class="translationSamples">
-        <div ng-show="translation">
-            <p>
-                <b>samples &gt;</b>
-            </p>
-            <div class="padding-5 padding-bottom-min" style="clear: both;" ng-repeat="sample in translation.samples">
-                <span style="min-width:50%;display: inline-block;padding:2px">{{sample.sample}}</span>
-                <button class="button button-ligh icon ion-minus-round" id="del_sample_{{sample.id}}" style="float: right"
-                        ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);"
-                        class="btn btn-warning">
-                    Delete
-                </button>
             </div>
-            <div class="row">
-                <form class="width-100" ng-submit="msTranslationCtrl.saveTranslationSample();">
-                    <div class="col item item-input">
-                        <input ng-model="msTranslationCtrl.translationSample" type="text" id="sampleValue"
-                               placeholder="... with '{{translation.translate}}'" class="form-control"
-                               required/>
-                        <button class="button button-stable btn-success icon ion-plus-round">
-                            Add
+
+            <div class="translation_def translation_yd" ng-if="translation.provider == 'yd'"
+                 ng-repeat="def in translation.rawResult.def">
+                <p>
+                    <b>
+                        <span class='response_main'>{{def.text}}</span>
+                        <span class='response_transcript' ng-show="def.ts"> [{{def.ts}}] </span>
+                        &gt; <span class='response_main'>{{def.tr[0].text}}</span>
+                    </b>
+                </p>
+
+                <p ng-repeat="tr in def.tr">
+                    <span class='response_type'>{{tr.pos}}:</span>
+                <span class='response_def'>{{tr.text}}<span ng-repeat="syn in tr.syn">, {{syn.text}}</span>
+                </span>
+                    <span class='response_mean' ng-show="tr.mean[0].text">({{tr.mean[0].text}})</span>
+                </p>
+            </div>
+
+            <div ng_if="translation" class="translation_samples">
+                <div>
+                    <p>
+                        <b>samples &gt;</b>
+                    </p>
+
+                    <div class="padding-5 padding-bottom-min" style="clear: both;"
+                         ng-repeat="sample in translation.samples">
+                        <span style="min-width:40%;display: inline-block;padding:2px">{{sample.sample}}</span>
+                        <button class="button button-ligh icon ion-minus-round" id="btnDelSample{{$index}}"
+                                style="float: right"
+                                ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);">
+                            Delete
                         </button>
                     </div>
-                </form>
+                    <div class="row">
+                        <form class="full-width" ng-submit="msTranslationCtrl.saveTranslationSample();">
+                            <div class="col item item-input">
+                                <input ng-model="msTranslationCtrl.translationSample" type="text" id="sampleValue"
+                                       placeholder="... with '{{translation.translate}}'" class="form-control"
+                                       required/>
+                                <button id="btnAddSample" class="button button-stable btn-success icon ion-plus-round">
+                                    Add
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="translation" class="delete_translation_div">
+                <button class="button icon ion-trash-b" id="btnDelTranslation"
+                        ng-click="msTranslationCtrl.deleteTranslation(translation.id);"
+                        class="btn btn-danger">&nbsp;Delete Translation
+                </button>
             </div>
         </div>
-    </div>
-
-    <div ng-if="translation" style="padding-left: 5px;">
-        <button class="button icon ion-trash-b" id="btnDelTranslation" ng-click="msTranslationCtrl.deleteTranslation(translation.id);"
-           class="btn btn-danger">&nbsp;Delete Translation</button>
+        <div class="error_translation_div" ng-if="translation.error">
+        </div>
     </div>
 </div>
+

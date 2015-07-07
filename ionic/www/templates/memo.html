@@ -6,14 +6,14 @@
                           ng-click="memoCtrl.toggleTranslation(translation)"
                           ng-class="{active: memoCtrl.isTranslationShown(translation)}">
                     <div class="row no-padding">
-                        <i class="icon no-padding" ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-minus' : 'ion-plus'">&nbsp&nbsp</i>
+                        <i class="icon no-padding" ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-chevron-up' : 'ion-chevron-down'">&nbsp&nbsp</i>
                         <div class="col col-50 no-padding">{{translation.translate}} > {{translation.mainResult}}</div>
                         <div class="col col-20 no-padding"><span>{{translation.fromLang}}</span> <i class="icon ion-arrow-right-b smaller-font"></i><span> {{translation.toLang}}</span> </div>
                         <div class="col col-20 no-padding">{{translation.insertTime|date}}</div>
                     </div>
                 </div>
                 <div class="item item-accordion"
-                        ng-show="memoCtrl.isTranslationShown(translation)">
+                     ng-show="memoCtrl.isTranslationShown(translation)">
                     <ms-translation translation="translation"></ms-translation>
                 </div>
             </div>

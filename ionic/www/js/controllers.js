@@ -1,14 +1,23 @@
 "use strict";
 
-var controllersMod = angular.module('memslate.controllers', ['memslate.services', 'ionic']);
+var controllersMod = angular.module('memslate.controllers', ['memslate.services', 'ionic', 'formly']);
 
-controllersMod.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $ionicPopup, RegistrationService, UserService)
+controllersMod.controller('AppCtrl', function ($scope, $timeout, $state, $ionicModal, $ionicPopup,
+                                               RegistrationService, UserService, SessionService, UI)
 {
     // Form data for the login modal
-    $scope.loginData = {};
-    $scope.registerData = {};
+    this.init = function ()
+    {
+        $scope.loginData = {};
+        $scope.registerData = {};
 
-      // Create the login modal that we will use later
+        $scope.memoSettings = SessionService.getObject('memoSettings');
+        //$('#memoOrderWayMenu').addClass(memoSettings.orderWay == 'asc' ? 'ion-arrow-up-b':'ion-arrow-down-b')
+    };
+
+    this.init();
+
+    // Create the login modal that we will use later
     $ionicModal.fromTemplateUrl('templates/login.html', {
         scope: $scope
     }).then(function(modal) {
@@ -57,9 +66,18 @@ controllersMod.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $i
         return UserService.isAuthenticated();
     };
 
+    $scope.stateIs = function(state)
+    {
+        return $state.is(state);
+    }
+
     // Perform the login action when the user submits the login form
     $scope.doLogin = function(loginForm) {
-        if (!loginForm.$valid) { return false; }
+        if (!loginForm.$valid)
+        {
+            UI.toast("Some data is not correct. Please, check it.");
+            return false;
+        }
         console.log('Doing login', $scope.loginData);
         RegistrationService.login($scope.loginData.email, $scope.loginData.password).then(function(login){
             if(login.done) {
@@ -70,7 +88,8 @@ controllersMod.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $i
             {
                 $ionicPopup.alert({
                     title: 'Login Failed',
-                    content: login.err.data
+                    content: login.err.data,
+                    cssClass: 'loginFailedPopup'
                 });
             }
         });
@@ -89,13 +108,18 @@ controllersMod.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $i
     };
 
     $scope.doRegister =  function(registerForm) {
-        if (!registerForm.$valid) { return false; }
+        if (!registerForm.$valid)
+        {
+            UI.toast("Some data is not correct. Please, check it.");
+            return false;
+        }
         console.log('Doing register', $scope.registerData);
         if($scope.registerData.password !== $scope.registerData.password2)
         {
             $ionicPopup.alert({
                 title: 'Registration Failed',
-                content: 'Passwords does not match.'
+                content: 'Passwords does not match.',
+                cssClass: 'registrationFailedPopup'
             });
             return null;
         }
@@ -109,10 +133,31 @@ controllersMod.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $i
             {
                 $ionicPopup.alert({
                     title: 'Registration Failed',
-                    content: register.err.data
+                    content: register.err.data,
+                    cssClass: 'registrationFailedPopup'
                 });
             }
         });
+    };
+
+    $scope.changeOrderWay = function($event)
+    {
+        var memoSettings = SessionService.getObject('memoSettings');
+        if(memoSettings.orderWay == 'asc')
+        {
+            memoSettings.orderWay = 'desc';
+            $($event.target).removeClass('ion-arrow-down-b');
+            $($event.target).addClass('ion-arrow-up-b');
+        }
+        else
+        {
+            memoSettings.orderWay = 'asc';
+            $($event.target).addClass('ion-arrow-down-b');
+            $($event.target).removeClass('ion-arrow-up-b');
+         }
+
+        SessionService.putObject('memoSettings', memoSettings);
+        MemoCtrl.reset();
     };
 
     //Cleanup the modal when we're done with it!
@@ -128,6 +173,15 @@ controllersMod.controller('AppCtrl', function ($scope, $timeout, $ionicModal, $i
     });
 });
 
+controllersMod.controller('MemoSlideCtrl', function($scope)
+{
+    $scope.next = function() {
+        $scope.$broadcast('memoSlideBox.nextSlide');
+    };
+    $scope.slideChanged = function(index) {
+    };
+});
+
 controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateService, LanguagesService)
 {
     var translateCtrl = this;
@@ -135,38 +189,39 @@ controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateServic
     this.swappingFrom = false;
     this.swappingTo = false;
 
-    LanguagesService.getLanguages().then(function(languages){
+    LanguagesService.getLanguages().then(function(languages)
+    {
         console.log(languages);
         translateCtrl.languages = languages;
     });
 
-    this.swapLanguages = function () {
-        this.swappingFrom = this.swappingTo = true;
+    this.swapLanguages = function ()
+    {
+        translateCtrl.swappingFrom = translateCtrl.swappingTo = true;
 
-        var selectedFrom = LanguagesService.languages.selectedFrom;
-        var selectedTo = LanguagesService.languages.selectedTo;
+        var fromLang = LanguagesService.languages.user.fromLang;
+        var toLang = LanguagesService.languages.user.toLang;
 
         $("#btnSwap").transition({rotate: '+=180deg'}, 1000, 'in');
 
         $('#fromLang').children('b').fadeOut(500, function () {
-            translateCtrl.languages.selectedFrom = selectedTo;
+            translateCtrl.languages.user.fromLang = toLang;
             $scope.$apply();
             $('#fromLang').children('b').fadeIn(500);
             translateCtrl.swappingFrom = false;
         });
         $('#toLang').children('b').fadeOut(500, function () {
-            translateCtrl.languages.selectedTo = selectedFrom;
+            translateCtrl.languages.user.toLang = fromLang;
             $scope.$apply();
             $('#toLang').children('b').fadeIn(500);
             translateCtrl.swappingTo = false;
         });
 
         delete translateCtrl.translation;
-        delete translateCtrl.textToTranslate;
-
     };
 
-    this.translate = function () {
+    this.translate = function ()
+    {
         if (!this.textToTranslate || this.textToTranslate === "") {
             UI.toast("Please, specify a text to translate.");
             return;
@@ -178,21 +233,19 @@ controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateServic
         this.translation.error = null;
         this.translation.translating = true;
 
-
-
-        TranslateService.translate(LanguagesService.languages.selectedFrom,
-                                    LanguagesService.languages.selectedTo,
+        TranslateService.translate(LanguagesService.languages.user.fromLang,
+                                    LanguagesService.languages.user.toLang,
                                     this.textToTranslate)
             .then(function (data) //success
             {
-                LanguagesService.addPrefered(LanguagesService.languages.selectedFrom);
-                LanguagesService.addPrefered(LanguagesService.languages.selectedTo);
                 translateCtrl.translation = data;
             },
             function (data, status) //error
             {
                 translateCtrl.translation.translating = false;
                 translateCtrl.translation.error = data || "Unknown Error";
+
+                UI.toast(translateCtrl.translation.error);
 
                 // log the error to the console
                 console.log("The following error occured: " + status);
@@ -203,27 +256,30 @@ controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateServic
             });
     };
 
-    this.reset = function(){
+    this.reset = function()
+    {
         translateCtrl.textToTranslate = undefined;
         translateCtrl.translation = undefined;
 
+        LanguagesService.clearUserLanguages();
         LanguagesService.getUserLanguages().then(function(userLangs){
-            translateCtrl.languages.selectedFrom = userLangs.fromLang;
-            translateCtrl.languages.selectedTo = userLangs.toLang;
-            translateCtrl.languages.prefered = userLangs.prefered;
+            translateCtrl.languages.user = userLangs;
         });
     };
 
-    $scope.$watch('translateCtrl.languages.selectedFrom', function (newValue, oldValue) {
-        if (!translateCtrl.swappingFrom && newValue !== oldValue && newValue === translateCtrl.languages.selectedTo) {
-            UI.toast("From and to languages must be distinct", 2000);
-            translateCtrl.languages.selectedFrom = oldValue;
+    $scope.$watch('translateCtrl.languages.user.fromLang', function (newValue, oldValue)
+    {
+        if (!translateCtrl.swappingFrom && newValue !== oldValue && newValue === translateCtrl.languages.user.toLang) {
+            UI.toast("From and to languages must be distinct");
+            translateCtrl.languages.user.fromLang = oldValue;
         }
     });
-    $scope.$watch('translateCtrl.languages.selectedTo', function (newValue, oldValue) {
-        if (!translateCtrl.swappingTo && newValue !== oldValue && newValue === translateCtrl.languages.selectedFrom) {
-            UI.toast("From and to languages must be distinct", 2000);
-            translateCtrl.languages.selectedTo = oldValue;
+
+    $scope.$watch('translateCtrl.languages.user.toLang', function (newValue, oldValue)
+    {
+        if (!translateCtrl.swappingTo && newValue !== oldValue && newValue === translateCtrl.languages.user.fromLang) {
+            UI.toast("From and to languages must be distinct");
+            translateCtrl.languages.user.toLang = oldValue;
         }
     });
 
@@ -244,14 +300,126 @@ controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateServic
     });
 });
 
-controllersMod.controller('MemoCtrl', function ($scope, TranslateService) {
+controllersMod.controller('MemoFilterCtrl', function ($scope, $rootScope, $state, MemoFilterService, SessionService, LanguagesService)
+{
     var self = this;
 
-    self.init = function(){
+    this.formData = SessionService.getObject('memoFilterSettings');
+    this.formFields = [
+        {
+            key: 'filterByString',
+            type: 'checkbox',
+            templateOptions: {label: 'Filter by String'}
+        },
+        {
+            key: 'filterString',
+            type: 'input',
+            hideExpression: '!model.filterByString',
+            templateOptions: {
+                type: 'text',
+                label: 'From Date',
+                placeholder: 'enter a filter string ...',
+                required: true
+            }
+        },
+        {
+            key: 'filterByDates',
+            type: 'checkbox',
+            templateOptions: {label: 'Filter by Dates'}
+        },
+        {
+            key: 'filterDateFrom',
+            type: 'memslateDate',
+            hideExpression: '!model.filterByDates',
+            templateOptions: {
+                label: 'From Date',
+                required: true
+            }
+        },
+        {
+            key: 'filterDateTo',
+            type: 'memslateDate',
+            hideExpression: '!model.filterByDates',
+            templateOptions: {
+                label: 'To Date',
+                required: true
+            }
+        },
+        {
+            key: 'filterByLanguages',
+            type: 'checkbox',
+            templateOptions: {label: 'Filter by Languages'}
+        },
+        {
+            key: 'filterFromLanguage',
+            type: 'memslateSelect',
+            hideExpression: '!model.filterByLanguages',
+            templateOptions: {
+                name: 'From',
+                label: 'From Languate',
+                options: []
+            }
+        },
+        {
+            key: 'filterToLanguage',
+            type: 'memslateSelect',
+            hideExpression: '!model.filterByLanguages',
+            templateOptions: {
+                name: 'To',
+                label: 'To Language',
+                options: []
+            }
+        },
+    ];
+
+    LanguagesService.getLanguages().then(function(languages)
+    {
+        console.log(languages);
+        self.formFields[6].templateOptions.options = languages.items;
+        self.formFields[7].templateOptions.options = languages.items;
+        self.formFields[6].templateOptions.prefered = languages.user.prefered;
+        self.formFields[7].templateOptions.prefered = languages.user.prefered;
+    });
+
+    self.onSubmit = function()
+    {
+        SessionService.putObject('memoFilterSettings', self.formData);
+        $rootScope.$broadcast('ms:memoFilterSettingsUpdated');
+        $state.go('app.memo', null, {location: 'replace'});
+    };
+
+    self.onCancel = function()
+    {
+        $state.go('app.memo', null, {location: 'replace'});
+        self.formData = SessionService.getObject('memoFilterSettings');
+    };
+});
+
+var MemoCtrl;
+
+controllersMod.controller('MemoCtrl', function ($scope, SessionService, TranslateService)
+{
+    var self = this;
+    MemoCtrl = this;
+
+    self.init = function()
+    {
+        self.settings = SessionService.getObject('memoSettings');
+        if(!self.settings)
+        {
+            self.settings = {};
+            self.settings.limit = 10;
+            self.settings.offset = 0;
+            self.settings.orderWay = 'asc';
+
+            SessionService.putObject('memoSettings', self.settings);
+        }
+
+        self.filterSettings = SessionService.getObject('memoFilterSettings');
+
         self.translations = [];
-        self.limit = 10;
-        self.offset = 0;
         self.moreDataAvailable = true;
+        self.adding = false;
     };
 
     self.init();
@@ -261,12 +429,26 @@ controllersMod.controller('MemoCtrl', function ($scope, TranslateService) {
         return self.moreDataAvailable;
     };
 
-    self.addItems = function () {
-        console.log('adding items ' + self.limit + ' ' + self.offset);
+    self.addItems = function ()
+    {
+        if(self.adding)
+        {
+            console.log('addItems: already adding');
+            return;
+        }
+
+        self.adding = true;
+
+        var options = angular.extend({}, self.settings, self.filterSettings)
+
+        console.log('addItems: getting items ', options);
+
         TranslateService.getTranslations(
-            {limit: self.limit, offset: self.offset},
-            function (translations) {
-                var newTranslations = translations.map(function (item) {
+            options,
+            function (translations)
+            {
+                var newTranslations = translations.map(function (item)
+                {
                     try
                     {
                         item.rawResult = JSON.parse(item.rawResult);
@@ -287,14 +469,16 @@ controllersMod.controller('MemoCtrl', function ($scope, TranslateService) {
 
                 $scope.$broadcast('scroll.infiniteScrollComplete');
 
-                self.offset += 10;
+                self.settings.offset += 10;
+                self.adding = false;
 
-                console.log('adding items done');
+                console.log('addItems: adding items done');
             });
     };
 
     self.reset = function()
     {
+        console.log('reset');
         self.init();
         self.addItems();
     };
@@ -330,8 +514,73 @@ controllersMod.controller('MemoCtrl', function ($scope, TranslateService) {
         self.reset();
     });
 
+    $scope.$on('ms:memoFilterSettingsUpdated',function(){
+        self.reset();
+    });
+
 });
 
-controllersMod.controller('UserCtrl', function ($scope, UserService) {
+controllersMod.controller('UserCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, UserService, RegistrationService, UI) {
     this.User = UserService;
+
+    this.deleteAccount = function()
+    {
+        $ionicPopup.confirm({
+            title: 'Delete Account',
+            content: 'Sure you want to delete your account?',
+            cssClass: 'deleteAccountPopup'
+        }).then(function (res)
+        {
+            if(res)
+            {
+                RegistrationService.unregister().then(function(res){
+                    if(res.done)
+                    {
+                        UI.toast("Account Deleted");
+                        $state.go('app.home', null, {location: 'replace'});
+                    }
+                    else
+                    {
+                        UI.toast("Failed do delete account: "+res.err.data);
+                    }
+                });
+            }
+        });
+    }
+
+    this.showChangePwd = function()
+    {
+        $('#showChangePwdButton').hide();
+        $('#changePwdForm').show();
+    };
+
+    this.changePassword = function(changePwdForm)
+    {
+        if (!changePwdForm.$valid)
+        {
+            UI.toast("Some data is not correct. Please, check it.");
+            return false;
+        }
+        if(this.newPwd !== this.newPwd2)
+        {
+            UI.toast("Passwords does not match. Please, check it.");
+            return false;
+        }
+
+        RegistrationService.changePassword(this.oldPwd, this.newPwd).then(function(res) {
+            if (res.done) {
+                UI.toast("Password Changed");
+            }
+            else
+            {
+                UI.toast("Failed to change password: " + res.err.data);
+            }
+        });
+    }
 });
+
+controllersMod.controller('PlayCtrl', function ($scope, UI, TranslateService, LanguagesService)
+{
+
+});
+

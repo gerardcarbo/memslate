@@ -71,11 +71,12 @@ module.exports = function (models)
     {
         if (translation)
         {
-            log.debug('saveUserTranslation: translationId:' + translation.id);
+            log.debug('saveUserTranslation: translationId:' + translation.id + ' : ' + translation.translate);
 
             var userTranslation = {};
             userTranslation.translationId = translation.id;
             userTranslation.userId = req.user.id;
+            userTranslation.translate = translation.translate;
 
             models.UserTranslations.forge(userTranslation).fetch().then(function(model) {
                 if (!model) {
@@ -111,16 +112,22 @@ module.exports = function (models)
         addToUserLanguages(req);
     }
 
-
-    var translations = restful(models.Translations, 'translations', {
+    var translations = restful(models.Translations, 'translations',
+    {
         getAll: function (req, res)
         {
             var offset = req.query.offset || 0;
             var limit = req.query.limit || 5;
+            var orderWay = req.query.orderWay || 'desc';
+            var orderBy = req.query.orderby || 'translate';
+            var userId = req.user.id || config.ANONIMOUS_USER_ID;
 
-            models.UserTranslations.query({
-                select: '*', limit: limit, offset: offset
-            }).where({userId: req.user.id})
+            models.UserTranslations.query(function(qb) {
+                    qb.orderBy(orderBy, orderWay);
+                    qb.limit(limit);
+                    qb.offset(offset);
+                })
+                .where({userId: userId})
                 .fetchAll({withRelated: ['translation']})
                 .then(function (collection) {
                     if (collection) {
@@ -247,9 +254,11 @@ module.exports = function (models)
     {
         var defUserLanguages = {};
         defUserLanguages.userId = req.user.id;
-        defUserLanguages.fromLang = 'en';
         var locales = new locale.Locales(req.headers["accept-language"]);
         defUserLanguages.toLang = (defUserLanguages.fromLang !== locales[0].language ? locales[0].language : locales[1].language);
+
+        (defUserLanguages.toLang == 'en' ? defUserLanguages.fromLang = 'es' : defUserLanguages.fromLang = 'en');
+
         defUserLanguages.prefered = [defUserLanguages.fromLang, defUserLanguages.toLang];
 
         addPrefered(defUserLanguages.prefered,[locales[0] && locales[0].language,locales[1] && locales[1].language,locales[2] && locales[2].language,locales[3] && locales[3].language]);
@@ -257,9 +266,8 @@ module.exports = function (models)
         return defUserLanguages;
     };
 
-    var userLanguages = restful(models.UserLanguages,
-        'userLanguages',
-        {
+    var userLanguages = restful(models.UserLanguages, 'userLanguages',
+    {
             getAll: function (req, res, next)
             {
                 if(req.user.id === config.ANONIMOUS_USER_ID)

@@ -1,0 +1,242 @@
+/**
+ * Created by gerard on 23/04/2015.
+ */
+"use strict";
+
+describe("Unit: Services Tests", function ()
+{
+    var httpBackend;
+
+    beforeEach(module('memslate.services'));
+
+    beforeEach(function () {
+        module(function ($provide) {
+            $provide.constant('BaseUrl', '');
+        });
+    });
+
+    beforeEach(function () {
+        module(function ($provide) {
+            $provide.constant('TranslationsProvider', 'yandex');
+        });
+    });
+
+    beforeEach(inject(function (_$httpBackend_) {
+        httpBackend = _$httpBackend_;
+    }));
+
+    // make sure no expectations were missed in your tests.
+    // (e.g. expectGET or expectPOST)
+    afterEach(function () {
+        httpBackend.verifyNoOutstandingExpectation();
+        httpBackend.verifyNoOutstandingRequest();
+    });
+    
+    var objSession1={key1: 'val1', key2: 100};
+
+    describe("SessionService Tests", function () {
+
+        var SessionService;
+        beforeEach(inject(function (_SessionService_) {
+            SessionService = _SessionService_;
+        }));
+
+        it("adding and getting values I", function () {
+            SessionService.put('key1', 'val1')
+            expect(SessionService.get('key1')).toBe('val1');
+            SessionService.put('key2', 'val2')
+            expect(SessionService.get('key2')).toBe('val2');
+
+            SessionService.putObject('keyObj1', objSession1);
+            expect(SessionService.getObject('keyObj1')).toEqual(objSession1);
+        });
+
+        it("adding and getting values II", function () {
+            expect(SessionService.get('key1')).toBe('val1');
+            expect(SessionService.get('key2')).toBe('val2');
+            expect(SessionService.getObject('keyObj1')).toEqual(objSession1);
+
+            SessionService.remove('key1');
+            SessionService.remove('key2');
+            SessionService.remove('keyObj1');
+
+            expect(SessionService.get('key1')).toBeNull();
+            expect(SessionService.get('key2')).toBeNull();
+            expect(SessionService.getObject('keyObj1')).toBeNull();
+        });
+    });
+    
+    describe("LanguagesService Tests", function () {
+        // set up some data for the http call to return and test later.
+        var LanguagesService,SessionService;
+
+        beforeEach(inject(function (_LanguagesService_, _SessionService_) {
+            SessionService = _SessionService_;
+            LanguagesService = _LanguagesService_;
+        }));
+
+        it("is registered with the module.", function () {
+            expect(LanguagesService).not.toBeNull();
+            expect(SessionService).not.toBeNull();
+        });
+
+        it('BaseUrl changed to (empty)', inject(function ($injector) {
+            var BaseUrl = $injector.get('BaseUrl');
+            expect(BaseUrl).toBe('');
+        }));
+
+        it("getUserLanguages method", function () {
+            SessionService.remove('userLanguages');
+
+            // expectGET to make sure this is called once.
+            httpBackend.expectGET('resources/userLanguages').respond(testingData.responseUserLanguages);
+
+            var userLangs = {};
+            LanguagesService.getUserLanguages().then(
+                function (response) {
+                    userLangs = response;
+                },
+                function (err) {
+                    console.log('getUserLanguages method' + err);
+                    expect(err).toBeNull();
+                });
+
+            httpBackend.flush();
+
+            expect(userLangs.userId).toBeDefined();
+            expect(userLangs.fromLang).toBeDefined();
+            expect(userLangs.toLang).toBeDefined();
+            expect(userLangs.prefered).toBeDefined();
+
+            expect(userLangs.userId).toBe(11);
+            expect(userLangs.fromLang).toBe('es');
+            expect(userLangs.toLang).toBe('en');
+            expect(userLangs.prefered.length).toBe(testingData.responseUserLanguages.prefered.length);
+            expect(userLangs.prefered[0]).toBe(testingData.responseUserLanguages.prefered[0]);
+            expect(userLangs.prefered[1]).toBe(testingData.responseUserLanguages.prefered[1]);
+            expect(userLangs.prefered[2]).toBe(testingData.responseUserLanguages.prefered[2]);
+        });
+
+        it("getLanguages and addPrefered methods", function ()
+        {
+            httpBackend.expectGET('https://translate.yandex.net/api/v1.5/tr.json/getLangs?key=trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430&ui=en')
+                .respond(testingData.responseLanguages);
+            /*  Not called as localStorage data used...
+            httpBackend.expectGET('resources/userLanguages')
+                .respond(testingData.responseUserLanguages); */
+
+            console.log('userLanguages: ',SessionService.getObject('userLanguages'));
+
+            var languages = {};
+            LanguagesService.getLanguages().then(
+                function (response) {
+                    languages = response;
+                },
+                function (err) {
+                    console.log('getUserLanguages method' + err);
+                    expect(err).toBeNull();
+                });
+
+            httpBackend.flush();
+
+            LanguagesService.addPrefered('fr');
+
+            expect(languages.user.fromLang).toBeDefined();
+            expect(languages.user.toLang).toBeDefined();
+            expect(languages.items).toBeDefined();
+            expect(languages.user.prefered).toBeDefined();
+            expect(languages.user.fromLang).toBe('es');
+            expect(languages.user.toLang).toBe('en');
+            expect(languages.items.length).toBeDefined();
+            expect(languages.items.length).toBe(46);
+            expect(languages.user.prefered.length).toBeDefined();
+            expect(languages.user.prefered.length).toBe(4);
+            expect(languages.user.prefered[0]).toBe('fr');
+
+            LanguagesService.addPrefered('ru');
+
+            expect(languages.user.prefered.length).toBe(4);
+            expect(languages.user.prefered[0]).toBe('ru');
+            expect(languages.user.prefered[1]).toBe('fr');
+
+            console.log('userLanguages2: ',SessionService.getObject('userLanguages'));
+        })
+    });
+
+    describe('Translate Service tests', function ()
+    {
+        var TranslateService;
+
+        beforeEach(inject(function (_TranslateService_) {
+            TranslateService = _TranslateService_;
+        }));
+
+        it("is registered with the module.", function () {
+            expect(TranslateService).not.toBeNull();
+        });
+
+        it("translate simple word", function ()
+        {
+            httpBackend.expectGET('https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb&lang=en-es&text=cake&ui=en')
+                .respond(testingData.responseGetCake);
+
+            httpBackend.expectPOST('resources/translations').respond({id: 0});
+
+            var translationCake = {};
+            TranslateService.translate('en', 'es', 'cake').then(
+                function (response) {
+                    console.log(response)
+                    translationCake = response;
+                },
+                function (err) {
+                    console.log('translate method' + err);
+                    expect(err).toBeNull();
+                });
+
+            httpBackend.flush();
+
+            expect(translationCake.id).toBe(0);
+            expect(translationCake.translate).toBe('cake');
+            expect(translationCake.mainResult).toBe('pastel');
+            expect(translationCake.fromLang).toBe('en');
+            expect(translationCake.toLang).toBe('es');
+            expect(translationCake.provider).toBe('yd');
+            expect(translationCake.rawResult).toBeDefined();
+            expect(translationCake.rawResult).toEqual(testingData.responseGetCake);
+        });
+
+        it("translate multiple word", function ()
+        {
+            httpBackend.expectGET('https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb&lang=en-es&text=do+less&ui=en')
+                .respond(testingData.responseGetDoLessDict);
+
+            httpBackend.expectGET('https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430&lang=en-es&text=do+less&ui=en')
+                .respond(testingData.responseGetDoLessTransl);
+
+            httpBackend.expectPOST('resources/translations').respond({id: 0});
+
+            var translationDoMore = {};
+            TranslateService.translate('en', 'es', 'do less').then(
+                function (response) {
+                    console.log('translation multiple word');
+                    console.log(response);
+                    translationDoMore = response;
+                },
+                function (err) {
+                    console.log('translate method' + err);
+                    expect(err).toBeNull();
+                });
+
+            httpBackend.flush();
+
+            expect(translationDoMore.id).toBe(0);
+            expect(translationDoMore.translate).toBe('do less');
+            expect(translationDoMore.mainResult).toBe('hacer menos');
+            expect(translationDoMore.fromLang).toBe('en');
+            expect(translationDoMore.toLang).toBe('es');
+            expect(translationDoMore.provider).toBe('yt');
+            expect(translationDoMore.rawResult).toBeDefined();
+            expect(translationDoMore.rawResult).toEqual(testingData.responseGetDoLessTransl);
+        });
+    })
+});

@@ -1,0 +1,9 @@
+<ion-view view-title="Filter Memo">
+    <ion-content class="has-header">
+        <formly-form model="memoFilterCtrl.formData" fields="memoFilterCtrl.formFields"
+                     form="memoFilterCtrl.form" options="memoFilterCtrl.options">
+            <button class="button button-block" ng-click="memoFilterCtrl.onSubmit()" ng-disabled="memoFilterCtrl.form.$invalid">Save</button>
+            <button class="button button-block" ng-click="memoFilterCtrl.onCancel()">Cancel</button>
+        </formly-form>
+    </ion-content>
+</ion-view>

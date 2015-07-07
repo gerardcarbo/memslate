@@ -13,7 +13,7 @@ gulp.task('default', ['serve']);
 
 
 gulp.task('serve', function () {
-    nodemon({ script: 'bin/www.js', ignore: ["ionic/memslate/ionic/**/*","ionic/memslate/node_modules/**/*"]})
+    nodemon({ script: 'bin/www.js', ignore: ["tests/**/*","ionic/memslate/ionic/**/*","ionic/memslate/node_modules/**/*"]})
         .on('restart', function () {
             console.log('restarted!')
         })

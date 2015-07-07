@@ -1,6 +1,18 @@
 "use strict";
 
-angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services', 'memslate.directives'])
+angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'memslate.controllers', 'memslate.services', 'memslate.directives'],
+    function config(formlyConfigProvider) {
+        // set formly templates here
+        formlyConfigProvider.setType({
+            name: 'memslateDate',
+            template: "<label class=\"item item-input\">{{options.templateOptions.label}}:<input type=\"date\" ng-model=\"model[options.key]\" style='padding-left:10px;'/></label>"
+        });
+
+        formlyConfigProvider.setType({
+            name: 'memslateSelect',
+            template: "<ms-select id='{{options.templateOptions.id}}' name='{{options.templateOptions.name}}' title='{{options.templateOptions.label}}' items='options.templateOptions.options' prefered-items='options.templateOptions.prefered' selected-item='model[options.key]' style='border-right: 1px;border-top-right-radius: 0px;border-bottom-right-radius: 0px;'></ms-select>"
+        });
+    })
 
     .run(function ($ionicPlatform) {
         $ionicPlatform.ready(function () {
@@ -16,7 +28,8 @@ angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services'
         });
     })
 
-    .config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, $httpProvider)
+    {
         $stateProvider
 
             .state('app', {
@@ -24,6 +37,15 @@ angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services'
                 abstract: true,
                 templateUrl: "templates/menu.html",
                 controller: 'AppCtrl'
+            })
+
+            .state('app.home', {
+                url: "/home",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/home.html"
+                    }
+                }
             })
 
             .state('app.translate', {
@@ -46,6 +68,26 @@ angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services'
                 }
             })
 
+            .state('app.memoFilter', {
+                url: "/memoFilter",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/memoFilter.html",
+                        controller: 'MemoFilterCtrl as memoFilterCtrl'
+                    }
+                }
+            })
+
+            .state('app.play', {
+                url: "/play",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/play.html",
+                        controller: 'PlayCtrl as playCtrl'
+                    }
+                }
+            })
+
             .state('app.user', {
                 url: "/user",
                 views: {
@@ -58,7 +100,7 @@ angular.module('memslate', ['ionic', 'memslate.controllers', 'memslate.services'
 
 
         // if none of the above states are matched, use this as the fallback
-        $urlRouterProvider.otherwise('/app/translate');
+        $urlRouterProvider.otherwise('/app/home');
 
         // Register middleware to ensure our auth token is passed to the server
         $httpProvider.interceptors.push('TokenInterceptor');

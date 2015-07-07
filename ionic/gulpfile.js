@@ -14,7 +14,7 @@ var uglify = require("gulp-uglify");
 var eslint = require('gulp-eslint');
 
 var paths = {
-  sass: ['./scss/**/*.scss']
+  sass: ['./www/lib/ionic/scss/**/*.scss']
 };
 
 gulp.task('default', ['serve-ionic']);
@@ -22,6 +22,10 @@ gulp.task('default', ['serve-ionic']);
 //Ionic Serve Task
 gulp.task('serve-ionic',shell.task([
     'ionic serve'
+]));
+
+gulp.task('serve-ionic lab',shell.task([
+    'ionic serve --lab'
 ]));
 
 //Ionic Serve Task
@@ -59,8 +63,6 @@ gulp.task('eslint_client', function () {
     // lint error, return the stream and pipe to failOnError last.
     //.pipe(eslint.failOnError());
 });
-
-
 
 gulp.task('watch sass', function() {
   gulp.watch(paths.sass, ['sass']);

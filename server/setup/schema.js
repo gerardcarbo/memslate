@@ -33,8 +33,10 @@ var Schema = {
     UserTranslations: {
         fields: {
             id: {type: 'increments',  primary: true},
-            userId: {type: 'integer',  unsigned: true},
-            translationId: {type: 'integer',  unsigned: true}
+            userId: {type: 'integer',  unsigned: true, references: 'Users.id',onDelete:'CASCADE'},
+            translationId: {type: 'integer',  unsigned: true, references: 'Translations.id',onDelete:'CASCADE'},
+            translate: {type: 'string', nullable: false },
+            insertTime: {type: 'timestamp', defaultToRaw: 'now()'}
         },
         constrains: {
             uniques: [['userId', 'translationId']]
@@ -43,8 +45,8 @@ var Schema = {
     UserTranslationsSamples: {
         fields: {
             id: {type: 'increments',  primary: true},
-            userId: {type: 'integer',  unsigned: true},
-            translationId: {type: 'integer',  unsigned: true},
+            userId: {type: 'integer',  unsigned: true, references: 'Users.id',onDelete:'CASCADE'},
+            translationId: {type: 'integer',  unsigned: true, references: 'Translations.id',onDelete:'CASCADE'},
             sample: {type: 'string' }
         },
         constrains: {
@@ -54,7 +56,7 @@ var Schema = {
     UserLanguages: {
         fields: {
             id: {type: 'increments',  primary: true},
-            userId: {type: 'integer',  unsigned: true},
+            userId: {type: 'integer',  unsigned: true, references: 'Users.id',onDelete:'CASCADE'},
             fromLang: {type: 'string', maxlength: 4},
             toLang: {type: 'string', maxlength: 4},
             prefered: {type: 'json', nullable: true}

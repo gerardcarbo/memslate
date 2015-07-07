@@ -1,0 +1,51 @@
+<ion-view view-title="Memslate > Home" class="home">
+    <ion-content class="has-header">
+        <div ng-controller="MemoSlideCtrl" >
+            <ion-slide-box auto-play="true" on-slide-changed="slideChanged(index)" does-continue="true"
+                           slide-interval="3000" show-pager="true" >
+                <ion-slide class="slider-slide-translate">
+                    <h2>1. Translate...</h2>
+                    <p>Translate words and phrases from and to multiple languages...</p>
+                    <p><button class="button button-stable button-positive" ui-sref="app.translate" role="button">Try it!</button></p>
+                </ion-slide>
+                <ion-slide class="slider-slide-memo">
+                    <h2>2. ...Memorize...</h2>
+                    <p>Access to your past translations. Order, filter and review in order to memorize them.</p>
+                    <p><a class="button button-stable button-positive" ui-sref="app.memo" role="button">View Demo</a></p>
+                </ion-slide>
+                <ion-slide class="slider-slide-play">
+                    <h2>3. ...and Play!</h2>
+                    <p>Perform funny tests based on you previous translations!</p>
+                    <p><a class="button button-stable button-positive" ui-sref="app.play" role="button">View Demo</a></p>
+                </ion-slide>
+            </ion-slide-box>
+        </div>
+        <div>
+            <div class="row center-text display-block">
+                <h1 class="featurette-heading">Memslate &gt; <span class="text-muted">Memorize your Translations.</span></h1>
+                <p class="lead featurette-text">Memslate can help you to translate words and phrases and to memorize them. How does it works?<br></p>
+            </div>
+            <!-- marketing area -->
+            <div class="row responsive-sm">
+                <div class="col">
+                    <h2 class="featurette-heading ion-search"> Translate</h2>
+                    <p>Memslate is able to translate form and to multiple languages. Translations include multiple exceptions and fonetic trascription.</p>
+                    <p class="center-text">
+                        <button  id="translateButton" class="button button-stable button-positive" ui-sref="app.translate" role="button" nav-clear menu-close >Try It!</button></p>
+                </div><!-- /.col-lg-4 -->
+                <div class="col">
+                    <h2 class="featurette-heading ion-clipboard"> Memorize</h2>
+                    <p>Memslate keeps track of your translations. You can order, filter and review them whenever you want in order to memorize them.</p>
+                    <p class="center-text">
+                        <button id="memoButton" class="button button-stable button-positive" ui-sref="app.memo" role="button"  nav-clear menu-close>View Demo</button></p>
+                </div><!-- /.col-lg-4 -->
+                <div class="col">
+                    <h2 class="featurette-heading ion-play"> And Play!</h2>
+                    <p>And finally Memslate can perform tests, based on your previous translations. The tests are performed in order to help you memorize them. Learn while playing!</p>
+                    <p class="center-text">
+                        <button id="playButton" class="button button-stable button-positive" ui-sref="app.play" role="button"  nav-clear menu-close>View Demo</button></p>
+                </div><!-- /.col-lg-4 -->
+            </div><!-- /.row -->
+        </div>
+    </ion-content>
+</ion-view>

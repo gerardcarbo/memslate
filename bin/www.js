@@ -34,7 +34,7 @@ var log = {
     error: config.error
 };
 
-var staticContent = path.resolve(__dirname,'/../ionic/www');
+var staticContent = __dirname+'/../ionic/www';
 log.debug('Serving Static content from: ' + staticContent);
 app.use(express.static(staticContent));
 
@@ -51,10 +51,16 @@ app.use(function(err, req, res, next) {
 // CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
 app.use(cors());
 
-app.use('/register', auth.register);
-app.use('/login', auth.login);
-
 app.all('/resources/*', auth.authenticate);
+app.all('/unregister', auth.authenticate);
+app.all('/changePwd', auth.authenticate);
+app.all('/logout', auth.authenticate);
+
+app.use('/register', auth.register);
+app.use('/unregister', auth.unregister);
+app.use('/login', auth.login);
+app.use('/logout', auth.logout);
+app.use('/changePwd', auth.changePwd);
 
 app.use('/resources', routes.translations);
 app.use('/resources', routes.translationsSamples);

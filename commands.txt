@@ -10,6 +10,14 @@ cordova plugin add https://github.com/apache/cordova-plugin-whitelist.git -> all
 
 #HEROKU
 
+heroku auth:token
+
+git push heroku master
+    user: blank
+    pwd: {auth token}
+
+git push -f heroku master (after git commit --amend)
+
 heroku ps:scale web=0
 heroku ps:scale setup=1
 heroku logs

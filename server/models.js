@@ -4,8 +4,10 @@ var uuid = require('node-uuid');
 var utils = require('./utils');
 var log = require('./config');
 
-module.exports = function (bookshelf) {
-    var User = bookshelf.Model.extend({
+module.exports = function (bookshelf)
+{
+    var User = bookshelf.Model.extend(
+    {
         tableName: 'Users',
 
         initialize: function () {
@@ -21,7 +23,8 @@ module.exports = function (bookshelf) {
                 }
             });
         }
-    }, {
+    },
+    {
         createUser: function (user) {
             log.debug('createUser: creating "' + user.name + '"...');
 

@@ -1,16 +1,56 @@
-<ion-view view-title="User">
+<ion-view view-title="Memslate > User">
     <ion-content class="has-header">
         <div class="list">
             <label class="item item-input">
                 <span class="input-label">User name:</span>
-                <span class="input-label">{{userCtrl.User.name()}}</span>
+                <span id="userName" class="input-label">{{userCtrl.User.name()}}</span>
             </label>
             <label class="item item-input">
                 <span class="input-label">Email:</span>
-                <span class="input-label">{{userCtrl.User.email()}}</span>
+                <span id="userEmail" class="input-label">{{userCtrl.User.email()}}</span>
+            </label>
+            <label class="item item-input">
+                <button id="showChangePwdButton" ng-click="userCtrl.showChangePwd()" class="button button-positive">Change Password</button>
+                    <form id="changePwdForm" name="changePwdForm" ng-submit="userCtrl.changePassword(changePwdForm)" style="display:none" novalidate>
+                        <label class="item item-input">
+                            <input type="password" name="oldPwd" placeholder="Enter old password" ng-model="userCtrl.oldPwd"
+                                   ng-required="true">
+                            <div ng-show="(changePwdForm.$submitted || changePwdForm.oldPwd.$touched)">
+                            <span id="oldPwdRequired" class="validation-item"
+                                  ng-show="changePwdForm.oldPwd.$error.required">(required)</span>
+                            </div>
+                        </label>
+                        <label class="item item-input">
+                            <input type="password" name="newPwd" placeholder="Enter new password" ng-model="userCtrl.newPwd"
+                                   ng-required="true">
+                            <div ng-show="(changePwdForm.$submitted || changePwdForm.newPwd.$touched)">
+                            <span id="newPwdRequired" class="validation-item"
+                                  ng-show="changePwdForm.newPwd.$error.required">(required)</span>
+                            </div>
+                        </label>
+                        <label class="item item-input">
+                            <input type="password" name="newPwd2" placeholder="Re-enter new password" ng-model="userCtrl.newPwd2" ng-required="true">
+                            <div ng-show="(changePwdForm.$submitted || changePwdForm.newPwd2.$touched)">
+                            <span id="newPwd2Required" class="validation-item"
+                                  ng-show="changePwdForm.newPwd2.$error.required">(required)</span>
+                            </div>
+                            <div ng-show="(changePwdForm.$submitted || changePwdForm.password2.$touched)">
+                            <span id="pwdMismatch" class="validation-item"
+                                  ng-show="userCtrl.newPwd !== userCtrl.newPwd2">(mismatch)</span>
+                            </div>
+                        </label>
+                        <label class="item item-input">
+                            <button type="submit" id="changePwdButton" class="button button-positive">Change Password</button>
+                        </label>
+                    </form>
             </label>
             <label class="item item-input" ng-show="userCtrl.User.isAdmin()">
                 <span class="input-label">Administrator User</span>
+            </label>
+            <label class="item item-input">
+                <button id="deleteAccountButton" class="button button-assertive" ng-click="userCtrl.deleteAccount()" nav-clear menu-close>
+                    Delete Account
+                </button>
             </label>
         </div>
     </ion-content>

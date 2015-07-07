@@ -3,7 +3,7 @@
  */
 "use strict";
 
-var servicesMod = angular.module('memslate.services', ['ngResource', 'ionic']);
+var servicesMod = angular.module('memslate.services', ['ngResource', 'ngCookies',  'ionic']);
 
 servicesMod.config(function ($httpProvider) {
     //Enable cross domain calls
@@ -19,6 +19,69 @@ servicesMod.constant('BaseUrl', 'http://localhost:5000/');
 servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
 servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
 
+servicesMod.service('SessionService', function ($cookies)
+{
+    this._useLocalStorage = false;
+    if(typeof(Storage) !== "undefined") {
+        // localStorage defined.
+        this._useLocalStorage = true;
+        console.log('SessionService: using local storage');
+    }
+
+    this.get = function(key)
+    {
+        if(this._useLocalStorage)
+        {
+            return localStorage.getItem(key);
+        }
+        return $cookies[key];
+    }
+
+    this.getObject = function(key)
+    {
+        var obj={};
+        if(this._useLocalStorage)
+        {
+            obj = angular.fromJson(localStorage.getItem(key));
+        }
+        else
+        {
+            obj = angular.fromJson($cookies[key])
+        }
+        return msUtils.convertDateStringsToDates(obj);
+    }
+
+    this.put = function(key, value)
+    {
+        if(this._useLocalStorage)
+        {
+            localStorage.setItem(key, value);
+            return;
+        }
+        $cookies[key] = value;
+    }
+
+    this.putObject = function(key, value)
+    {
+        if(this._useLocalStorage)
+        {
+            localStorage.setItem(key, angular.toJson(value));
+            return;
+        }
+        $cookies[key] = angular.toJson(value);
+    }
+
+    this.remove = function(key)
+    {
+        if(this._useLocalStorage)
+        {
+            localStorage.removeItem(key);
+            return;
+        }
+        $cookies[key] = null;
+    }
+});
+
 var DesAuthorizable = {};
 DesAuthorizable.deleteAuthorizationHeader = function(d,headersGetter) {
     var headers = headersGetter();
@@ -27,26 +90,28 @@ DesAuthorizable.deleteAuthorizationHeader = function(d,headersGetter) {
     return JSON.stringify(d);
 };
 
-servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resource,
+servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resource, SessionService,
                                                 YandexTranslateApiKey, BaseUrl)
 {
     var self = this;
     angular.extend(this,DesAuthorizable);
 
+    this.langsGotten = false;
+    this.languages = {};
+    this.languages.user = {};
+    this.languages.user.prefered = [];
+
     this.getLanguages = function()
     {
-        if(this.languages)
+        if(this.langsGotten)
         {
             var deferred = $q.defer();
             deferred.resolve(this.languages);
             return deferred.promise;
         }
 
-        this.languages = {};
-
         var yandexGet = $q.defer();
         var promiseYandex = yandexGet.promise;
-
 
         $http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs',
             {
@@ -58,6 +123,7 @@ servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resour
             }
         ).success(function (data)
             {
+                self.langsGotten = true;
                 yandexGet.resolve(data);
             })
             .error(function(data, status)
@@ -73,9 +139,7 @@ servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resour
                 return {value: item, name: data[0].langs[item]};
             });
             self.languages.dirs = data[0].dirs;
-            self.languages.selectedFrom = data[1].fromLang;
-            self.languages.selectedTo = data[1].toLang;
-            self.languages.prefered = data[1].prefered;
+            self.languages.user = data[1];
 
             return self.languages;
         });
@@ -88,39 +152,88 @@ servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resour
         var deferedGet = $q.defer();
         var promiseGetUserLanguages = deferedGet.promise;
 
+        var userLanguages = SessionService.getObject('userLanguages');
+        if(userLanguages !== null)
+        {
+            deferedGet.resolve(userLanguages);
+            return promiseGetUserLanguages;
+        }
+
         $resource(BaseUrl + 'resources/userLanguages/').get({},
-            function(data){ deferedGet.resolve(data); },
-            function(err){ deferedGet.reject(err); });
+            function(data){
+                self.languages.user = data;
+                self.saveUserLanguages();
+                deferedGet.resolve(data);
+            },
+            function(err){
+                deferedGet.reject(err);
+            });
 
         return promiseGetUserLanguages;
+    };
+
+    this.saveUserLanguages = function()
+    {
+        SessionService.putObject('userLanguages',this.languages.user);
+    }
+
+    this.clearUserLanguages = function()
+    {
+        SessionService.remove('userLanguages');
     };
 
     this.addPrefered = function(language)
     {
         if(language)
         {
-            var pos = this.languages.prefered.indexOf(language);
+            var pos = this.languages.user.prefered.indexOf(language);
             if(pos !== -1)
             {
-                this.languages.prefered.splice(pos, 1);
+                this.languages.user.prefered.splice(pos, 1);
             }
-            this.languages.prefered.unshift(language);
-            if(this.languages.prefered.length > 4)
+            this.languages.user.prefered.unshift(language);
+            if(this.languages.user.prefered.length > 4)
             {
-                this.languages.prefered.pop();
+                this.languages.user.prefered.pop();
             }
+
+            this.saveUserLanguages();
         }
     };
 
-    this.getLanguages();
+    this.fromLang = function(val)
+    {
+        if(val !== undefined)
+        {
+            this.languages.user.fromLang=val;
+            this.saveUserLanguages();
+        }
+        else
+        {
+            return this.languages.user.fromLang;
+        }
+    }
+
+    this.toLang = function(val)
+    {
+        if(val !== undefined)
+        {
+            this.languages.user.toLang=val;
+            this.saveUserLanguages();
+        }
+        else
+        {
+            return this.languages.user.toLang;
+        }
+    }
 });
 
 /**
  * Translation services
  */
 servicesMod.service('YandexTranslateService', function ($rootScope, $http, $resource, $q, $timeout,
-                                                   TranslationRes, UserService,
-                                                   YandexTranslateApiKey, YandexDictionaryApiKey)
+                                                        TranslationRes, UserService,
+                                                        YandexTranslateApiKey, YandexDictionaryApiKey)
 {
     var self = this;
 
@@ -159,13 +272,7 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
                     translation.rawResult = data;
                     translation.transcription = data.def[0].ts;
 
-                    var translationRes = new TranslationRes(translation);
-                    translationRes.$save(function () {
-                        console.log('Translation Saved: id:' + translationRes.id);
-                        translation.id = translationRes.id;
-
-                        deferred.resolve(translation);
-                    });
+                    deferred.resolve(translation);
                 }
                 else
                 {
@@ -179,35 +286,32 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
                             },
                             transformRequest: self.deleteAuthorizationHeader
                         }
-                    ).success(function (dataTranslate) {
+                        ).success(function (dataTranslate) {
                             if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
                                 translation.provider = 'yt';
                                 translation.mainResult = dataTranslate.text[0];
                                 translation.rawResult = dataTranslate;
 
-                                var translationRes2 = new TranslationRes(translation);
-                                translationRes2.$save(function () {
-                                    console.log('Translation Saved: id:' + translationRes2.id);
-                                    translation.id = translationRes2.id;
-
-                                    deferred.resolve(translation);
-                                });
+                                deferred.resolve(translation);
                             }
                             else {
                                 deferred.reject("Translation not found");
                             }
+                        })
+                        .error(function (data, status) {
+                            deferred.reject(data.message);
                         });
                 }
             }
         ).error(function (data, status) {
-                deferred.reject(status);
+                deferred.reject(data.message);
             });
 
         return promise;
     };
 });
 
-servicesMod.factory('TranslateService', function ($injector, TranslationRes, TranslationSampleRes, TranslationsProvider) {
+servicesMod.factory('TranslateService', function ($injector, $q, TranslationRes, LanguagesService, TranslationSampleRes, TranslationsProvider) {
     //own methods
     this.getTranslations = function (options, onSuccess, onError) {
         return TranslationRes.query(options, onSuccess, onError);
@@ -235,12 +339,50 @@ servicesMod.factory('TranslateService', function ($injector, TranslationRes, Tra
     //configurable translations provider
     if (TranslationsProvider === 'yandex') {
         var yandexTranslate = $injector.get('YandexTranslateService');
-        return angular.extend(yandexTranslate, this);
+        this._translate = yandexTranslate.translate;
     }
     else
     {
-        return null;
+        this._translate = function(fromLang, toLang, text)
+        {
+            var deferred = $q.defer();
+            var promise = deferred.promise;
+            deferred.reject('Translations provider not specified');
+            return promise;
+        }
     }
+
+    this.translate = function(fromLang, toLang, text)
+    {
+        var deferred = $q.defer();
+        var promise = deferred.promise;
+        msUtils.decoratePromise(promise);
+
+        this._translate(fromLang, toLang, text)
+            .success(function(translation)
+            {
+                LanguagesService.fromLang(fromLang);
+                LanguagesService.toLang(toLang);
+                LanguagesService.addPrefered(fromLang);
+                LanguagesService.addPrefered(toLang);
+
+                var translationRes = new TranslationRes(translation);
+                translationRes.$save(function () {
+                    console.log('Translation Saved: id:' + translationRes.id);
+                    translation.id = translationRes.id;
+
+                    deferred.resolve(translation);
+                });
+            })
+            .error(function(err)
+            {
+                deferred.reject(err);
+            });
+
+        return promise;
+    };
+
+    return this;
 });
 
 servicesMod.factory('TranslationRes', function ($resource, BaseUrl) {
@@ -253,14 +395,31 @@ servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrl) {
         {translationId: '@translationId', id: '@id'});
 });
 
+servicesMod.service("MemoFilterService", function ($resource, BaseUrl, SessionService)
+{
+    this.memoFilterSettings = SessionService.getObject('memoFilterSettings');
+    if (this.memoFilterSettings === null)
+    {
+        this.memoFilterSettings = {};
+        this.memoFilterSettings.filterByString=false;
+        this.memoFilterSettings.filterByDates=false;
+        this.memoFilterSettings.filterByLanguages=false;
+        this.memoFilterSettings.filterString="";
+        this.memoFilterSettings.filterDateFrom=new Date().adjustDate(-7);
+        this.memoFilterSettings.filterDateTo=new Date();
+
+        SessionService.putObject('memoFilterSettings',this.memoFilterSettings);
+    }
+});
+
 /**
  * Graphical User Interface services
  */
-servicesMod.service('UI', function ($window, $ionicLoading) {
+servicesMod.service('UI', function ($window, $timeout, $ionicLoading, $ionicBody) {
     this.toast = function (msg, duration, position) {
         if (!duration)
         {
-            duration = 1500;
+            duration = msConfig.toastShowTime;
         }
         if (!position)
         {
@@ -277,12 +436,34 @@ servicesMod.service('UI', function ($window, $ionicLoading) {
         }
 
         // … fallback / customized $ionicLoading:
-        $ionicLoading.show({
+        /*$ionicLoading.show({
             template: msg,
-            noBackdrop: true,
-            duration: duration
-        });
+            noBackdrop: true
+        });*/
+        this._toast(msg,duration);
+    };
 
+    this._toast =function(message,timeout,cssClass)
+    {
+        timeout = timeout || 2000;
+        cssClass = typeof cssClass !== 'undefined' ? cssClass : 'notification_error';
+
+        if($('#toasts').length===0)
+        {
+            $ionicBody.append($('<div id="toasts-wrapper" class="flexbox-container"><div id="toasts"></div></div>'));
+        }
+
+        var $message = $('<p class="toast" style="display:none;margin:5px auto">' + message + '</p>');
+
+        $('#toasts').append($message);
+        $message.addClass(cssClass);
+        $message.fadeIn(300, function() {
+            window.setTimeout(function() {
+                $message.fadeOut(300, function() {
+                    $message.remove();
+                });
+            }, timeout);
+        });
     };
 });
 
@@ -324,8 +505,9 @@ servicesMod.factory('UserService', function ($window)
         $window.sessionStorage.tokenDisabled = "false";
     }
 
-    var user = {
-        isAuthenticated: function (val) {
+    var userService = {
+        isAuthenticated: function (val)
+        {
             if (val !== undefined) {
                 $window.sessionStorage.isAuthenticated = val;
             }
@@ -333,7 +515,8 @@ servicesMod.factory('UserService', function ($window)
                 return JSON.parse($window.sessionStorage.isAuthenticated);
             }
         },
-        isAdmin: function (val) {
+        isAdmin: function (val)
+        {
             if (val !== undefined) {
                 $window.sessionStorage.isAdmin = val;
             }
@@ -341,7 +524,8 @@ servicesMod.factory('UserService', function ($window)
                 return JSON.parse($window.sessionStorage.isAdmin);
             }
         },
-        name: function (val) {
+        name: function (val)
+        {
             if (val !== undefined) {
                 $window.sessionStorage.name = val;
             }
@@ -349,7 +533,8 @@ servicesMod.factory('UserService', function ($window)
                 return $window.sessionStorage.name;
             }
         },
-        email: function (val) {
+        email: function (val)
+        {
             if (val !== undefined) {
                 $window.sessionStorage.email = val;
             }
@@ -357,7 +542,8 @@ servicesMod.factory('UserService', function ($window)
                 return $window.sessionStorage.email;
             }
         },
-        token: function (val) {
+        token: function (val)
+        {
             if (val !== undefined) {
                 $window.sessionStorage.token = val;
             }
@@ -365,10 +551,11 @@ servicesMod.factory('UserService', function ($window)
                 return $window.sessionStorage.token;
             }
         },
-        logout: function () {
+        logout: function ()
+        {
             delete $window.sessionStorage.token;
-            $window.sessionStorage.name = anonymousEmail;
-            $window.sessionStorage.email = anonymousUser;
+            $window.sessionStorage.name = anonymousUser;
+            $window.sessionStorage.email = anonymousEmail;
             $window.sessionStorage.isAdmin = false;
             $window.sessionStorage.isAuthenticated = false;
         },
@@ -382,7 +569,7 @@ servicesMod.factory('UserService', function ($window)
         }
     };
 
-    return user;
+    return userService;
 });
 
 servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserService) {
@@ -426,7 +613,6 @@ servicesMod.factory('RegistrationService', function ($window, $http, $ionicPopup
                 email: email,
                 password: password
             }).then(function (result) {
-                console.log(result.data);
                 UserService.login(result.data);
 
                 $rootScope.$broadcast('ms:login');
@@ -438,12 +624,19 @@ servicesMod.factory('RegistrationService', function ($window, $http, $ionicPopup
         },
 
         logout: function () {
-            UserService.logout();
-
-            $rootScope.$broadcast('ms:logout');
+;
+            return $http.post(BaseUrl + 'logout').then(function (result) {
+                return {done: true};
+            }).catch(function (err) {
+                return {done: false, err: err};
+            }).finally(function (){
+                UserService.logout();
+                $rootScope.$broadcast('ms:logout')
+            });
         },
 
-        register: function (user) {
+        register: function (user)
+        {
             return $http.post(BaseUrl + 'register', user).then(function (result) {
                 UserService.login(result.data);
 
@@ -452,6 +645,36 @@ servicesMod.factory('RegistrationService', function ($window, $http, $ionicPopup
 
                 return {done: true};
             }).catch(function (err) {
+                return {done: false, err: err};
+            });
+        },
+
+        unregister: function()
+        {
+            return $http.post(BaseUrl + 'unregister')
+                .then(function (result)
+                {
+                    $rootScope.$broadcast('ms:unregister');
+                    UserService.logout();
+
+                    return {done: true};
+                })
+                .catch(function (err)
+                {
+                    return {done: false, err: err};
+                });
+        },
+
+        changePassword: function(oldPwd, newPwd)
+        {
+            var data={oldPwd: oldPwd, newPwd: newPwd};
+            return $http.post(BaseUrl + 'changePwd', data)
+            .then(function (result)
+            {
+                return {done: true};
+            })
+            .catch(function (err)
+            {
                 return {done: false, err: err};
             });
         }

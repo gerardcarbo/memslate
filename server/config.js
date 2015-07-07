@@ -13,6 +13,7 @@ exports.knex_options = {
     debug: exports.SQL_DEBUG
 };
 
+exports.ADMIN_USER_ID = 1;
 exports.ANONIMOUS_USER_ID = 2;
 
 exports.debug = function () {

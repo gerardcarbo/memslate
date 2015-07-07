@@ -60,7 +60,7 @@ module.exports = function (Model, resource, options)
                     {
                         if(itemSaved)
                         {
-                            options.postSave(req, res, itemSaved);
+                            options.postSave(req, res, itemSaved.attributes);
                         }
                         else
                         {
