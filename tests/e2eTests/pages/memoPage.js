@@ -4,6 +4,8 @@
 var MemslateMemoPage = function()
 {
     this.memoFilterMenu = element(by.xpath('//*[@nav-bar="active"]//*[@id="memoFilterMenu"]'));
+    this.memoOrderWayMenu = element(by.xpath('//*[@nav-bar="active"]//*[@id="memoOrderWayMenu"]'));
+    this.memoList = element(by.id('memoList'));
 
     this.get=function()
     {

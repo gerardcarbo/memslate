@@ -17,9 +17,13 @@ module.exports = function (config) {
             'lib/ionic/js/ionic.bundle.min.js',
             'lib/angular-resource/angular-resource.min.js',
             'lib/angular-cookies/angular-cookies.min.js',
+            'lib/api-check/dist/api-check.min.js',
+            'lib/angular-formly/dist/formly.min.js',
+            'lib/angular-formly-templates-ionic/dist/angular-formly-templates-ionic.min.js',
             'js/*.js',
             '../../tests/lib/ngMidwayTester.js',
             '../../tests/lib/testingData.js',
+            //'../../tests/midwayTests/servicesTests.js'
             '../../tests/midwayTests/*Tests.js'
         ],
 
@@ -27,8 +31,8 @@ module.exports = function (config) {
         exclude: [],
 
         proxies: {
-            '/templates/': '/base/templates/'
-            /*'/templates/': 'http://localhost:9876/base/templates/'*/
+            '/templates/': '/base/templates/'   //OJO: port can change if another test is running (midway tests changed to port 9877 to avoid collission with unit tests)
+            //'/templates/': 'http://localhost:9877/base/templates/'
         },
 
         // preprocess matching files before serving them to the browser
@@ -41,14 +45,14 @@ module.exports = function (config) {
         reporters: ['progress'],
 
         // web server port
-        port: 9876,
+        port: 9877,
 
         // enable / disable colors in the output (reporters and logs)
         colors: true,
 
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-        logLevel: config.LOG_INFO,
+        logLevel: config.LOG_DEBUG,
 
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch: false,

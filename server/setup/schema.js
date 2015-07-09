@@ -35,8 +35,7 @@ var Schema = {
             id: {type: 'increments',  primary: true},
             userId: {type: 'integer',  unsigned: true, references: 'Users.id',onDelete:'CASCADE'},
             translationId: {type: 'integer',  unsigned: true, references: 'Translations.id',onDelete:'CASCADE'},
-            translate: {type: 'string', nullable: false },
-            insertTime: {type: 'timestamp', defaultToRaw: 'now()'}
+            userTranslationInsertTime: {type: 'timestamp', defaultToRaw: 'now()'}
         },
         constrains: {
             uniques: [['userId', 'translationId']]

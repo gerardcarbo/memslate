@@ -47,3 +47,12 @@ by.cssClass = function(cssClass)
 {
     return this.xpath("//*[contains(concat(' ',normalize-space(@class),' '),' "+cssClass+" ') ]");
 };
+
+ElementFinder.prototype.selectItem = function(item)
+{
+    this.waitAndClick();
+
+    var selectedItem=element(by.xpath("//div[contains(concat(' ',normalize-space(@class),' '),' active ')]//label[input[@value='"+item+"']]"));
+    browser.executeScript(function () { arguments[0].scrollIntoView(); }, selectedItem.getWebElement());
+    selectedItem.click();
+};

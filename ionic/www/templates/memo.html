@@ -1,9 +1,9 @@
 <ion-view view-title="Memslate > Memo">
     <ion-content>
-        <ion-list>
-            <div ng-repeat="translation in memoCtrl.translations" id="memo_translation_div_{{translation.id}}">
+        <ion-list id="memoList">
+            <div ng-repeat="(i, translation) in memoCtrl.translations track by $index" id="memo_translation_div_{{translation.id}}">
                 <div class="item item-stable"
-                          ng-click="memoCtrl.toggleTranslation(translation)"
+                          ng-click="memoCtrl.toggleTranslation(i, translation)"
                           ng-class="{active: memoCtrl.isTranslationShown(translation)}">
                     <div class="row no-padding">
                         <i class="icon no-padding" ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-chevron-up' : 'ion-chevron-down'">&nbsp&nbsp</i>
@@ -12,9 +12,8 @@
                         <div class="col col-20 no-padding">{{translation.insertTime|date}}</div>
                     </div>
                 </div>
-                <div class="item item-accordion"
-                     ng-show="memoCtrl.isTranslationShown(translation)">
-                    <ms-translation translation="translation"></ms-translation>
+                <div class="item item-accordion" ng-show="memoCtrl.isTranslationShown(translation)">
+                    <ms-translation id="translation_{{translation.id}}" translation="translation"></ms-translation>
                 </div>
             </div>
             <ion-infinite-scroll ng-if="memoCtrl.moreDataCanBeLoaded()" on-infinite="memoCtrl.addItems()"></ion-infinite-scroll>

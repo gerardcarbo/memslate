@@ -16,7 +16,7 @@ describe("Memslate Translate Page", function()
         browser.waitForAngular();
 	});
 	
-	it('language selection and swap', function()
+	it('should allow language selection and swap', function()
     {
         translatePage.fromLangSelect.click();
         browser.sleep(2000);
@@ -38,7 +38,7 @@ describe("Memslate Translate Page", function()
         expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('es');
     });
 
-    it('translate', function()
+    it('should be able to translate', function()
     {
         browser.waitForAngular();
 
@@ -69,7 +69,7 @@ describe("Memslate Translate Page", function()
         expect(translatePage.translationYd.isPresent()).toBeFalsy();
         mainPage.toast.expectText('Translation not found');
 
-        /* browser.sleep(1000);
+        browser.sleep(1000);
 
          console.log("after check");
 
@@ -119,6 +119,6 @@ describe("Memslate Translate Page", function()
          //translate again, now from internet provider
          translatePage.translate('transportador');
          expect(translatePage.translationYd.getText()).toContain('transporter');
-         console.log("end test");*/
+         console.log("end test");
 	});
 });

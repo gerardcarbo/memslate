@@ -16,7 +16,6 @@ describe("Midway: Services Tests", function () {
             tester.destroy();
         }
         tester = ngMidwayTester('memslate');
-        //tester = ngMidwayTester('memslate.services');
     });
 
     describe("LanguagesService Tests", function () {
@@ -26,7 +25,7 @@ describe("Midway: Services Tests", function () {
             LanguagesService = tester.inject('LanguagesService');
         });
 
-        it("getUserLanguages method from server", function (done) {
+        it("should get User Languages method server", function (done) {
             LanguagesService.clearUserLanguages();
 
             LanguagesService.getUserLanguages().then(
@@ -81,7 +80,7 @@ describe("Midway: Services Tests", function () {
         });
 
 
-        it("getLanguages method", function (done) {
+        it("should get Languages from server", function (done) {
             LanguagesService.clearUserLanguages();
 
             LanguagesService.getLanguages().then(
@@ -102,7 +101,7 @@ describe("Midway: Services Tests", function () {
                         expect(languages.user.fromLang).toBe('es');
                         expect(languages.user.toLang).toBe('en');
                         expect(languages.items.length).toBeDefined();
-                        expect(languages.items.length).toBe(46);
+                        expect(languages.items.length).toBeGreaterThan(50);
                         expect(languages.user.prefered.length).toBeDefined();
                         expect(languages.user.prefered.length).toBe(2);
                         done();
@@ -114,10 +113,13 @@ describe("Midway: Services Tests", function () {
     describe('Translate Service tests', function () {
         var TranslateService;
         var LanguagesService;
+        var MemoFilterService;
+        var translation5;
 
         beforeEach(function () {
             TranslateService = tester.inject('TranslateService');
             LanguagesService = tester.inject('LanguagesService');
+            MemoFilterService = tester.inject('MemoFilterService');
         });
 
         it("should translate simple word", function (done) {
@@ -148,7 +150,7 @@ describe("Midway: Services Tests", function () {
                 });
         });
 
-        it("should translate multiple word", function (done) {
+        it("should translate a phrase (multiple words)", function (done) {
             var translationDoMore = {};
             TranslateService.translate('en', 'es', 'do less').then(
                 function (response) {
@@ -193,6 +195,205 @@ describe("Midway: Services Tests", function () {
                 });
         });
 
+        it("should get 10 translations ordered alphabetically (default value)", function (done) {
+            TranslateService.getTranslations(null).then(function (result) {
+                    expect(result).not.toBeNull();
+                    expect(result.length).toBe(10);
+                    expect(result[0].translate).toBe('and');
+
+                    for (var i = 0; i < 10 - 1; i++) {
+                        expect(result[i].translate <= result[i + 1].translate).toBeTruthy();
+                    }
+
+                    translation5 = result[5];
+
+                    done();
+                },
+                function (err) {
+                    console.log('translate error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        },10000);
+
+        it("should get 5 translations, skip 5 ordered alphabetically", function (done) {
+            TranslateService.getTranslations({offset: 5, limit: 5}).then(function (result) {
+                    expect(result).not.toBeNull();
+                    expect(result.length).toBe(5);
+                    expect(result[0].translate).toBe(translation5.translate);
+                    done();
+                },
+                function (err) {
+                    console.log('translate error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        });
+
+        it("should order desc alphabetically", function (done) {
+            TranslateService.getTranslations({orderWay: 'desc'}).then(function (result) {
+                    expect(result).not.toBeNull();
+                    expect(result.length).toBe(10);
+                    expect(result[0].translate).toBe('you');
+
+                    for (var i = 0; i < 10 - 1; i++) {
+                        expect(result[i].translate >= result[i + 1].translate).toBeTruthy();
+                    }
+
+                    done();
+                },
+                function (err) {
+                    console.log('translate error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        });
+
+
+        it("should order by time asc", function (done) {
+            TranslateService.getTranslations({
+                    limit: 200,
+                    orderBy: 'UserTranslations.userTranslationInsertTime',
+                    orderWay: 'asc'
+                }).then(function (result) {
+                    expect(result).not.toBeNull();
+                    expect(result.length).toBeLessThan(101);
+                    for (var i = 0; i < result.length - 1; i++) {
+                        expect(new Date(result[i].userTranslationInsertTime) <= new Date(result[i + 1].userTranslationInsertTime)).toBeTruthy();
+                    }
+                    done();
+                },
+                function (err) {
+                    console.log('translate error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        });
+
+        it("should order by time desc", function (done) {
+            TranslateService.getTranslations({
+                    limit: 200,
+                    orderBy: 'UserTranslations.userTranslationInsertTime',
+                    orderWay: 'desc'
+                }).then(function (result) {
+                    expect(result).not.toBeNull();
+                    expect(result.length).toBeLessThan(101);
+                    for (var i = 0; i < result.length - 1; i++) {
+                        expect(new Date(result[i].userTranslationInsertTime) >= new Date(result[i + 1].userTranslationInsertTime)).toBeTruthy();
+                    }
+                    done();
+                },
+                function (err) {
+                    console.log('translate error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        });
+
+        it("should order by languages asc", function (done) {
+            TranslateService.getTranslations({
+                    limit: 200,
+                    orderBy: 'Translations.fromLang,Translations.toLang',
+                    orderWay: 'asc'
+                }).then(function (result) {
+                    expect(result).not.toBeNull();
+                    for (var i = 0; i < result.length - 1; i++) {
+/*                        if (!(result[i].toLang <= result[i + 1].toLang))
+                            console.log('*** langs asc: ' + result[i].fromLang + ':' + result[i].toLang + ' > ' + result[i + 1].fromLang + ':' + result[i + 1].toLang);
+                        else
+                            console.log('langs asc: ' + result[i].fromLang + ':' + result[i].toLang + ' > ' + result[i + 1].fromLang + ':' + result[i + 1].toLang);*/
+
+                        expect(result[i].fromLang <= result[i + 1].fromLang).toBeTruthy();
+                        if (result[i].fromLang == result[i + 1].fromLang) {
+                            expect(result[i].toLang <= result[i + 1].toLang).toBeTruthy();
+                        }
+                    }
+                    expect(result.length).toBeLessThan(101);
+                    done();
+                },
+                function (err) {
+                    console.log('translate error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        });
+
+        it("should order by languages desc", function (done) {
+            TranslateService.getTranslations({
+                    limit: 200,
+                    orderBy: 'Translations.fromLang,Translations.toLang',
+                    orderWay: 'desc'
+                }).then(function (result) {
+                    expect(result).not.toBeNull();
+                    expect(result.length).toBeLessThan(101);
+                    for (var i = 0; i < result.length - 1; i++) {
+                        /*if (result[i].fromLang == result[i + 1].fromLang && !(result[i].toLang >= result[i + 1].toLang))
+                            console.log('*** langs desc: ' + result[i].fromLang + ':' + result[i].toLang + ' > ' + result[i + 1].fromLang + ':' + result[i + 1].toLang);
+                        else
+                            console.log('langs desc: ' + result[i].fromLang + ':' + result[i].toLang + ' > ' + result[i + 1].fromLang + ':' + result[i + 1].toLang);*/
+
+                        expect(result[i].fromLang >= result[i + 1].fromLang).toBeTruthy();
+                        if (result[i].fromLang == result[i + 1].fromLang) {
+                            expect(result[i].toLang >= result[i + 1].toLang).toBeTruthy();
+                        }
+                    }
+                    done();
+                },
+                function (err) {
+                    console.log('translate error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        });
+
+        it("should get 1 translations with projection on columns: id, fromLang, toLang, userTranslationInsertTime, translate, mainResult", function (done) {
+            TranslateService.getTranslations({limit: 1, columns: "Translations.id, fromLang, toLang, userTranslationInsertTime as insertTime, translate, mainResult"}).then(function(result) {
+                    expect(result).not.toBeNull();
+                    expect(result.length).toBe(1);
+
+                    expect(result[0].id !== undefined).toBeTruthy();
+                    expect(result[0].fromLang !== undefined).toBeTruthy();
+                    expect(result[0].toLang !== undefined).toBeTruthy();
+                    expect(result[0].insertTime !== undefined).toBeTruthy();
+                    expect(result[0].translate !== undefined).toBeTruthy();
+                    expect(result[0].mainResult !== undefined).toBeTruthy();
+                    expect(result[0].rawResult === undefined).toBeTruthy();
+
+                    expect(Object.keys(result[0]).length).toBe(7); //6 + 1 of userTranslationId
+
+                    done();
+                },
+                function (err) {
+                    console.log('getTranslations error' + err);
+                    expect(err).toBeNull();
+
+                    done();
+                });
+        });
+
+        it("should get 1 translation based on id", function (done) {
+            TranslateService.getTranslation(1).then(function (translation) {
+                console.log("should get 1 translation based on id -> success: \n", translation);
+                expect(translation.id).toBe(1);
+                expect(translation.translate).toBe('and');
+                expect(translation.rawResult.def).toBeDefined();
+
+                done();
+            },
+            function(err){
+                console.log('getTranslation error' + err);
+                expect(err).toBeNull();
+
+                done();
+            });
+        });
     });
 
     describe('Registration Service tests', function () {
@@ -313,5 +514,4 @@ describe("Midway: Services Tests", function () {
             );
         });
     });
-})
-;
+});

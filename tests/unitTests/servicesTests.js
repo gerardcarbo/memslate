@@ -41,7 +41,7 @@ describe("Unit: Services Tests", function ()
             SessionService = _SessionService_;
         }));
 
-        it("adding and getting values I", function () {
+        it("should be able to put and get values and objects", function () {
             SessionService.put('key1', 'val1')
             expect(SessionService.get('key1')).toBe('val1');
             SessionService.put('key2', 'val2')
@@ -51,7 +51,7 @@ describe("Unit: Services Tests", function ()
             expect(SessionService.getObject('keyObj1')).toEqual(objSession1);
         });
 
-        it("adding and getting values II", function () {
+        it("should be able to delete values and objects", function () {
             expect(SessionService.get('key1')).toBe('val1');
             expect(SessionService.get('key2')).toBe('val2');
             expect(SessionService.getObject('keyObj1')).toEqual(objSession1);
@@ -75,17 +75,18 @@ describe("Unit: Services Tests", function ()
             LanguagesService = _LanguagesService_;
         }));
 
-        it("is registered with the module.", function () {
+        it("LanguagesService and SessionService modules should be registered.", function () {
             expect(LanguagesService).not.toBeNull();
             expect(SessionService).not.toBeNull();
         });
 
-        it('BaseUrl changed to (empty)', inject(function ($injector) {
+        it('BaseUrl should be empty', inject(function ($injector) {
+            //...because forced using $provide above
             var BaseUrl = $injector.get('BaseUrl');
             expect(BaseUrl).toBe('');
         }));
 
-        it("getUserLanguages method", function () {
+        it("should be able to get User Languages and store it in session variable", function () {
             SessionService.remove('userLanguages');
 
             // expectGET to make sure this is called once.
@@ -115,17 +116,16 @@ describe("Unit: Services Tests", function ()
             expect(userLangs.prefered[0]).toBe(testingData.responseUserLanguages.prefered[0]);
             expect(userLangs.prefered[1]).toBe(testingData.responseUserLanguages.prefered[1]);
             expect(userLangs.prefered[2]).toBe(testingData.responseUserLanguages.prefered[2]);
+            expect(SessionService.getObject('userLanguages')).not.toBeNull();
         });
 
-        it("getLanguages and addPrefered methods", function ()
+        it("should be able to get Languages and add Prefered language", function ()
         {
             httpBackend.expectGET('https://translate.yandex.net/api/v1.5/tr.json/getLangs?key=trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430&ui=en')
                 .respond(testingData.responseLanguages);
             /*  Not called as localStorage data used...
             httpBackend.expectGET('resources/userLanguages')
                 .respond(testingData.responseUserLanguages); */
-
-            console.log('userLanguages: ',SessionService.getObject('userLanguages'));
 
             var languages = {};
             LanguagesService.getLanguages().then(
@@ -158,8 +158,6 @@ describe("Unit: Services Tests", function ()
             expect(languages.user.prefered.length).toBe(4);
             expect(languages.user.prefered[0]).toBe('ru');
             expect(languages.user.prefered[1]).toBe('fr');
-
-            console.log('userLanguages2: ',SessionService.getObject('userLanguages'));
         })
     });
 
@@ -171,11 +169,11 @@ describe("Unit: Services Tests", function ()
             TranslateService = _TranslateService_;
         }));
 
-        it("is registered with the module.", function () {
+        it("TranslateService module should be registered.", function () {
             expect(TranslateService).not.toBeNull();
         });
 
-        it("translate simple word", function ()
+        it("should be able to translate simple word", function ()
         {
             httpBackend.expectGET('https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb&lang=en-es&text=cake&ui=en')
                 .respond(testingData.responseGetCake);
@@ -205,7 +203,7 @@ describe("Unit: Services Tests", function ()
             expect(translationCake.rawResult).toEqual(testingData.responseGetCake);
         });
 
-        it("translate multiple word", function ()
+        it("should be able to translate a phrase (multiple words)", function ()
         {
             httpBackend.expectGET('https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb&lang=en-es&text=do+less&ui=en')
                 .respond(testingData.responseGetDoLessDict);

@@ -124,7 +124,6 @@ function addTranslations(start, limit, lang)
 
     parser.on('readable', function () {
         var record;
-        console.log('addTranslations',parser)
         while (record = parser.read()) {
             //console.log('Processing index: '+index);
 
@@ -148,7 +147,21 @@ function addTranslations(start, limit, lang)
                             toLang: lang
                         }).fetch().then(function (model) {
                                 if (!model) {
-                                    translate(word, 'en', lang, addTranslation);
+                                    translate(word, 'en', lang, onTranslated);
+                                }
+                                else {
+                                    //reverse translation
+                                    var reverseWord = model.get('mainResult');
+                                    new models.Translations({
+                                        translate: reverseWord,
+                                        fromLang: lang,
+                                        toLang: 'en'
+                                    }).fetch().then(function (reverseModel) {
+                                            if(!reverseModel)
+                                            {
+                                                translate(reverseWord, lang, 'en', onReverseTranslated);
+                                            }
+                                        });
                                 }
                             });
 
@@ -156,8 +169,6 @@ function addTranslations(start, limit, lang)
                     }
                 }
             }
-
-
         }
     });
 
@@ -195,16 +206,22 @@ function translate(word, fromLang, toLang, onTranslated)
     https.request(options, callback).end();
 }
 
-function addTranslation(translate, fromLang, toLang, data)
+
+function addTranslation(translate, fromLang, toLang, result)
 {
+    console.log("addTranslation:",translate);
+    console.log("addTranslation:",result);
+
+    if(!result.def[0]) return;
+
     var translation = {
         provider: 'yd',
         translate: translate,
         fromLang: fromLang,
         toLang: toLang,
-        transcription: data.def[0].ts,
-        mainResult: data.def[0].tr[0].text,
-        rawResult: data
+        transcription: result.def[0].ts,
+        mainResult: result.def[0].tr[0].text,
+        rawResult: result
     };
 
     console.log("addTranslation:", translation);
@@ -213,12 +230,25 @@ function addTranslation(translate, fromLang, toLang, data)
         if (model) {
             var userTranslation = {
                 userId: 2,
-                translationId: model.id,
-                translate: translate
+                translationId: model.id
             };
             new models.UserTranslations(userTranslation).save();
         }
     })
+}
+
+function onTranslated(word, fromLang, toLang, result)
+{
+    if(!result.def[0]) return;
+
+    addTranslation(word, fromLang, toLang, result);
+
+    //reverse translation
+    translate(result.def[0].tr[0].text, toLang, fromLang, onReverseTranslated);
+}
+
+function onReverseTranslated(word, fromLang, toLang, resutl) {
+    addTranslation(word, fromLang, toLang, resutl);
 }
 
 
@@ -257,8 +287,8 @@ createTables()
             console.log('Users created!!!');
         });
 
-        addTranslations(1, 10, 'es');
-        addTranslations(1, 10, 'fr');
+        addTranslations(1, 20, 'es');
+        addTranslations(1, 20, 'fr');
 
     })
     .otherwise(function (error) {

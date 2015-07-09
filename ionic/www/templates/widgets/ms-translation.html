@@ -44,9 +44,8 @@
 
                     <div class="padding-5 padding-bottom-min" style="clear: both;"
                          ng-repeat="sample in translation.samples">
-                        <span style="min-width:40%;display: inline-block;padding:2px">{{sample.sample}}</span>
-                        <button class="button button-ligh icon ion-minus-round" id="btnDelSample{{$index}}"
-                                style="float: right"
+                        <span class="sample_text">{{sample.sample}}</span>
+                        <button class="button button-light icon ion-minus-round float-right" id="btnDelSample{{$index}}"
                                 ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);">
                             Delete
                         </button>

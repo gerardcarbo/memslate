@@ -312,10 +312,13 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
 });
 
 servicesMod.factory('TranslateService', function ($injector, $q, TranslationRes, LanguagesService, TranslationSampleRes, TranslationsProvider) {
-    //own methods
-    this.getTranslations = function (options, onSuccess, onError) {
-        return TranslationRes.query(options, onSuccess, onError);
+    this.getTranslations = function (options) {
+        return TranslationRes.query(options).$promise;
     };
+
+    this.getTranslation = function (id) {
+        return TranslationRes.get({id:id}).$promise;
+    }
 
     this.deleteTranslation = function (id) {
         return new TranslationRes({id: id}).$delete();
@@ -386,7 +389,7 @@ servicesMod.factory('TranslateService', function ($injector, $q, TranslationRes,
 });
 
 servicesMod.factory('TranslationRes', function ($resource, BaseUrl) {
-    console.log("BaseUrl: " + BaseUrl);
+    console.log("TranslationRes: BaseUrl: " + BaseUrl);
     return $resource(BaseUrl + 'resources/translations/:id', {id: '@id'});
 });
 
@@ -397,18 +400,24 @@ servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrl) {
 
 servicesMod.service("MemoFilterService", function ($resource, BaseUrl, SessionService)
 {
+    this.reset = function()
+    {
+        this.memoFilterSettings = {};
+        this.memoFilterSettings.orderBy = 'Translations.translate,Translations.mainResult';
+        this.memoFilterSettings.filterByString = false;
+        this.memoFilterSettings.filterByDates = false;
+        this.memoFilterSettings.filterByLanguages = false;
+        this.memoFilterSettings.filterString = "";
+        this.memoFilterSettings.filterDateFrom = new Date().adjustDate(-7);
+        this.memoFilterSettings.filterDateTo = new Date();
+
+        SessionService.putObject('memoFilterSettings',this.memoFilterSettings);
+    };
+
     this.memoFilterSettings = SessionService.getObject('memoFilterSettings');
     if (this.memoFilterSettings === null)
     {
-        this.memoFilterSettings = {};
-        this.memoFilterSettings.filterByString=false;
-        this.memoFilterSettings.filterByDates=false;
-        this.memoFilterSettings.filterByLanguages=false;
-        this.memoFilterSettings.filterString="";
-        this.memoFilterSettings.filterDateFrom=new Date().adjustDate(-7);
-        this.memoFilterSettings.filterDateTo=new Date();
-
-        SessionService.putObject('memoFilterSettings',this.memoFilterSettings);
+        this.reset();
     }
 });
 

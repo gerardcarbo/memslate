@@ -80,7 +80,7 @@ app.directive("msSelect", function ($ionicModal) {
     };
 });
 
-app.directive('msTranslation', ['TranslateService',function (TranslateService) {
+app.directive('msTranslation', ['TranslateService', function (TranslateService) {
     return {
         restrict: 'E',
         templateUrl: 'templates/widgets/ms-translation.html',
@@ -130,12 +130,17 @@ app.directive('msTranslation', ['TranslateService',function (TranslateService) {
             };
         }],
         controllerAs: 'msTranslationCtrl',
-        link: function ($scope) {
+        link: function ($scope, element, attrs) {
             var scope = $scope;
             $scope.$watch('translation', function(translation)
             {
-                if(translation && translation.id)
+                if(translation && translation.rawResult) //full translation gotten
                 {
+                    /*
+                    //to be used if template changes depending on the translation type
+                    var data = $templateCache.get('templates/widgets/ms-translation.html');
+                    element.html(data[1]);
+                    $compile(element.contents())(scope);*/
                     TranslateService.getTranslationSamples(translation.id,function(samples){
                         scope.translation.samples = samples;
                     });
