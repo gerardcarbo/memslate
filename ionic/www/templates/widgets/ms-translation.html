@@ -65,7 +65,7 @@
                 </div>
             </div>
 
-            <div ng-if="translation" class="delete_translation_div">
+            <div ng-if="translation && msTranslationCtrl.isAuthenticated()" class="delete_translation_div">
                 <button class="button icon ion-trash-b" id="btnDelTranslation"
                         ng-click="msTranslationCtrl.deleteTranslation(translation.id);"
                         class="btn btn-danger">&nbsp;Delete Translation

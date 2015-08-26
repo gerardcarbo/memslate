@@ -8,6 +8,14 @@ ionic browser add crosswalk -> chromium browser replacement for webkit
 
 cordova plugin add https://github.com/apache/cordova-plugin-whitelist.git -> allows $http calls
 
+#GIT
+
+git checkout -b branch_name : create a branch and checkout
+git checkout -b branch_name -> creates and checkouts a new branch
+git checkout master: change to master
+git merge branch_name: merges 'branch_name' into master (checked out before).
+git commit -a: commits all changes to local repository
+
 #HEROKU
 
 heroku auth:token
@@ -40,7 +48,6 @@ User karma.conf.js WebStorm configuration.
 ##Midway tests
 
 User karmaMidwayTests.conf.js WebStorm configuration.
-
 
 ##E2E Protractor tests
 

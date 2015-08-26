@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'memslate.controllers', 'memslate.services', 'memslate.directives'],
+angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui.bootstrap', 'memslate.controllers', 'memslate.services', 'memslate.directives'],
     function config(formlyConfigProvider) {
         // set formly templates here
         formlyConfigProvider.setType({
@@ -84,6 +84,22 @@ angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'memslate.controll
                     'menuContent': {
                         templateUrl: "templates/play.html",
                         controller: 'PlayCtrl as playCtrl'
+                    }
+                }
+            })
+
+            .state('app.games', {
+                url: "/games/:gameName",
+                views: {
+                    'menuContent': {
+                        templateUrl: function($stateParams){
+                            return "templates/games/" + $stateParams.gameName + "/" + $stateParams.gameName+".html"
+                        }
+                    }
+                },
+                resolve: {
+                    game: function($ocLazyLoad, $stateParams) {
+                        return $ocLazyLoad.load("js/games/" + $stateParams.gameName + "/" + $stateParams.gameName+".js")
                     }
                 }
             })

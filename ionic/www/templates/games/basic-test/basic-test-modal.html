@@ -1,0 +1,19 @@
+<div class="modal">
+    <ion-header-bar>
+        <h1 class="title">Game Results</h1>
+    </ion-header-bar>
+    <ion-content>
+        <div class="list">
+            <label class="item item-input">
+                {{result.txt}}
+            </label>
+            <label class="item item-input">
+                <progressbar class="full-width progress-striped active" type="{{result.type}}"  max="10" value="result.score">{{result.score}} of 10</progressbar>
+            </label>
+        </div>
+
+        <button class="button button-block button-balanced" ng-click="tryAgain()">Try Again</button>
+        <button class="button button-block button-energized" ng-click="reviewResults()">Review Results</button>
+        <button class="button button-block button-positive" ng-click="playAgain()">Play Again</button>
+    </ion-content>
+</div>

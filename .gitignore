@@ -7,3 +7,7 @@ plugins/
 node_modules
 .idea
 node_modules
+ionic/engine/
+ionic/resources/
+ionic/www/js/dist/
+ionic/www/lib/

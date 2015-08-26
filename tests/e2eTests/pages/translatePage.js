@@ -53,12 +53,10 @@ var MemslateTranslatePage = function()
 
     this.setLanguages=function(fromLang, toLang)
     {
-        this.btnFromLang.click();
-        this.fromLangDropdown.element(by.css('.lang_af')).click();
-        this.btnToLang.click();
-        this.toLangDropdown.element(by.css('.lang_'+toLang)).click();
-        this.btnFromLang.click();
-        this.fromLangDropdown.element(by.css('.lang_'+fromLang)).click();
+		this.fromLangSelect.click();
+		this.selectLanguage(fromLang);
+		this.toLangSelect.click();
+		this.selectLanguage(toLang);
     };
 };
 

@@ -63,6 +63,18 @@ var Schema = {
         constrains: {
             uniques: [['userId']]
         }
+    },
+    Games: {
+        fields: {
+            id: {type: 'increments',  primary: true},
+            name_id: {type: 'string'},
+            name: {type: 'string', nullable: false },
+            description: {type: 'string', nullable: false }
+        }
+        ,
+        constrains: {
+            uniques: [['id'],['name_id'],['name']]
+        }
     }
 };
 

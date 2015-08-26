@@ -33,6 +33,17 @@ if(!Date.prototype.adjustDate){
     };
 }
 
+String.prototype.toCamelCase = function() {
+    return this.replace(/^([A-Z])|\s(\w)/g, function(match, p1, p2, offset) {
+        if (p2) return p2.toUpperCase();
+        return p1.toLowerCase();
+    });
+};
+
+String.prototype.toDash = function(){
+    return this.replace(/\s+/g, '-').toLowerCase();
+};
+
 var msUtils = {};
 
 msUtils.getService = function(serviceName)
@@ -66,6 +77,21 @@ msUtils.decoratePromise = function(promise)
     };
 };
 
+msUtils.loadJsCssfile = function(filename, filetype){
+    if (filetype=="js"){ //if filename is a external JavaScript file
+        var fileref=document.createElement('script')
+        fileref.setAttribute("type","text/javascript")
+        fileref.setAttribute("src", filename)
+    }
+    else if (filetype=="css"){ //if filename is an external CSS file
+        var fileref=document.createElement("link")
+        fileref.setAttribute("rel", "stylesheet")
+        fileref.setAttribute("type", "text/css")
+        fileref.setAttribute("href", filename)
+    }
+    if (typeof fileref!="undefined")
+        document.getElementsByTagName("head")[0].appendChild(fileref)
+};
 
 var regexIso8601 = /^(\d{4}|\+\d{6})(?:-(\d{2})(?:-(\d{2})(?:T(\d{2}):(\d{2}):(\d{2})\.(\d{1,})(Z|([\-+])(\d{2}):(\d{2}))?)?)?)?$/;
 

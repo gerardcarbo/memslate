@@ -20,6 +20,7 @@ module.exports = function (config) {
             'lib/api-check/dist/api-check.min.js',
             'lib/angular-formly/dist/formly.min.js',
             'lib/angular-formly-templates-ionic/dist/angular-formly-templates-ionic.min.js',
+            "lib/oclazyload/dist/ocLazyLoad.js",
             'js/*.js',
             '../../tests/lib/ngMidwayTester.js',
             '../../tests/lib/testingData.js',

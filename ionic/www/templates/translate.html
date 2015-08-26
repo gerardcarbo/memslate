@@ -8,9 +8,9 @@
                 <img id="btnSwap" src="img/swap2.png" title="Swap languages" class="image"></a>
             <ms-select id="toLang" name="To" title="To Language"
                        items="translateCtrl.languages.items"  prefered-items="translateCtrl.languages.user.prefered"
-                       selected-item="translateCtrl.languages.user.toLang" style="border-left: 1px;border-top-left-radius: 0px;border-bottom-left-radius: 0px;"></ms-select>
+                           selected-item="translateCtrl.languages.user.toLang" style="border-left: 1px;border-top-left-radius: 0px;border-bottom-left-radius: 0px;"></ms-select>
         </div>
-        <div class="row margin-top-1">
+        <div class="row margin-top-1  margin-left-1">
             <form id="translateForm" ng-submit="translateCtrl.translate()" class="full-width">
                 <div class="col item item-input">
                     <input id="textToTranslate" type="text" class="center-text" placeholder="Text to Translate" ng-model="translateCtrl.textToTranslate">

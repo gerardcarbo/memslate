@@ -33,7 +33,6 @@
 
 .col {
   @include flex(1);
-  display: block;
   padding: ($grid-padding-width / 2);
   width: 100%;
 }

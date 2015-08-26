@@ -17,10 +17,19 @@
 {
     margin-top:1px;
 }
+.margin-left-1
+{
+    margin-left: 1px;
+}
 
 .padding-5
 {
     padding: 5px;
+}
+
+.padding-10
+{
+    padding: 10px;
 }
 
 .no-padding
@@ -243,6 +252,7 @@
 .slider {
     height: inherit;
 }
+
 .slider-slide {
     padding-top: 80px;
     background-color: #fff;
@@ -272,7 +282,7 @@
 }
 
 .featurette-heading {
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1;
     letter-spacing: -1px;
     margin: 40px;
@@ -320,4 +330,20 @@
     display: inline-block;
     padding:2px;
     font-size: 14px
+}
+
+.game-description
+{
+    font-size: smaller;
+}
+
+#memslate-games-list
+{
+    padding:3px;
+}
+
+.bar .button
+{
+    margin-top: 0px;
+    min-height: 37px;
 }

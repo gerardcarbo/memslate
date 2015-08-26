@@ -22,6 +22,28 @@ app.directive('msEnterPressed', function () {
         });
     };
 });
+/*
+ * modal dialog based select
+ */
+app.directive("msProgressbar", function ($ionicModal) {
+    return {
+        restrict: 'E',
+        template: '<div id="progressbar"></div>',
+        replace: true,
+        scope: {
+            max: '=',
+            value: '=',
+            type: '='
+        },
+        link: function ($scope) {
+            $("#progressbar").progressbar({
+                max:$scope.max,
+                value: $scope.value,
+                type: $scope.type
+            });
+        }
+    };
+});
 
 /*
  * modal dialog based select
@@ -33,21 +55,20 @@ app.directive("msSelect", function ($ionicModal) {
         replace: true,
         scope: {
             items: '=',
-            selectedItem: '=',
+            selectedItem: '=?',
             preferedItems: '=',
             name: '@',
             selectorClass: '@selectorClass',
             title: '@'
         },
-        link: function ($scope)
-        {
+        link: function ($scope) {
+
             $scope.onSelected = function (value) {
                 $scope.selectedItem = value;
                 $scope.modalSelect.hide();
             };
 
-            $scope.notPrefered = function(item)
-            {
+            $scope.notPrefered = function (item) {
                 if(!this.preferedItems) return true;
                 return this.preferedItems.indexOf(item.value) === -1;
             };
@@ -67,8 +88,7 @@ app.directive("msSelect", function ($ionicModal) {
                 $scope.modalSelect.remove();
             });
 
-            $scope.getName = function(value)
-            {
+            $scope.getName = function (value) {
                 var item = msUtils.objectFindByKey($scope.items, "value", value);
                 return item && item.name;
             };
@@ -88,8 +108,11 @@ app.directive('msTranslation', ['TranslateService', function (TranslateService) 
         scope: {
             translation: '='
         },
-        controller: ['$scope', 'TranslationSampleRes', 'ModalDialogService','UI',
-            function ($scope, TranslationSampleRes, ModalDialogService, UI) {
+        controller: function ($scope, TranslationSampleRes, ModalDialogService, UI, UserService) {
+                this.isAuthenticated = function () {
+                    console.log('isAuthenticated',UserService.isAuthenticated())
+                    return UserService.isAuthenticated();
+                }
 
             this.saveTranslationSample = function () {
                 if ($scope.translation.translate !== undefined &&
@@ -106,7 +129,11 @@ app.directive('msTranslation', ['TranslateService', function (TranslateService) 
                         if ($scope.translation.samples === undefined) {
                             $scope.translation.samples = [];
                         }
-                        $scope.translation.samples.push(new TranslationSampleRes({id: data.id, translationId: $scope.translation.id, sample: translationCtrl.translationSample}));
+                        $scope.translation.samples.push(new TranslationSampleRes({
+                            id: data.id,
+                            translationId: $scope.translation.id,
+                            sample: translationCtrl.translationSample
+                        }));
                         translationCtrl.translationSample = "";
                     });
             };
@@ -118,23 +145,24 @@ app.directive('msTranslation', ['TranslateService', function (TranslateService) 
             };
 
             this.deleteTranslation = function (id) {
-                ModalDialogService.showYesNoModal("Delete Translation", "Do you really want to delete the translation '" + $scope.translation.translate + "' ?")
+                    ModalDialogService.showOkCancelModal("Delete Translation", "Do you really want to delete the translation '" + $scope.translation.translate + "' ?")
                     .then(function (res) {
-                        if (res === 'yes') {
+                            if (res === true) {
+                                console.log('deleteTranslation', id);
                             TranslateService.deleteTranslation(id).then(function(){
+                                    console.log('deleteTranslation: done for ', id);
                                 $scope.$emit('ms:translationDeleted', id);
                                 $scope.translation = undefined;
                             });
                         }
                     });
             };
-        }],
+            },
         controllerAs: 'msTranslationCtrl',
         link: function ($scope, element, attrs) {
             var scope = $scope;
-            $scope.$watch('translation', function(translation)
-            {
-                if(translation && translation.rawResult) //full translation gotten
+            $scope.$watch('translation', function (translation) {
+                if (translation && translation.rawResult) //full translation gotten
                 {
                     /*
                     //to be used if template changes depending on the translation type
@@ -149,3 +177,5 @@ app.directive('msTranslation', ['TranslateService', function (TranslateService) 
         }
     };
 }]);
+
+

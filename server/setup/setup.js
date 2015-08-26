@@ -26,6 +26,9 @@ var querystring = require('querystring');
  .onUpdate(value);
  };*/
 
+var startTranslation = 1;
+var limitTranslation = 80;
+
 function createTable(tableName) {
     console.log('Creating table ' + tableName + '...');
     return knex.schema.createTable(tableName, function (table) {
@@ -112,8 +115,7 @@ function createTables() {
     return sequence(tables);
 }
 
-function addTranslations(start, limit, lang)
-{
+function addTranslations(start, limit, lang) {
     var fs = require('fs');
     var parse = require('csv-parse');
     var index = 0;
@@ -140,7 +142,7 @@ function addTranslations(start, limit, lang)
                 if (translated[word] === undefined) {
                     translated[word] = word;
                     if (word.length > 2) {
-                        console.log('Processing word: ' + word + ' : ' + JSON.stringify(translated));
+                        console.log('Processing word: ' + word);
                         new models.Translations({
                             translate: word,
                             fromLang: 'en',
@@ -176,8 +178,7 @@ function addTranslations(start, limit, lang)
     file.pipe(parser);
 }
 
-function translate(word, fromLang, toLang, onTranslated)
-{
+function translate(word, fromLang, toLang, onTranslated) {
     var params = {
         key: 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb',
         lang: fromLang + "-" + toLang,
@@ -194,7 +195,9 @@ function translate(word, fromLang, toLang, onTranslated)
         var data = '';
 
         //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function (chunk) {data += chunk;});
+        response.on('data', function (chunk) {
+            data += chunk;
+        });
 
         //the whole response has been recieved, so we just print it out here
         response.on('end', function () {
@@ -206,9 +209,12 @@ function translate(word, fromLang, toLang, onTranslated)
     https.request(options, callback).end();
 }
 
+function addTranslation(translate, fromLang, toLang, result) {
+    console.log("addTranslation:", translate);
+    console.log("addTranslation:", result);
 
-function addTranslation(translate, fromLang, toLang, result)
-{
+    if (!result.def[0]) return;
+
     console.log("addTranslation:",translate);
     console.log("addTranslation:",result);
 
@@ -274,11 +280,36 @@ function createUsers() {
     return p;
 }
 
+function createGames() {
+    var games = [
+        {
+            name_id: 'basic-test',
+            name: 'Basic Test',
+            description: 'Performs a basic test based on previous translations'
+        }
+    ];
+
+    games.forEach(function (game) {
+        new models.Games(game).fetch().then(function(gameModel){
+            if(!gameModel)
+            {
+                console.log('Creating game: ' + game.name);
+                new models.Games(game).save();
+            }
+            else
+            {
+                console.log('Game ' + game.name + ' already created.');
+            }
+        });
+    });
+}
+
 process.on('uncaughtException', function (err) {
     console.log(err.stack);
     throw err;
 });
 
+//create tables, users, games and add translations
 createTables()
     .then(function () {
         console.log('Tables created!!');
@@ -287,9 +318,10 @@ createTables()
             console.log('Users created!!!');
         });
 
-        addTranslations(1, 20, 'es');
-        addTranslations(1, 20, 'fr');
+        addTranslations(startTranslation, limitTranslation, 'es');
+        addTranslations(startTranslation, limitTranslation, 'fr');
 
+        createGames();
     })
     .otherwise(function (error) {
         console.log(error.stack);

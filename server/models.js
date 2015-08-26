@@ -71,11 +71,16 @@ module.exports = function (bookshelf)
         tableName: 'UserLanguages'
     });
 
+    var Games = bookshelf.Model.extend({
+        tableName: 'Games'
+    });
+
     return {
         User: User,
         Translations: Translations,
         UserTranslations: UserTranslations,
         UserTranslationsSamples: UserTranslationsSamples,
-        UserLanguages: UserLanguages
+        UserLanguages: UserLanguages,
+        Games: Games
     };
 };

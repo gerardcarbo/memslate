@@ -7,14 +7,11 @@ var restful = require('./bookshelf_rest');
 var config = require('./config');
 var _ = require('lodash');
 var locale = require('locale');
-var knex = require('knex')(config.knex_options);
 
 var log = config;
 
 module.exports = function (models) {
-    /**
-     * util functions
-     */
+
     var addPrefered = function (prefered, languages) {
         _.forEach(languages, function (language) {
             console.log('addPrefered: trying ' + language);
@@ -64,9 +61,6 @@ module.exports = function (models) {
         }
     }
 
-    /**
-     * Translations routes
-     */
     function saveUserTranslation(req, res, translation) {
         if (translation) {
             log.debug('saveUserTranslation: translationId:' + translation.id + ' : ' + translation.translate);
@@ -74,7 +68,6 @@ module.exports = function (models) {
             var userTranslation = {};
             userTranslation.translationId = translation.id;
             userTranslation.userId = req.user.id;
-            userTranslation.translate = translation.translate;
 
             models.UserTranslations.forge(userTranslation).fetch().then(function (model) {
                 if (!model) {
@@ -86,7 +79,7 @@ module.exports = function (models) {
         }
     }
 
-    function checkTranslation(req, res, saveTranslation) {
+    function checkIfTranslationExists(req, res, doSave) {
         req.translation = req.body;
 
         log.debug('checkTranslation: ' + req.translation.translate);
@@ -103,7 +96,7 @@ module.exports = function (models) {
                     saveUserTranslation(req, res, req.translation);
                 }
                 else {
-                    saveTranslation(req.translation);
+                    doSave(req.translation);
                 }
             });
 
@@ -123,6 +116,10 @@ module.exports = function (models) {
         return orderByRaw;
     }
 
+
+    /**
+     * User Translations routes
+     */
     var translations = restful(models.Translations, 'translations',
         {
             getAll: function (req, res) {
@@ -134,13 +131,13 @@ module.exports = function (models) {
                 var columns = req.query.columns || 'userTranslationInsertTime,Translations.*';
 
                 models.UserTranslations.query(function (qb) {
-                    columns.split(',').forEach(function(column){
+                    columns.split(',').forEach(function (column) {
                         qb.column(column.trim());
                     });
                     qb.innerJoin("Translations", "Translations.id", "UserTranslations.translationId");
                     qb.where("UserTranslations.userId", userId);
                     if (req.query.filterByString && req.query.filterByString === "true") {
-                        qb.andWhereRaw("\"Translations\".translate like '%" + escape(req.query.filterString) + "%'");
+                        qb.andWhereRaw("\"Translations\".translate like '" + escape(req.query.filterString) + "%'");
                     }
                     if (req.query.filterByDates && req.query.filterByDates === "true") {
                         qb.andWhereRaw("\"UserTranslations\".\"userTranslationInsertTime\" >= '" + req.query.filterDateFrom + "'  and \"UserTranslations\".\"userTranslationInsertTime\" <= '" + req.query.filterDateTo + "'");
@@ -164,7 +161,7 @@ module.exports = function (models) {
                     }
 
                     qb.debug();
-                }).fetchAll({columns:['UserTranslations.id as userTranslationId']}).then(function (collection) {
+                }).fetchAll({columns: ['UserTranslations.id as userTranslationId']}).then(function (collection) {
                     if (collection) {
                         res.json(collection);
                     }
@@ -173,8 +170,8 @@ module.exports = function (models) {
                     }
                 });
 
-
-                /*models.UserTranslations.query(function(qb) {
+                /* Using withRelated -> pagination problems when filtering by Translations fields
+                 models.UserTranslations.query(function(qb) {
                  qb.orderBy(orderBy, orderWay);
                  qb.limit(limit);
                  qb.offset(offset);
@@ -208,52 +205,51 @@ module.exports = function (models) {
                     }
                 });
             },
-            preSave: checkTranslation,
+            preSave: checkIfTranslationExists,
             postSave: saveUserTranslation,
             preDelete: function (req, res, doDelete) {
                 //check user translation.
-                new models.UserTranslations({
-                    translationId: req.params.id
-                }).fetch()
-                    .then(function (model) {
-                        if (model) {
-                            if (model.get('userId') === req.user.id) {
-                                doDelete(req.params);
+                new models.UserTranslations().query({where: {translationId: req.params.id}})
+                    .fetchAll().then(function (translationsModel) {
+                        if (translationsModel) {
+                            if (translationsModel.models.length === 1) {
+                                if (translationsModel.models[0].get('userId') == req.user.id) {
+                                    translationsModel.models[0].destroy();  //delete user translation
+                                    doDelete(req.params); //delete translation
+                                }
                             }
                             else {
-                                res.status(403).send('Invalid user');
+                                _.each(translationsModel.models, function (model) {
+                                    if (model.get('userId') == req.user.id) {
+                                        model.destroy(); //delete user translation
+                                    }
+                                });
+                                //do not delete translation as other users still use it.
+                                res.json({id: req.params.id});
                             }
+
+                            //delete user translation samples -> already done by DB integrity rules
+                            /*new models.UserTranslationsSamples().query({where: {translationId: item.id, userId: req.user.id}})
+                             .fetchAll().then(function (modelSamples) {
+                             if (modelSamples) {
+                             _.each(modelSamples.models, function (model) {
+                             model.destroy();
+                             });
+                             }
+                             });*/
+                        }
+                        else {
+                            res.status(404).send('Translation not found');
                         }
                     })
                     .otherwise(function (err) {
                         res.status(500).json({error: true, data: {message: err.message}});
                     });
-            },
-            postDelete: function (req, res, item, doPostDeleteDone) {
-                //delete user translation.
-                new models.UserTranslations({
-                    translationId: item.id
-                }).fetch()
-                    .then(function (model) {
-                        if (model) {
-                            model.destroy();
-                        }
-                    });
-                new models.UserTranslationsSamples().query({where: {translationId: item.id, userId: req.user.id}})
-                    .fetchAll().then(function (modelSamples) {
-                        if (modelSamples) {
-                            _.each(modelSamples.models, function (model) {
-                                model.destroy();
-                            });
-                        }
-                    });
-
-                doPostDeleteDone();
             }
         });
 
     /**
-     * Translations Samples
+     * User Translations Samples
      */
     var translationsSamples = restful(models.UserTranslationsSamples,
         'translations/:translationId/samples', {
@@ -316,6 +312,9 @@ module.exports = function (models) {
         return defUserLanguages;
     };
 
+    /**
+     * User Languages
+     */
     var userLanguages = restful(models.UserLanguages, 'userLanguages',
         {
             getAll: function (req, res, next) {

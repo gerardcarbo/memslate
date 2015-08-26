@@ -1,6 +1,6 @@
 "use strict";
 
-var controllersMod = angular.module('memslate.controllers', ['memslate.services', 'ionic', 'formly']);
+var controllersMod = angular.module('memslate.controllers', ['memslate.services', 'ionic', 'formly','oc.lazyLoad']);
 
 controllersMod.controller('AppCtrl', function ($scope, $timeout, $state, $ionicModal, $ionicPopup,
                                                RegistrationService, UserService, SessionService, UI) {
@@ -224,15 +224,15 @@ controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateServic
             {
                 translateCtrl.translation = data;
             },
-            function (data, status) //error
+            function (error) //error
             {
                 translateCtrl.translation.translating = false;
-                translateCtrl.translation.error = data || "Unknown Error";
+                translateCtrl.translation.error = error.data ? error.data.message || "Unknown Error" : "Unknown Error";
 
                 UI.toast(translateCtrl.translation.error);
 
                 // log the error to the console
-                console.log("The following error occured: " + status);
+                console.log("The following error occured: status:" + error.status + " data:" + JSON.stringify(error.data));
             })
             .finally(function ()	//finally
             {
@@ -265,12 +265,11 @@ controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateServic
     });
 
     $scope.$on('ms:translationDeleted', function () {
-        translateCtrl.reset();
+        translateCtrl.textToTranslate = undefined;
     });
 
     $scope.$on('ms:login', function () {
         translateCtrl.reset();
-
     });
 
     $scope.$on('ms:logout', function () {
@@ -575,7 +574,34 @@ controllersMod.controller('UserCtrl', function ($scope, $state, $ionicHistory, $
     }
 });
 
-controllersMod.controller('PlayCtrl', function ($scope, UI, TranslateService, LanguagesService) {
+controllersMod.controller('PlayCtrl', function ($scope, $http, $compile, $timeout, $ocLazyLoad, $state, UI, GamesService) {
 
+    var self = this;
+
+    self.games = {};
+
+    GamesService.getGames().success(function(games){
+        self.games = games;
+});
+
+    self.playGame = function (gameIndex) {
+        console.log("playGame:",self.games[gameIndex]);
+
+        $state.go('app.games',{gameName:self.games[gameIndex].name_id});
+
+        //load javascript & css (done using ui-router states in app.js)
+        /*$ocLazyLoad.load('css/games/'+gameNameDashed+'.css').finally(function(){
+            $ocLazyLoad.load('js/games/'+gameNameDashed+'.js').then(function() {
+                //load and compile template
+                $scope.gameId = self.games[gameIndex].id;
+                $http.get('templates/games/'+gameNameDashed+'.html').then(function(page){
+                    var element = angular.element('#memslate-game-container');
+                    element.html(page.data);
+                    $compile(element.contents())($scope);
+                });
+            });
+        });*/
+
+    };
 });
 

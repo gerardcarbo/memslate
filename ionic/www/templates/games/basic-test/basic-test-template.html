@@ -1,0 +1,34 @@
+<ion-view view-title="Basic Test">
+    <ion-content class="has-header" id="basic-test-content">
+        <div id="langSelectionDiv" ng-if="!basicTestCtrl.testStarted" class="center-text padding-5">
+            <div class="center-text padding-5">Please, select the languages to be used in the test:</div>
+            <ms-select id="langs" name="" title="Test Languages" items="basicTestCtrl.gameLangs" selected-item="basicTestCtrl.selectedLangs"></ms-select>
+            <button class="button button-block button-positive" ng-click="basicTestCtrl.startTest()">Play!</button>
+        </div>
+        <div id="testDiv" ng-if="basicTestCtrl.testStarted">
+            <div class="padding-10">Select the correct translation for the following words:</div>
+            <ion-list id="testList">
+                <div ng-repeat="(i, question) in basicTestCtrl.gameQuestions track by $index" id="test_div_{{i}}">
+                    <div class="item item-stable">
+                        <b>{{question.question}} ?</b>
+                        <div class="padding-5">
+                            <div ng-repeat="(j, option) in question.options" >
+                               <input type="radio"  id="answer_{{i}}_{{j}}"
+                                      ng-model="question.givenAnswer" ng-value="{{j}}" ng-change="basicTestCtrl.answerSelected({{i}},{{j}})">
+                                <label for="answer_{{i}}_{{j}}" class="padding-5">{{option}}</label>
+                                <label ng-if="basicTestCtrl.showResults &&  question.answer==option" class="ion-checkmark-round balanced"></label>
+                                <label ng-if="basicTestCtrl.showResults && question.givenAnswer==j && question.answer!=option" class="ion-close-round assertive"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ion-list>
+        </div>
+    </ion-content >
+    <ion-footer-bar class="bar-footer-wide">
+        <button class="button button-block button-positive"
+                ng-if="basicTestCtrl.testStarted"
+                ng-click="basicTestCtrl.evaluateTest()">Evaluate Test!</button>
+    </ion-footer-bar>
+</ion-view>
+

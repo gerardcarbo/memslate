@@ -13,8 +13,8 @@ servicesMod.config(function ($httpProvider) {
 });
 
 servicesMod.constant('TranslationsProvider', 'yandex');
-servicesMod.constant('BaseUrl', 'http://localhost:5000/');
-//servicesMod.constant('BaseUrl', 'https://memslate.herokuapp.com/');
+//servicesMod.constant('BaseUrl', 'http://localhost:5000/');
+servicesMod.constant('BaseUrl', 'https://memslate.herokuapp.com/');
 
 servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
 servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
@@ -90,8 +90,37 @@ DesAuthorizable.deleteAuthorizationHeader = function(d,headersGetter) {
     return JSON.stringify(d);
 };
 
-servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resource, SessionService,
-                                                YandexTranslateApiKey, BaseUrl)
+servicesMod.service('YandexLanguagesService', function ($q, $rootScope, $http, $resource,
+                                                        SessionService,YandexTranslateApiKey, BaseUrl) {
+    var self = this;
+    angular.extend(this, DesAuthorizable);
+
+    this.getLanguages = function () {
+        var yandexGet = $q.defer();
+        var promiseYandex = yandexGet.promise;
+
+        $http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs',
+{
+                params: {
+                    key: YandexTranslateApiKey,
+                    ui: 'en'
+                },
+                transformRequest: this.deleteAuthorizationHeader
+            }
+        ).success(function (data) {
+                self.langsGotten = true;
+                yandexGet.resolve(data);
+            })
+            .error(function (data, status) {
+                yandexGet.reject(status);
+            });
+
+        return promiseYandex;
+    }
+});
+
+servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resource, $injector,
+                                                  SessionService, BaseUrl, TranslationsProvider)
 {
     var self = this;
     angular.extend(this,DesAuthorizable);
@@ -110,42 +139,45 @@ servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resour
             return deferred.promise;
         }
 
-        var yandexGet = $q.defer();
-        var promiseYandex = yandexGet.promise;
-
-        $http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs',
+        var promiseProviderLangs;
+        if(TranslationsProvider === 'yandex')
             {
-                params: {
-                    key: YandexTranslateApiKey,
-                    ui: 'en'
-                },
-                transformRequest: this.deleteAuthorizationHeader
+            var YandexLanguagesService = $injector.get('YandexLanguagesService');
+            promiseProviderLangs = YandexLanguagesService.getLanguages();
             }
-        ).success(function (data)
-            {
-                self.langsGotten = true;
-                yandexGet.resolve(data);
-            })
-            .error(function(data, status)
-            {
-                yandexGet.reject(status);
-            });
 
         var promiseUserLangs = this.getUserLanguages();
 
-        var allPromise = $q.all([promiseYandex, promiseUserLangs]).then(function(data)
+        var allPromise = $q.all([promiseProviderLangs, promiseUserLangs]).then(function(data)
         {
             self.languages.items = Object.keys(data[0].langs).map(function(item){
                 return {value: item, name: data[0].langs[item]};
             });
             self.languages.dirs = data[0].dirs;
             self.languages.user = data[1];
+            self.langsGotten = true;
 
             return self.languages;
         });
         msUtils.decoratePromise(allPromise);
         return allPromise;
     };
+
+    this.getLanguage = function(langId)
+    {
+        /*if(!this.langsGotten)
+        {
+            return this.getLanguages().then(function(){
+                return self.getLanguage_(langId);
+            })
+        }*/
+        return this.getLanguage_(langId);
+    };
+
+    this.getLanguage_ = function(langId)
+    {
+        return this.languages.items.filter(function(item){return item.value==langId})[0];
+    }
 
     this.getUserLanguages = function()
     {
@@ -256,7 +288,7 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
                     text: text,
                     ui: 'en'
                 },
-                transformRequest: this.deleteAuthorizationHeader
+                transformRequest: self.deleteAuthorizationHeader
             }
         ).success(function (data)
             {
@@ -299,12 +331,12 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
                             }
                         })
                         .error(function (data, status) {
-                            deferred.reject(data.message);
+                            deferred.reject({status: status, data: data});
                         });
                 }
             }
         ).error(function (data, status) {
-                deferred.reject(data.message);
+                deferred.reject({status: status, data: data});
             });
 
         return promise;
@@ -398,10 +430,9 @@ servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrl) {
         {translationId: '@translationId', id: '@id'});
 });
 
-servicesMod.service("MemoFilterService", function ($resource, BaseUrl, SessionService)
-{
+servicesMod.service("MemoFilterService", function ($resource, BaseUrl, SessionService){
     this.reset = function()
-    {
+{
         this.memoFilterSettings = {};
         this.memoFilterSettings.orderBy = 'Translations.translate,Translations.mainResult';
         this.memoFilterSettings.filterByString = false;
@@ -477,23 +508,11 @@ servicesMod.service('UI', function ($window, $timeout, $ionicLoading, $ionicBody
 });
 
 servicesMod.service("ModalDialogService", ['$ionicPopup', '$q', function ($ionicPopup, $q) {
-    this.showYesNoModal = function (title, msg) {
-        var deferred = $q.defer();
-        var promise = deferred.promise;
-
-        var confirmPopup = $ionicPopup.confirm({
+    this.showOkCancelModal = function (title, msg) {
+        return $ionicPopup.confirm({
             title: title,
             template: msg
         });
-        confirmPopup.then(function (res) {
-            if (res) {
-                deferred.resolve('yes');
-            } else {
-                deferred.resolve('no');
-            }
-        });
-
-        return promise;
     };
 }]);
 
@@ -615,7 +634,7 @@ servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserSe
     };
 });
 
-servicesMod.factory('RegistrationService', function ($window, $http, $ionicPopup, $rootScope, UserService, BaseUrl) {
+servicesMod.factory('RegistrationService', function ($http, $rootScope, UserService, BaseUrl) {
     return {
         login: function (email, password) {
             return $http.post(BaseUrl + 'login', {
@@ -686,6 +705,18 @@ servicesMod.factory('RegistrationService', function ($window, $http, $ionicPopup
             {
                 return {done: false, err: err};
             });
+        }
+    };
+});
+
+
+servicesMod.factory('GamesService', function ($http, $rootScope, UserService, BaseUrl) {
+    return {
+        getGames: function () {
+            return $http.get(BaseUrl + 'resources/games/getAll');
+        },
+        getGame: function (id, params) {
+            return $http.get(BaseUrl + 'resources/games/get/'+id+'/'+params);
         }
     };
 });

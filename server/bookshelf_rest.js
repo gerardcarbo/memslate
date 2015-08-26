@@ -38,13 +38,20 @@ module.exports = function (Model, resource, options)
     function saveItem(item, res)
     {
         return new Model(item).save().then(function (row) {
-            res.json(row);
+            log.debug('post ' + resource + ' id:' + row.get('id'));
             return row;
         }).catch(function (err) {
-            console.log(err);
+            console.log('post ' + resource + ' error:',err);
             res.status(500).send(err);
             return false;
         });
+    }
+
+    function notifyItemSaved(res, itemSaved){
+        if(itemSaved)
+        {
+            res.json(itemSaved);
+        }
     }
 
     router.post('/' + resource, function (req, res)
@@ -55,7 +62,8 @@ module.exports = function (Model, resource, options)
             {
                 saveItem(item, res).then(function(itemSaved)
                 {
-                    log.debug('router.post ' + resource + ' id:' + itemSaved.id);
+                    notifyItemSaved(res, itemSaved);
+
                     if(options.postSave)
                     {
                         if(itemSaved)
@@ -70,10 +78,11 @@ module.exports = function (Model, resource, options)
                 });
             });
         } else {
-            saveItem(req.body, res);
+            saveItem(req.body, res).then(function (itemSaved){
+                notifyItemSaved(res, itemSaved);
+            });
         }
     });
-
 
     function deleteItem(item,res)
     {
@@ -82,17 +91,27 @@ module.exports = function (Model, resource, options)
             .then(function (modelItem) {
                 return modelItem.destroy()
                     .then(function () {
+                        log.debug('deleteItem ' + resource + ' id:' + item.id);
                         return item;
                     })
                     .otherwise(function (err) {
+                        log.debug('deleteItem destroy error:', err);
                         res.status(500).json({error: true, data: {message: err.message}});
                         return false;
                     });
             })
             .otherwise(function (err) {
+                log.debug('deleteItem fetch error:', err);
                 res.status(500).json({error: true, data: {message: err.message}});
                 return false;
             });
+    }
+
+    function notifyItemDeleted(res, itemDeleted){
+        if(itemDeleted)
+        {
+            res.json(itemDeleted);
+        }
     }
 
     router.delete('/' + resource + "/:id", options.delete || function (req, res)
@@ -103,27 +122,27 @@ module.exports = function (Model, resource, options)
             {
                 deleteItem(item, res).then(function(itemDeleted)
                 {
-                    if(itemDeleted)
+                    notifyItemDeleted(res, itemDeleted);
+
+                    if(options.postDelete)
                     {
-                        log.debug('router.delete ' + resource + ' id:' + itemDeleted.id);
-                        if(options.postDelete)
-                        {
-                            options.postDelete(req, res, itemDeleted,function(){
-                                res.json({error: false, data: {id: itemDeleted.id, message: 'Successfully deleted'}});
-                            });
+                        if(itemDeleted) {
+                            options.postDelete(req, res, itemDeleted.attributes);
                         }
                         else
                         {
-                            res.json({error: false, data: {id: itemDeleted.id, message: 'Successfully deleted'}});
+                            options.postDelete(req, res);
                         }
                     }
                 });
             });
         } else {
-            deleteItem(req.params, res);
+            deleteItem(req.params, res).then(function(itemDeleted)
+            {
+                notifyItemDeleted(res, itemDeleted);
+            });
         }
     });
-
 
     return router;
 };
