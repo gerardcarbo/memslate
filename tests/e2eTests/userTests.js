@@ -26,7 +26,7 @@ describe("Memslate User Tests", function ()
         //check if test@test.com exists and delete account
         browser.waitForAngular();
         loginPage.login('test@test.com', 'testtest');
-        mainPage.userMenu.isDisplayed().then(function (present) {
+        mainPage.userMenu.isPresent().then(function (present) {
             console.log('present: ', present)
             if (present == true) {
                 mainPage.userMenu.click();
@@ -39,7 +39,7 @@ describe("Memslate User Tests", function ()
                 loginPage.loginFailedPopupOkButton.click();
                 loginPage.closeButton.waitAndClick();
                 loginPage.login('test@test.com', 'testtest2');
-                mainPage.userMenu.isDisplayed().then(function (present) {
+                mainPage.userMenu.isPresent().then(function (present) {
                     console.log('present: ', present)
                     if (present == true) {
                         mainPage.userMenu.click();
@@ -105,16 +105,16 @@ describe("Memslate User Tests", function ()
         registerPage.registerButton.click();
         browser.sleep(1000);
 
-        expect(mainPage.userMenu.isDisplayed()).toBeTruthy();
+        expect(mainPage.userMenu.isPresent()).toBeTruthy();
 
         //logout
         mainPage.clickLogout();
-        expect(mainPage.userMenu.isDisplayed()).not.toBeTruthy();
+        expect(mainPage.userMenu.isPresent()).not.toBeTruthy();
 
         //login
         loginPage.login('test@test.com', 'testtest');
 
-        expect(mainPage.userMenu.isDisplayed()).toBeTruthy();
+        expect(mainPage.userMenu.isPresent()).toBeTruthy();
 
         //load user page
         mainPage.userMenu.click();
@@ -164,9 +164,10 @@ describe("Memslate User Tests", function ()
         //logout and login again
         mainPage.backMenu.click();
         mainPage.clickLogout();
-        expect(mainPage.userMenu.isDisplayed()).not.toBeTruthy();
+        expect(mainPage.userMenu.isPresent()).not.toBeTruthy();
 
         loginPage.login('test@test.com', 'testtest2');
+        mainPage.userMenu.waitVisible(2000);
         expect(mainPage.userMenu.isDisplayed()).toBeTruthy();
 
         //delete account

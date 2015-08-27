@@ -227,7 +227,7 @@ controllersMod.controller('TranslateCtrl', function ($scope, UI, TranslateServic
             function (error) //error
             {
                 translateCtrl.translation.translating = false;
-                translateCtrl.translation.error = error.data ? error.data.message || "Unknown Error" : "Unknown Error";
+                translateCtrl.translation.error = error || "Unknown Error" ;
 
                 UI.toast(translateCtrl.translation.error);
 

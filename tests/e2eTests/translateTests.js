@@ -37,7 +37,7 @@ describe("Memslate Translate Page", function () {
         translatePage.fromLangSelect.click();
         translatePage.selectLanguage('es');
         expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('es');
-    });*/
+    });
 
     it('should be able to translate', function()
     {
@@ -105,13 +105,13 @@ describe("Memslate Translate Page", function () {
                 expect(element.all(by.repeater('sample in translation.samples')).count()).toBe(samplesCount);
             });
     });
-*/
 
     it('should be able to login and translate', function () {
 
         loginPage.login('gcarbo@miraiblau.com', 'gcarbo');
         translatePage.setLanguages('es', 'en');
         translatePage.translate('transportador');
+        translatePage.translationYd.waitVisible();
         expect(translatePage.translationYd.getText()).toContain('transporter');
         loginPage.logout();
     });
@@ -135,6 +135,5 @@ describe("Memslate Translate Page", function () {
 
         expect(translatePage.textToTranslate.getText()).toBe('');
         loginPage.logout();
-
     });
 });

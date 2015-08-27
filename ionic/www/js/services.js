@@ -13,8 +13,8 @@ servicesMod.config(function ($httpProvider) {
 });
 
 servicesMod.constant('TranslationsProvider', 'yandex');
-//servicesMod.constant('BaseUrl', 'http://localhost:5000/');
-servicesMod.constant('BaseUrl', 'https://memslate.herokuapp.com/');
+servicesMod.constant('BaseUrl', 'http://localhost:5000/');
+//servicesMod.constant('BaseUrl', 'https://memslate.herokuapp.com/');
 
 servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
 servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
@@ -82,30 +82,21 @@ servicesMod.service('SessionService', function ($cookies)
     }
 });
 
-var DesAuthorizable = {};
-DesAuthorizable.deleteAuthorizationHeader = function(d,headersGetter) {
-    var headers = headersGetter();
-    delete headers.Authorization;
-
-    return JSON.stringify(d);
-};
-
 servicesMod.service('YandexLanguagesService', function ($q, $rootScope, $http, $resource,
                                                         SessionService,YandexTranslateApiKey, BaseUrl) {
     var self = this;
-    angular.extend(this, DesAuthorizable);
 
     this.getLanguages = function () {
         var yandexGet = $q.defer();
         var promiseYandex = yandexGet.promise;
 
         $http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs',
-{
+        {
                 params: {
                     key: YandexTranslateApiKey,
                     ui: 'en'
                 },
-                transformRequest: this.deleteAuthorizationHeader
+                withCredentials : false
             }
         ).success(function (data) {
                 self.langsGotten = true;
@@ -123,7 +114,6 @@ servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resour
                                                   SessionService, BaseUrl, TranslationsProvider)
 {
     var self = this;
-    angular.extend(this,DesAuthorizable);
 
     this.langsGotten = false;
     this.languages = {};
@@ -269,8 +259,6 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
 {
     var self = this;
 
-    angular.extend(this,DesAuthorizable);
-
     this.translate = function (fromLang, toLang, text)
     {
         var deferred = $q.defer();
@@ -288,7 +276,7 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
                     text: text,
                     ui: 'en'
                 },
-                transformRequest: self.deleteAuthorizationHeader
+                withCredentials : false
             }
         ).success(function (data)
             {
@@ -316,7 +304,7 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
                                 text: text,
                                 ui: 'en'
                             },
-                            transformRequest: self.deleteAuthorizationHeader
+                            withCredentials : false
                         }
                         ).success(function (dataTranslate) {
                             if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
@@ -604,7 +592,8 @@ servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserSe
     return {
         request: function (config) {
             config.headers = config.headers || {};
-            if (UserService.token()) {
+            var withCredentials = (config.withCredentials != undefined ? config.withCredentials : true);
+            if (UserService.token() && withCredentials) {
                 config.headers.Authorization = 'Bearer ' + UserService.token();
             }
             return config;
