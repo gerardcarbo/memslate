@@ -574,7 +574,7 @@ controllersMod.controller('UserCtrl', function ($scope, $state, $ionicHistory, $
     }
 });
 
-controllersMod.controller('PlayCtrl', function ($scope, $http, $compile, $timeout, $ocLazyLoad, $state, UI, GamesService) {
+controllersMod.controller('PlayCtrl', function ($scope, $http, $compile, $timeout, $ocLazyLoad, $state, $ionicHistory, UI, GamesService) {
 
     var self = this;
 
@@ -587,7 +587,12 @@ controllersMod.controller('PlayCtrl', function ($scope, $http, $compile, $timeou
     self.playGame = function (gameIndex) {
         console.log("playGame:",self.games[gameIndex]);
 
-        $state.go('app.games',{gameName:self.games[gameIndex].name_id});
+        //used to fix an animation bug while loading the game in Chrome PC (the transition is not completed and the ion-view is left 99% displaced to the right (hidden))
+        $ionicHistory.nextViewOptions({
+            disableAnimate: true
+        });
+
+        $state.go('app.games',{gameName:self.games[gameIndex].name_id}).then(function(){console.log('playGame loaded')});
 
         //load javascript & css (done using ui-router states in app.js)
         /*$ocLazyLoad.load('css/games/'+gameNameDashed+'.css').finally(function(){

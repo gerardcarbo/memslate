@@ -1,9 +1,9 @@
 <ion-view view-title="Memslate > Play">
     <ion-content class="has-header">
         <div id="memslate-games-list">
-            <button class="button button-block button-positive" ng-repeat="game in playCtrl.games" ng-click="playCtrl.playGame($index)">
+            <button id="{{game.name_id}}-button" class="button button-block button-positive" ng-repeat="game in playCtrl.games" ng-click="playCtrl.playGame($index)">
                 {{game.name}}
-                <div class="game-description">{{game.description}}</div>
+                <div class="game-description" >{{game.description}}</div>
             </button>
         </div>
         <div id="memslate-game-container">

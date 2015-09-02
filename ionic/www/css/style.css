@@ -335,6 +335,8 @@
 .game-description
 {
     font-size: smaller;
+    line-height: normal;
+    padding-bottom: 10px;
 }
 
 #memslate-games-list

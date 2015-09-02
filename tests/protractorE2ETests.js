@@ -22,7 +22,8 @@ exports.config = {
         home: 'e2eTests/**/homeTests.js',
         user: 'e2eTests/**/userTests.js',
         translate: 'e2eTests/**/translateTests.js',
-        memo: 'e2eTests/**/memoTests.js'
+        memo: 'e2eTests/**/memoTests.js',
+        play: 'e2eTests/**/playTests.js'
     }
 
     /*,

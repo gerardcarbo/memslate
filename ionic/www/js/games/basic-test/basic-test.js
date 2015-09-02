@@ -94,7 +94,7 @@ appGame.directive('basicTestGame', function ($location, $ionicScrollDelegate, $i
             {
                 if(!this.allResponsesGiven)
                 {
-                    UI.toast('No all responses given...');
+                    UI.toast('Not all responses given...');
                     this.showFirstNonResponseAnswer();
                     return;
                 }
@@ -102,7 +102,7 @@ appGame.directive('basicTestGame', function ($location, $ionicScrollDelegate, $i
                 $scope.result = {};
                 $scope.result.score = 0;
                 this.gameQuestions.forEach(function(question){
-                    if(question.options[question.givenAnswer] === question.answer)
+                    if(question.givenAnswer === question.answer)
                     {
                         $scope.result.score++;
                     }
@@ -182,7 +182,6 @@ appGame.directive('basicTestGame', function ($location, $ionicScrollDelegate, $i
                     }
                 });
             });
-
         }
     };
 });
