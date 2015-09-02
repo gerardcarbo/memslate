@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui.bootstrap', 'memslate.controllers', 'memslate.services', 'memslate.directives'],
-    function config(formlyConfigProvider) {
+    function config(formlyConfigProvider, TranslationsProvider) {
         // set formly templates here
         formlyConfigProvider.setType({
             name: 'memslateDate',
@@ -36,7 +36,12 @@ angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui
                 url: "/app",
                 abstract: true,
                 templateUrl: "templates/menu.html",
-                controller: 'AppCtrl'
+                controller: 'AppCtrl',
+                resolve: {
+                    baseUrl: function(BaseUrlService){
+                        return BaseUrlService.connect();
+                    }
+                }
             })
 
             .state('app.home', {

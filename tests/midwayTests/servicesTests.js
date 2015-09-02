@@ -575,4 +575,34 @@ describe("Midway: Services Tests", function () {
             });
         });
     });
+
+    describe('BaseUrl Service tests', function () {
+        var BaseUrlService;
+        var $rootScope;
+
+        beforeEach(function () {
+            BaseUrlService = tester.inject('BaseUrlService');
+            $rootScope = tester.inject('$rootScope');
+        });
+
+        it("Base URL service should return https://memslate.herokuapp.com/.", function (done) {
+            expect(BaseUrlService).not.toBeNull();
+
+            console.log('Trying to connect...');
+            BaseUrlService.connect().then(function(resolved) {
+                console.log('connected to '+resolved);
+
+                expect(BaseUrlService.get()).toBe('http://localhost:5000/');
+                expect(false).toBe(true);
+
+                done();
+            }, function(err){
+                expect(err).toBeNull();
+                done();
+            });
+
+            tester.digest();
+            done();  //connect().then is never called but the promise is resolved inside connect ???? test not passed but waiting for inspiration...
+        }, 5000);
+    });
 });

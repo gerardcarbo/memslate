@@ -14,7 +14,7 @@ module.exports = function (config) {
         files: [
             {pattern: 'templates/**/*', watched: false, included: false, served: true},
             'lib/jquery/jquery.min.js',
-            'lib/ionic/release/js/ionic.bundle.min.js',
+            'lib/ionic/release/js/ionic.bundle.js',
             'lib/angular-resource/angular-resource.min.js',
             'lib/angular-cookies/angular-cookies.min.js',
             'lib/api-check/dist/api-check.min.js',
@@ -25,8 +25,8 @@ module.exports = function (config) {
             'js/*.js',
             '../../tests/lib/ngMidwayTester.js',
             '../../tests/lib/testingData.js',
-            //'../../tests/midwayTests/servicesTests.js'
-            '../../tests/midwayTests/*Tests.js'
+            '../../tests/midwayTests/servicesTests.js'
+            //'../../tests/midwayTests/*Tests.js'
         ],
 
         // list of files to exclude

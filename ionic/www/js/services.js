@@ -13,11 +13,52 @@ servicesMod.config(function ($httpProvider) {
 });
 
 servicesMod.constant('TranslationsProvider', 'yandex');
-servicesMod.constant('BaseUrl', 'http://localhost:5000/');
-//servicesMod.constant('BaseUrl', 'https://memslate.herokuapp.com/');
 
 servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
 servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
+
+servicesMod.service('BaseUrlService', function ($http, $q, $rootScope, SessionService) {
+    var self = this;
+    this.connected = false;
+
+    this.alternatives = ["https://memslate.herokuapp.com/","http://localhost:5000/"];
+    this.current = SessionService.get('currentBaseUrlIndex') ||  0;
+
+    this.test = function(url)
+    {
+        return $http.get(url+'testConnection');
+    };
+
+    this.connect = function()
+    {
+        var deferred = $q.defer();
+
+        angular.forEach(this.alternatives, function (alternative, index){
+            self.test(alternative).success(function(){
+                if(!self.connected)
+                {
+                    self.current = index;
+                    self.connected = true;
+                    SessionService.put('currentBaseUrlIndex', self.current);
+                    console.log("BaseUrlService: connected to base url '"+alternative+"'");
+                    deferred.resolve(alternative);
+                }
+            });
+        });
+
+        return deferred.promise;
+    };
+
+    this.get = function()
+    {
+        return this.alternatives[this.current];
+    }
+
+    /* moved to app.js state 'app' resolve.
+    this.connect().then(function(baseUrl){
+        console.log('then: connected to '+baseUrl);
+    })*/
+});
 
 servicesMod.service('SessionService', function ($cookies)
 {
@@ -83,7 +124,7 @@ servicesMod.service('SessionService', function ($cookies)
 });
 
 servicesMod.service('YandexLanguagesService', function ($q, $rootScope, $http, $resource,
-                                                        SessionService,YandexTranslateApiKey, BaseUrl) {
+                                                        SessionService,YandexTranslateApiKey) {
     var self = this;
 
     this.getLanguages = function () {
@@ -111,7 +152,7 @@ servicesMod.service('YandexLanguagesService', function ($q, $rootScope, $http, $
 });
 
 servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resource, $injector,
-                                                  SessionService, BaseUrl, TranslationsProvider)
+                                                  SessionService, BaseUrlService, TranslationsProvider)
 {
     var self = this;
 
@@ -181,7 +222,7 @@ servicesMod.service('LanguagesService', function ($q, $rootScope, $http, $resour
             return promiseGetUserLanguages;
         }
 
-        $resource(BaseUrl + 'resources/userLanguages/').get({},
+        $resource(BaseUrlService.get() + 'resources/userLanguages/').get({},
             function(data){
                 self.languages.user = data;
                 self.saveUserLanguages();
@@ -408,17 +449,17 @@ servicesMod.factory('TranslateService', function ($injector, $q, TranslationRes,
     return this;
 });
 
-servicesMod.factory('TranslationRes', function ($resource, BaseUrl) {
-    console.log("TranslationRes: BaseUrl: " + BaseUrl);
-    return $resource(BaseUrl + 'resources/translations/:id', {id: '@id'});
+servicesMod.factory('TranslationRes', function ($resource, BaseUrlService) {
+    console.log("TranslationRes: BaseUrl: " + BaseUrlService.get());
+    return $resource( BaseUrlService.get() + 'resources/translations/:id', {id: '@id'});
 });
 
-servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrl) {
-    return $resource(BaseUrl + 'resources/translations/:translationId/samples/:id',
+servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrlService) {
+    return $resource(BaseUrlService.get() + 'resources/translations/:translationId/samples/:id',
         {translationId: '@translationId', id: '@id'});
 });
 
-servicesMod.service("MemoFilterService", function ($resource, BaseUrl, SessionService){
+servicesMod.service("MemoFilterService", function ($resource, BaseUrlService, SessionService){
     this.reset = function()
 {
         this.memoFilterSettings = {};
@@ -623,10 +664,10 @@ servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserSe
     };
 });
 
-servicesMod.factory('RegistrationService', function ($http, $rootScope, UserService, BaseUrl) {
+servicesMod.factory('RegistrationService', function ($http, $rootScope, UserService, BaseUrlService) {
     return {
         login: function (email, password) {
-            return $http.post(BaseUrl + 'login', {
+            return $http.post(BaseUrlService.get() + 'login', {
                 email: email,
                 password: password
             }).then(function (result) {
@@ -642,7 +683,7 @@ servicesMod.factory('RegistrationService', function ($http, $rootScope, UserServ
 
         logout: function () {
 ;
-            return $http.post(BaseUrl + 'logout').then(function (result) {
+            return $http.post(BaseUrlService.get() + 'logout').then(function (result) {
                 return {done: true};
             }).catch(function (err) {
                 return {done: false, err: err};
@@ -654,7 +695,7 @@ servicesMod.factory('RegistrationService', function ($http, $rootScope, UserServ
 
         register: function (user)
         {
-            return $http.post(BaseUrl + 'register', user).then(function (result) {
+            return $http.post(BaseUrlService.get() + 'register', user).then(function (result) {
                 UserService.login(result.data);
 
                 $rootScope.$broadcast('ms:register');
@@ -668,7 +709,7 @@ servicesMod.factory('RegistrationService', function ($http, $rootScope, UserServ
 
         unregister: function()
         {
-            return $http.post(BaseUrl + 'unregister')
+            return $http.post(BaseUrlService.get() + 'unregister')
                 .then(function (result)
                 {
                     $rootScope.$broadcast('ms:unregister');
@@ -685,7 +726,7 @@ servicesMod.factory('RegistrationService', function ($http, $rootScope, UserServ
         changePassword: function(oldPwd, newPwd)
         {
             var data={oldPwd: oldPwd, newPwd: newPwd};
-            return $http.post(BaseUrl + 'changePwd', data)
+            return $http.post(BaseUrlService.get() + 'changePwd', data)
             .then(function (result)
             {
                 return {done: true};
@@ -699,13 +740,13 @@ servicesMod.factory('RegistrationService', function ($http, $rootScope, UserServ
 });
 
 
-servicesMod.factory('GamesService', function ($http, $rootScope, UserService, BaseUrl) {
+servicesMod.factory('GamesService', function ($http, $rootScope, UserService, BaseUrlService) {
     return {
         getGames: function () {
-            return $http.get(BaseUrl + 'resources/games/getAll');
+            return $http.get(BaseUrlService.get() + 'resources/games/getAll');
         },
         getGame: function (id, params) {
-            return $http.get(BaseUrl + 'resources/games/get/'+id+'/'+params);
+            return $http.get(BaseUrlService.get() + 'resources/games/get/'+id+'/'+params);
         }
     };
 });

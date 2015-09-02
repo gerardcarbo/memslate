@@ -11,12 +11,6 @@ describe("Unit: Services Tests", function ()
 
     beforeEach(function () {
         module(function ($provide) {
-            $provide.constant('BaseUrl', '');
-        });
-    });
-
-    beforeEach(function () {
-        module(function ($provide) {
             $provide.constant('TranslationsProvider', 'yandex');
         });
     });
@@ -79,12 +73,6 @@ describe("Unit: Services Tests", function ()
             expect(LanguagesService).not.toBeNull();
             expect(SessionService).not.toBeNull();
         });
-
-        it('BaseUrl should be empty', inject(function ($injector) {
-            //...because forced using $provide above
-            var BaseUrl = $injector.get('BaseUrl');
-            expect(BaseUrl).toBe('');
-        }));
 
         it("should be able to get User Languages and store it in session variable", function () {
             SessionService.remove('userLanguages');
@@ -236,5 +224,32 @@ describe("Unit: Services Tests", function ()
             expect(translationDoMore.rawResult).toBeDefined();
             expect(translationDoMore.rawResult).toEqual(testingData.responseGetDoLessTransl);
         });
-    })
+    });
+
+    describe('BaseUrl Service tests', function () {
+        var BaseUrlService, $rootScope;
+
+        beforeEach(inject(function (_BaseUrlService_, _$rootScope_) {
+            BaseUrlService = _BaseUrlService_;
+            $rootScope = _$rootScope_;
+        }));
+
+        it("Base URL service should return https://memslate.herokuapp.com/.", function (done) {
+            expect(BaseUrlService).not.toBeNull();
+            httpBackend.expectGET('https://memslate.herokuapp.com/testConnection').respond('Ok');
+            httpBackend.expectGET('http://localhost:5000/testConnection').respond(500,'');
+
+            console.log('Trying to connect...');
+            BaseUrlService.connect().then(function() {
+                console.log(BaseUrlService.get());
+
+                expect(BaseUrlService.get()).toBe('http://localhost:5000/');
+                expect(false).toBe(true);
+
+                done();
+            });
+
+            done();
+        }, 5000);
+    });
 });
