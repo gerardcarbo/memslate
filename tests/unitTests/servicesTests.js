@@ -6,6 +6,7 @@
 describe("Unit: Services Tests", function ()
 {
     var httpBackend;
+    var baseUrl='';
 
     beforeEach(module('memslate.services'));
 
@@ -15,8 +16,9 @@ describe("Unit: Services Tests", function ()
         });
     });
 
-    beforeEach(inject(function (_$httpBackend_) {
+    beforeEach(inject(function (_$httpBackend_,_BaseUrlService_) {
         httpBackend = _$httpBackend_;
+        baseUrl = _BaseUrlService_.get()
     }));
 
     // make sure no expectations were missed in your tests.
@@ -78,7 +80,7 @@ describe("Unit: Services Tests", function ()
             SessionService.remove('userLanguages');
 
             // expectGET to make sure this is called once.
-            httpBackend.expectGET('resources/userLanguages').respond(testingData.responseUserLanguages);
+            httpBackend.expectGET(baseUrl+'resources/userLanguages').respond(testingData.responseUserLanguages);
 
             var userLangs = {};
             LanguagesService.getUserLanguages().then(
@@ -112,7 +114,7 @@ describe("Unit: Services Tests", function ()
             httpBackend.expectGET('https://translate.yandex.net/api/v1.5/tr.json/getLangs?key=trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430&ui=en')
                 .respond(testingData.responseLanguages);
             /*  Not called as localStorage data used...
-            httpBackend.expectGET('resources/userLanguages')
+            httpBackend.expectGET('https://memslate.herokuapp.com/resources/userLanguages')
                 .respond(testingData.responseUserLanguages); */
 
             var languages = {};
@@ -166,7 +168,7 @@ describe("Unit: Services Tests", function ()
             httpBackend.expectGET('https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb&lang=en-es&text=cake&ui=en')
                 .respond(testingData.responseGetCake);
 
-            httpBackend.expectPOST('resources/translations').respond({id: 0});
+            httpBackend.expectPOST(baseUrl+'resources/translations').respond({id: 0});
 
             var translationCake = {};
             TranslateService.translate('en', 'es', 'cake').then(
@@ -199,7 +201,7 @@ describe("Unit: Services Tests", function ()
             httpBackend.expectGET('https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430&lang=en-es&text=do+less&ui=en')
                 .respond(testingData.responseGetDoLessTransl);
 
-            httpBackend.expectPOST('resources/translations').respond({id: 0});
+            httpBackend.expectPOST(baseUrl+'resources/translations').respond({id: 0});
 
             var translationDoMore = {};
             TranslateService.translate('en', 'es', 'do less').then(
@@ -227,29 +229,49 @@ describe("Unit: Services Tests", function ()
     });
 
     describe('BaseUrl Service tests', function () {
-        var BaseUrlService, $rootScope;
+        var BaseUrlService//, $rootScope;
 
         beforeEach(inject(function (_BaseUrlService_, _$rootScope_) {
             BaseUrlService = _BaseUrlService_;
-            $rootScope = _$rootScope_;
+            //$rootScope = _$rootScope_;
         }));
 
-        it("Base URL service should return https://memslate.herokuapp.com/.", function (done) {
+        it("Base URL service should return http://localhost:5000/.", function () {
             expect(BaseUrlService).not.toBeNull();
-            httpBackend.expectGET('https://memslate.herokuapp.com/testConnection').respond('Ok');
-            httpBackend.expectGET('http://localhost:5000/testConnection').respond(500,'');
+            httpBackend.expectGET('https://memslate.herokuapp.com/testConnection').respond(500,'');
+            httpBackend.expectGET('http://localhost:5000/testConnection').respond('Ok');
 
+            var baseUrl2='';
             console.log('Trying to connect...');
             BaseUrlService.connect().then(function() {
                 console.log(BaseUrlService.get());
 
-                expect(BaseUrlService.get()).toBe('http://localhost:5000/');
-                expect(false).toBe(true);
-
-                done();
+                baseUrl2 = BaseUrlService.get();
             });
 
-            done();
-        }, 5000);
+            httpBackend.flush();
+
+            expect(baseUrl2).toBe('http://localhost:5000/');
+
+        }, 5000); //*/
+
+        it("Base URL service should return https://memslate.herokuapp.com/.", function () {
+            expect(BaseUrlService).not.toBeNull();
+            httpBackend.expectGET('https://memslate.herokuapp.com/testConnection').respond('Ok');
+            httpBackend.expectGET('http://localhost:5000/testConnection').respond(500,'');
+
+            var baseUrl2='';
+            console.log('Trying to connect...');
+            BaseUrlService.connect().then(function() {
+                console.log(BaseUrlService.get());
+
+                baseUrl2 = BaseUrlService.get();
+            });
+
+            httpBackend.flush();
+
+            expect(baseUrl2).toBe('https://memslate.herokuapp.com/');
+
+        }, 5000); //*/
     });
 });

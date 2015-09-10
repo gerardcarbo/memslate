@@ -8,6 +8,7 @@ ionic browser add crosswalk -> chromium browser replacement for webkit
 
 cordova plugin add https://github.com/apache/cordova-plugin-whitelist.git -> allows $http calls
 
+
 #GIT
 
 git checkout -b <branch_name> : create a branch and checkout
@@ -17,6 +18,8 @@ git commit -a: commits all changes to local repository
 git reset <commit>: Move the current branch tip backward to <commit>, reset the staging area to match, but leave the
     working directory alone. All changes made since <commit> will reside in the working directory , which lets you re-commit
     the project history using cleaner, more atomic snapshots.
+git branch -D <branch_name>: force delete branch
+git branch --no-merged: list unmerged branches
 
 
 #HEROKU

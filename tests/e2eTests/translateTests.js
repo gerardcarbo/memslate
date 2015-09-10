@@ -20,12 +20,17 @@ describe("Memslate Translate Page", function () {
 	it('should allow language selection and swap', function()
     {
         translatePage.fromLangSelect.click();
-        browser.sleep(2000);
         translatePage.selectLanguage('fr');
         expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('fr');
         translatePage.toLangSelect.waitAndClick();
         translatePage.selectLanguage('en');
         expect(translatePage.toLangSelect.getAttribute('selected-value')).toBe('en');
+        translatePage.fromLangSelect.click();
+        translatePage.selectLanguage('en');
+        mainPage.toast.expectText('From and to languages must be distinct');
+        translatePage.toLangSelect.waitAndClick();
+        translatePage.selectLanguage('fr');
+        mainPage.toast.expectText('From and to languages must be distinct');
 
         translatePage.swapLanguages();
         expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('en');
@@ -39,7 +44,7 @@ describe("Memslate Translate Page", function () {
         expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('es');
     });
 
-    it('should be able to translate', function()
+/*    it('should be able to translate', function()
     {
         browser.waitForAngular();
 
@@ -135,5 +140,5 @@ describe("Memslate Translate Page", function () {
 
         expect(translatePage.textToTranslate.getText()).toBe('');
         loginPage.logout();
-    });
+    });*/
 });

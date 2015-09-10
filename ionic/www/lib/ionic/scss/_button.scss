@@ -29,6 +29,8 @@
 
   cursor: pointer;
 
+  box-shadow: 0px 2px 5px -1px #576e73;
+
   &:after {
     // used to create a larger button "hit" area
     position: absolute;

@@ -57,7 +57,6 @@ describe("Memslate User Tests", function ()
     });
 
     it('register new user, check user page, change password and delete it', function () {
-        console.log('register new user and delete it');
         browser.waitForAngular();
 
         //create new user
@@ -103,7 +102,6 @@ describe("Memslate User Tests", function ()
         registerPage.pwd.clear().sendKeys('testtest');
         registerPage.pwd2.clear().sendKeys('testtest');
         registerPage.registerButton.click();
-        browser.sleep(1000);
 
         expect(mainPage.userMenu.isPresent()).toBeTruthy();
 
@@ -114,6 +112,7 @@ describe("Memslate User Tests", function ()
         //login
         loginPage.login('test@test.com', 'testtest');
 
+        mainPage.userMenu.waitVisible();
         expect(mainPage.userMenu.isPresent()).toBeTruthy();
 
         //load user page
@@ -137,7 +136,6 @@ describe("Memslate User Tests", function ()
         userPage.oldPwd.sendKeys('');
         userPage.newPwd.sendKeys('');
         userPage.changePwdButton.click();
-        browser.sleep(1000);
         expect(userPage.oldPwdRequired.isDisplayed()).toBeTruthy();
         expect(userPage.newPwdRequired.isDisplayed()).toBeTruthy();
 
@@ -149,25 +147,39 @@ describe("Memslate User Tests", function ()
 
         userPage.newPwd2.sendKeys('mm');
         userPage.changePwdButton.click();
-        browser.sleep(1000);
         mainPage.toast.expectToContain('Passwords does not match');
 
         //valid pwd
         userPage.oldPwd.clear().sendKeys('testtest');
-        userPage.newPwd.clear().sendKeys('testtest2');
-        userPage.newPwd2.clear().sendKeys('testtest2');
+        userPage.newPwd.clear().sendKeys('testtest');
+        userPage.newPwd2.clear().sendKeys('testtest');
         userPage.changePwdButton.click();
-        browser.sleep(1000);
         mainPage.toast.expectText('Password Changed');
-        browser.sleep(1000);
+
+        //invalid pwd
+        userPage.showChangePwdButton.click();
+        browser.sleep(200);
+
+        userPage.oldPwd.clear().sendKeys('testtest2');
+        userPage.newPwd.clear().sendKeys('testtest');
+        userPage.newPwd2.clear().sendKeys('testtest');
+        userPage.changePwdButton.click();
+        mainPage.toast.expectToContain('Invalid Credentials');
+
+        //valid pwd again
+        userPage.oldPwd.clear().sendKeys('testtest');
+        userPage.newPwd.clear().sendKeys('testtest');
+        userPage.newPwd2.clear().sendKeys('testtest');
+        userPage.changePwdButton.click();
+        mainPage.toast.expectText('Password Changed');
 
         //logout and login again
         mainPage.backMenu.click();
         mainPage.clickLogout();
         expect(mainPage.userMenu.isPresent()).not.toBeTruthy();
 
-        loginPage.login('test@test.com', 'testtest2');
-        mainPage.userMenu.waitVisible(2000);
+        loginPage.login('test@test.com', 'testtest');
+        mainPage.userMenu.waitVisible(1000);
         expect(mainPage.userMenu.isDisplayed()).toBeTruthy();
 
         //delete account
@@ -180,15 +192,15 @@ describe("Memslate User Tests", function ()
         userPage.deleteAccountPopupOkButton.waitAndClick();
         expect(userPage.deleteAccountPopup.isPresent()).not.toBeTruthy();
 
-        browser.sleep(1000);
+        mainPage.loginMenu.waitVisible(1000);
 
         expect(mainPage.logoutMenu.isDisplayed()).toBe(false);
         expect(mainPage.loginMenu.isDisplayed()).toBe(true);
 
         //try to login again, should fail
-        loginPage.login('test@test.com', 'testtest2');
-        browser.sleep(1000);
+        loginPage.login('test@test.com', 'testtest');
+        loginPage.loginFailedPopup.waitVisible(1000);
         expect(loginPage.loginFailedPopup.isDisplayed()).toBe(true);
         loginPage.loginFailedPopupOkButton.click();
-    });
+    },70000);
 });

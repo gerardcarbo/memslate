@@ -20,13 +20,15 @@ ElementFinder.prototype.waitVisible = function(timeout)
     browser.wait(function () {
         return self.isPresent().then(function(isPresent)
         {
-            console.log('isPresent: ',isPresent);return isPresent;
+            console.log('isPresent: ',isPresent);
+            return isPresent;
         });
     },timeout);
     browser.wait(function () {
         return self.isDisplayed().then(function(isDisplayed)
         {
-            console.log('isDisplayed: ',isDisplayed);return isDisplayed;
+            console.log('isDisplayed: ',isDisplayed);
+            return isDisplayed;
         });
     },timeout);
 };

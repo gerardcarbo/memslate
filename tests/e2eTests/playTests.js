@@ -19,6 +19,7 @@ describe("Memslate Play Page and Basic Test Game", function () {
 
     });
 
+/*
     it('should contain basic test button game', function () {
         "use strict";
         expect(playPage.basicTestButton.isDisplayed()).toBeTruthy();
@@ -55,12 +56,14 @@ describe("Memslate Play Page and Basic Test Game", function () {
 
         basicTestPage.basicTestEvaluateButton.waitAndClick();
 
+        console.log("mainPage.toast.expectText 'Not all responses given...'");
         mainPage.toast.expectText('Not all responses given...');
+        browser.sleep(2500); //wait toast hidden to avoid to be clicked on next test
 
         for (var quest = 0; quest < 9; quest++) {
             var answer = Math.floor(Math.random() * 5);
             element(by.id('answer_' + quest + '_' + answer)).click();
-            browser.sleep(100);
+            browser.sleep(200);
         }
 
         basicTestPage.basicTestEvaluateButton.waitAndClick();
@@ -80,6 +83,7 @@ describe("Memslate Play Page and Basic Test Game", function () {
         expect(basicTestPage.basicTestModalTitle.isDisplayed()).toBeTruthy();
 
     });
+*/
 
     it('should evaluate properly', function () {
         "use strict";
@@ -92,6 +96,10 @@ describe("Memslate Play Page and Basic Test Game", function () {
         for(var i=0; i < numGames; i++)
         {
             basicTestPage.basicTestStartGameButton.waitAndClick();
+
+            basicTestPage.basicTestEvaluateButton.waitAndClick();
+
+            mainPage.toast.expectText('Not all responses given...');
 
             for (var quest = 0; quest < 10; quest++)
             {
@@ -109,7 +117,7 @@ describe("Memslate Play Page and Basic Test Game", function () {
                     givenAnswers.push(answer)
                 });
 
-                browser.sleep(100);
+                browser.sleep(200);
             }
 
             basicTestPage.basicTestEvaluateButton.waitAndClick();

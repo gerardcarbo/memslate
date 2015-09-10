@@ -1,22 +1,30 @@
-<ion-view view-title="Memslate > Memo">
-    <ion-content>
-        <ion-list id="memoList">
-            <div ng-repeat="(i, translation) in memoCtrl.translations track by $index" id="memo_translation_div_{{translation.id}}">
-                <div class="item item-stable"
-                          ng-click="memoCtrl.toggleTranslation(i, translation)"
-                          ng-class="{active: memoCtrl.isTranslationShown(translation)}">
-                    <div class="row no-padding">
-                        <i class="icon no-padding" ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-chevron-up' : 'ion-chevron-down'">&nbsp&nbsp</i>
-                        <div class="col col-50 no-padding">{{translation.translate}} > {{translation.mainResult}}</div>
-                        <div class="col col-20 no-padding"><span>{{translation.fromLang}}</span> <i class="icon ion-arrow-right-b smaller-font"></i><span> {{translation.toLang}}</span> </div>
-                        <div class="col col-20 no-padding">{{translation.insertTime|date}}</div>
-                    </div>
-                </div>
-                <div class="item item-accordion" ng-show="memoCtrl.isTranslationShown(translation)">
-                    <ms-translation id="translation_{{translation.id}}" translation="translation"></ms-translation>
-                </div>
-            </div>
-            <ion-infinite-scroll ng-if="memoCtrl.moreDataCanBeLoaded()" on-infinite="memoCtrl.addItems()"></ion-infinite-scroll>
-        </ion-list>
-    </ion-content>
+<ion-view view-title='Memslate > Memo'>
+  <ion-nav-title>
+    <img src="img/icon.svg" class="logo">Memslate > Memo
+  </ion-nav-title>
+  <ion-content>
+    <ion-list id="memoList">
+      <div ng-repeat="(i, translation) in memoCtrl.translations track by $index"
+           id="memo_translation_div_{{translation.id}}">
+        <div class="item item-stable"
+             ng-click="memoCtrl.toggleTranslation(i, translation)"
+             ng-class="{active: memoCtrl.isTranslationShown(translation)}">
+          <div class="row no-padding">
+            <i class="icon no-padding positive"
+               ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-chevron-up' : 'ion-chevron-down'">&nbsp&nbsp</i>
+
+            <div class="col col-40 no-padding no-overflow">{{::translation.translate}} > {{::translation.mainResult}}</div>
+            <div class="col col-20 no-padding"><span>{{::translation.fromLang}}</span> <i
+              class="icon ion-arrow-right-b smaller-font"></i><span> {{::translation.toLang}}</span></div>
+            <div class="col col-30 no-padding">{{::translation.insertTime|date}}</div>
+          </div>
+        </div>
+        <div class="item item-accordion" ng-if="memoCtrl.isTranslationShown(translation)">
+          <ms-translation id="translation_{{::translation.id}}" translation="translation"></ms-translation>
+        </div>
+      </div>
+      <ion-infinite-scroll ng-if="memoCtrl.moreDataCanBeLoaded()"
+                           on-infinite="memoCtrl.addItems()"></ion-infinite-scroll>
+    </ion-list>
+  </ion-content>
 </ion-view>

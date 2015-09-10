@@ -1,29 +1,42 @@
-<ion-view view-title="Memslate > Translate" class="translate">
-    <ion-content class="has-header">
-        <div class="row">
-            <ms-select id="fromLang" name="From" title="From Language"
-                       items="translateCtrl.languages.items" prefered-items="translateCtrl.languages.user.prefered"
-                       selected-item="translateCtrl.languages.user.fromLang" style="border-right: 1px;border-top-right-radius: 0px;border-bottom-right-radius: 0px;"></ms-select>
-            <a id="swapLangsButton" class="col col-10 button button-image" ng-click="translateCtrl.swapLanguages()" style="border-radius: 0px;border-right: 0px;border-left: 0px;">
-                <img id="btnSwap" src="img/swap2.png" title="Swap languages" class="image"></a>
-            <ms-select id="toLang" name="To" title="To Language"
-                       items="translateCtrl.languages.items"  prefered-items="translateCtrl.languages.user.prefered"
-                           selected-item="translateCtrl.languages.user.toLang" style="border-left: 1px;border-top-left-radius: 0px;border-bottom-left-radius: 0px;"></ms-select>
+<ion-view view-title='Memslate > Translate' class="translate">
+  <ion-nav-title>
+    <img src="img/icon.svg" class="logo">Memslate > Translate
+  </ion-nav-title>
+  <ion-content class="has-header">
+    <div class="row">
+
+      <ms-select id="fromLang" name="From" title="From Language" ng-disabled="translateCtrl.translating"
+                 items="translateCtrl.languages.items" prefered-items="translateCtrl.languages.user.prefered"
+                 selected-item="translateCtrl.languages.user.fromLang"
+                 style="border-right: 1px;border-top-right-radius: 0px;border-bottom-right-radius: 0px;"
+                 class="translate-lang button-positive"></ms-select>
+      <button id="swapLangsButton" ng-disabled="translateCtrl.translating"
+              class="col col-10 button button-image button-positive" ng-click="translateCtrl.swapLanguages()"
+              style="border-radius: 0px;border-right: 0px;border-left: 0px;">
+        <img id="btnSwap" src="img/swap4.png" title="Swap languages" class="image animate-rotate"></button>
+      <ms-select id="toLang" name="To" title="To Language" ng-disabled="translateCtrl.translating"
+                 items="translateCtrl.languages.items" prefered-items="translateCtrl.languages.user.prefered"
+                 selected-item="translateCtrl.languages.user.toLang"
+                 style="border-left: 1px;border-top-left-radius: 0px;border-bottom-left-radius: 0px;"
+                 class="translate-lang button-positive"></ms-select>
+    </div>
+    <div class="row margin-top-1  margin-left-1">
+      <form id="translateForm" ng-submit="translateCtrl.translate()" class="full-width">
+        <div class="col item item-input">
+          <input id="textToTranslate" type="text" class="center-text" placeholder="Text to Translate"
+                 ng-model="translateCtrl.textToTranslate">
+          <button id="btnTranslate" type="submit" ng-disabled="translateCtrl.translating"
+                  class="button button-energized icon icon-left ion-search" style="min-width: 115px;">
+            Translate
+          </button>
         </div>
-        <div class="row margin-top-1  margin-left-1">
-            <form id="translateForm" ng-submit="translateCtrl.translate()" class="full-width">
-                <div class="col item item-input">
-                    <input id="textToTranslate" type="text" class="center-text" placeholder="Text to Translate" ng-model="translateCtrl.textToTranslate">
-                    <button id="btnTranslate" type="submit" class="button icon icon-left ion-search" style="min-width: 115px;">
-                        Translate</button >
-                </div>
-            </form>
-        </div>
-        <ion-scroll class="row translation_area rest_of_height" style="">
-            <ms-translation translation="translateCtrl.translation"></ms-translation>
-        </ion-scroll>
-        <div class="row powered_by margin-top-1">
-            Powered by&nbsp;<a href="http://translate.yandex.com/" target="_blank">Yandex Translate</a>
-        </div>
-    </ion-content>
+      </form>
+    </div>
+    <ion-scroll class="row translation_area rest_of_height" style="">
+      <ms-translation translation="translateCtrl.translation" parent="translateCtrl"></ms-translation>
+    </ion-scroll>
+    <div class="row powered_by margin-top-1">
+      Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a>
+    </div>
+  </ion-content>
 </ion-view>

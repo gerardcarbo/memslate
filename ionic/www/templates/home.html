@@ -1,6 +1,8 @@
-<ion-view view-title="Memslate > Home" class="home">
+<ion-view view-title='Memslate > Home' class="home">
+    <ion-nav-title>
+      <img src="img/icon.svg" class="logo">Memslate > Home
+    </ion-nav-title>
     <ion-content class="has-header">
-        <div ng-controller="MemoSlideCtrl" >
             <ion-slide-box auto-play="true" on-slide-changed="slideChanged(index)" does-continue="true"
                            slide-interval="3000" show-pager="true" >
                 <ion-slide class="slider-slide-translate">
@@ -19,7 +21,6 @@
                     <p><a class="button button-stable button-positive" ui-sref="app.play" role="button">View Demo</a></p>
                 </ion-slide>
             </ion-slide-box>
-        </div>
         <div>
             <div class="row center-text display-block">
                 <h1 class="featurette-heading">Memslate &gt; <span class="text-muted">Memorize your Translations.</span></h1>

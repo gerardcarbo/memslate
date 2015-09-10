@@ -1,34 +1,48 @@
-<ion-view view-title="Basic Test">
-    <ion-content class="has-header" id="basic-test-content">
-        <div id="langSelectionDiv" ng-if="!basicTestCtrl.testStarted" class="center-text padding-5">
-            <div class="center-text padding-5">Please, select the languages to be used in the test:</div>
-            <ms-select id="basic-test-languages" name="" title="Test Languages" items="basicTestCtrl.gameLangs" selected-item="basicTestCtrl.selectedLangs"></ms-select>
-            <button id="basic-test-start-game" class="button button-block button-positive" ng-click="basicTestCtrl.startTest()">Play!</button>
+<ion-view view-title='Basic Test'>
+  <ion-nav-title>
+    <img src="img/icon.svg" class="logo">Basic Test
+  </ion-nav-title>
+  <ion-content class="has-header" id="basic-test-content">
+    <div id="langSelectionDiv" ng-if="!basicTestCtrl.testStarted" class="center-text padding-5">
+      <div class="center-text padding-5">Please, select the languages to be used in the test:</div>
+      <ms-select id="basic-test-languages" name="" title="Test Languages" items="basicTestCtrl.gameLangs"
+                 selected-item="basicTestCtrl.selectedLangs"></ms-select>
+      <button id="basic-test-start-game" class="button button-block button-energized"
+              ng-click="basicTestCtrl.startTest()">Play!
+      </button>
+    </div>
+    <div id="testDiv" ng-if="basicTestCtrl.testStarted">
+      <div class="padding-10">Select the correct translation for the following words:</div>
+      <ion-list id="basic-page-test-list">
+        <div class="center-text">
+          <ion-spinner icon="android"  class="spinner-vertical-aligned" ng-if="!basicTestCtrl.gameQuestions"></ion-spinner>
         </div>
-        <div id="testDiv" ng-if="basicTestCtrl.testStarted">
-            <div class="padding-10">Select the correct translation for the following words:</div>
-            <ion-list id="basic-page-test-list">
-                <div ng-repeat="(i, question) in basicTestCtrl.gameQuestions track by $index" id="test_div_{{i}}">
-                    <div class="item item-stable" id="question_{{i}}" data-answer="{{question.answer}}">
-                        <b>{{question.question}} ?</b>
-                        <div class="padding-5">
-                            <div ng-repeat="(j, option) in question.options" >
-                               <input type="radio"  id="answer_{{i}}_{{j}}" name="answer_{{i}}_{{j}}"
-                                      ng-model="question.givenAnswer" value="{{option}}" ng-change="basicTestCtrl.answerSelected({{i}},{{j}})">
-                                <label for="answer_{{i}}_{{j}}" class="padding-5">{{option}}</label>
-                                <label ng-if="basicTestCtrl.showResults &&  question.answer==option" class="ion-checkmark-round balanced"></label>
-                                <label ng-if="basicTestCtrl.showResults && question.givenAnswer==option && question.answer!=option" class="ion-close-round assertive"></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </ion-list>
+        <div ng-repeat="(i, question) in basicTestCtrl.gameQuestions track by $index" id="test_div_{{i}}">
+          <div class="item item-stable" id="question_{{i}}" data-answer="{{::question.answer}}">
+            <b>{{question.question}} ?</b>
+
+            <div class="padding-5">
+              <div ng-repeat="(j, option) in question.options track by $index" class="padding-5">
+                <input type="radio" id="answer_{{i}}_{{j}}" name="answer_{{i}}_{{j}}"
+                       ng-model="question.givenAnswer" value="{{::option}}"
+                       ng-change="basicTestCtrl.answerSelected({{i}},{{j}})">
+                <label for="answer_{{i}}_{{j}}" class="padding-5">{{option}}</label>
+                <label ng-if="basicTestCtrl.showResults && question.answer==option"
+                       class="ion-checkmark-round balanced"></label>
+                <label ng-if="basicTestCtrl.showResults && question.givenAnswer==option && question.answer!=option"
+                       class="ion-close-round assertive"></label>
+              </div>
+            </div>
+          </div>
         </div>
-    </ion-content >
-    <ion-footer-bar class="bar-footer-wide">
-        <button id="basic-test-evaluate" class="button button-block button-positive"
-                ng-if="basicTestCtrl.testStarted"
-                ng-click="basicTestCtrl.evaluateTest()">Evaluate Test!</button>
-    </ion-footer-bar>
+      </ion-list>
+    </div>
+  </ion-content>
+  <ion-footer-bar class="bar-footer-wide">
+    <button id="basic-test-evaluate" class="button button-block button-positive"
+            ng-if="basicTestCtrl.testStarted"
+            ng-click="basicTestCtrl.evaluateTest()">Evaluate Test!
+    </button>
+  </ion-footer-bar>
 </ion-view>
 

@@ -26,8 +26,8 @@ var querystring = require('querystring');
  .onUpdate(value);
  };*/
 
-var startTranslation = 1;
-var limitTranslation = 80;
+var startTranslation = 1299;
+var limitTranslation = 1500;
 
 function createTable(tableName) {
     console.log('Creating table ' + tableName + '...');

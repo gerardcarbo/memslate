@@ -4,7 +4,8 @@ var bcrypt = require('bcryptjs'),
     uuid = require('node-uuid'),
     utils = require('./utils'),
     config = require('./config'),
-    validator = require('validator');
+    validator = require('validator'),
+    _       = require('lodash');
 
 module.exports = function (models) {
 
@@ -25,10 +26,16 @@ module.exports = function (models) {
     }
 
     function cleanUser(user) {
-        delete user.cryptedPassword;
         delete user.password;
         delete user.password2;
         return user;
+    }
+
+    function sendUser(res,user)
+    {
+        cleanUser(user);
+        var sentUser = _.omit(user,'cryptedPassword');
+        res.json(sentUser);
     }
 
     function unregister(req, res, next)
@@ -87,8 +94,8 @@ module.exports = function (models) {
                             registerCallback(userModel);
                         }
                         console.log("register done!: ", userModel.attributes);
-                        res.json(cleanUser(userModel.attributes));
 
+                        sendUser(res, userModel.attributes);
                     }).catch(next);
                 }
             });
@@ -118,7 +125,7 @@ module.exports = function (models) {
                         model.set('token', uuid.v4());
                         model.save().then(function (savedUser) {
                             console.log("login succeeded: ",savedUser);
-                            res.json(cleanUser(savedUser.attributes));
+                            sendUser(res, savedUser.attributes);
                         }).catch(next);
 
                     } else {
@@ -223,20 +230,20 @@ module.exports = function (models) {
         comparePassword(data.oldPwd, user.get("cryptedPassword"), function (err, match) {
             if (err) {
                 console.log('changePwd: error: ', err);
-                return res.status(401).send("Invalid Credentials");
+                return res.status(400).send("Invalid Credentials");
             }
             if (match) {
                 user.set('cryptedPassword', utils.encryptPassword(data.newPwd));
                 console.log('changePwd:user.cryptedPassword: ', user.get('cryptedPassword'));
                 user.save().then(function (savedUser) {
-                    res.json(cleanUser(savedUser.attributes));
+                    sendUser(res, savedUser.attributes);
                 }).catch(function (err){
-                    return res.status(401).send(err);
+                    return res.status(500).send(err);
                 });
 
             } else {
                 // Passwords don't match
-                return res.status(401).send("Invalid Credentials");
+                return res.status(400).send("Invalid Credentials");
             }
         });
     }

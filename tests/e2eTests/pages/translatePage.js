@@ -53,6 +53,9 @@ var MemslateTranslatePage = function()
 
     this.setLanguages=function(fromLang, toLang)
     {
+		this.toLangSelect.click();
+		this.selectLanguage('bs');  //make sure toLang does not colides with fromLang
+
 		this.fromLangSelect.click();
 		this.selectLanguage(fromLang);
 		this.toLangSelect.click();

@@ -17,7 +17,7 @@ servicesMod.constant('TranslationsProvider', 'yandex');
 servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
 servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
 
-servicesMod.service('BaseUrlService', function ($http, $q, $rootScope, SessionService) {
+servicesMod.service('BaseUrlService', function ($log, $http, $q, $rootScope, SessionService) {
     var self = this;
     this.connected = false;
 
@@ -40,7 +40,7 @@ servicesMod.service('BaseUrlService', function ($http, $q, $rootScope, SessionSe
                     self.current = index;
                     self.connected = true;
                     SessionService.put('currentBaseUrlIndex', self.current);
-                    console.log("BaseUrlService: connected to base url '"+alternative+"'");
+                    $log.log("BaseUrlService: connected to base url '"+alternative+"'");
                     deferred.resolve(alternative);
                 }
             });
@@ -56,17 +56,17 @@ servicesMod.service('BaseUrlService', function ($http, $q, $rootScope, SessionSe
 
     /* moved to app.js state 'app' resolve.
     this.connect().then(function(baseUrl){
-        console.log('then: connected to '+baseUrl);
+        $log.log('then: connected to '+baseUrl);
     })*/
 });
 
-servicesMod.service('SessionService', function ($cookies)
+servicesMod.service('SessionService', function ($log, $cookies)
 {
     this._useLocalStorage = false;
     if(typeof(Storage) !== "undefined") {
         // localStorage defined.
         this._useLocalStorage = true;
-        console.log('SessionService: using local storage');
+        $log.log('SessionService: using local storage');
     }
 
     this.get = function(key)
@@ -307,7 +307,7 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
         msUtils.decoratePromise(promise);
 
         /*
-         * CORS not working when user logged in -> delete Authorization token with deleteAuthorizationHeader
+         * CORS not working when user logged in -> delete Authorization token with withCredentials=false
          */
         $http.get('https://dictionary.yandex.net/api/v1/dicservice.json/lookup',
             {
@@ -372,7 +372,7 @@ servicesMod.service('YandexTranslateService', function ($rootScope, $http, $reso
     };
 });
 
-servicesMod.factory('TranslateService', function ($injector, $q, TranslationRes, LanguagesService, TranslationSampleRes, TranslationsProvider) {
+servicesMod.factory('TranslateService', function ($log, $injector, $q, TranslationRes, LanguagesService, TranslationSampleRes, TranslationsProvider) {
     this.getTranslations = function (options) {
         return TranslationRes.query(options).$promise;
     };
@@ -432,7 +432,7 @@ servicesMod.factory('TranslateService', function ($injector, $q, TranslationRes,
 
                 var translationRes = new TranslationRes(translation);
                 translationRes.$save(function () {
-                    console.log('Translation Saved: id:' + translationRes.id);
+                    $log.log('Translation Saved: id:' + translationRes.id);
                     translation.id = translationRes.id;
 
                     deferred.resolve(translation);
@@ -449,8 +449,8 @@ servicesMod.factory('TranslateService', function ($injector, $q, TranslationRes,
     return this;
 });
 
-servicesMod.factory('TranslationRes', function ($resource, BaseUrlService) {
-    console.log("TranslationRes: BaseUrl: " + BaseUrlService.get());
+servicesMod.factory('TranslationRes', function ($log, $resource, BaseUrlService) {
+    $log.log("TranslationRes: BaseUrl: " + BaseUrlService.get());
     return $resource( BaseUrlService.get() + 'resources/translations/:id', {id: '@id'});
 });
 
@@ -484,7 +484,7 @@ servicesMod.service("MemoFilterService", function ($resource, BaseUrlService, Se
 /**
  * Graphical User Interface services
  */
-servicesMod.service('UI', function ($window, $timeout, $ionicLoading, $ionicBody) {
+servicesMod.service('UI', function ($rootScope, $window, $timeout, $animate, $ionicLoading, $ionicBody) {
     this.toast = function (msg, duration, position) {
         if (!duration)
         {
@@ -517,20 +517,23 @@ servicesMod.service('UI', function ($window, $timeout, $ionicLoading, $ionicBody
         timeout = timeout || 2000;
         cssClass = typeof cssClass !== 'undefined' ? cssClass : 'notification_error';
 
-        if($('#toasts').length===0)
+        var toasts = document.getElementById('toasts');
+        if(!toasts)
         {
-            $ionicBody.append($('<div id="toasts-wrapper" class="flexbox-container"><div id="toasts"></div></div>'));
+            $ionicBody.append(angular.element('<div id="toasts-wrapper" class="flexbox-container"><div id="toasts"></div></div>'));
         }
 
-        var $message = $('<p class="toast" style="display:none;margin:5px auto">' + message + '</p>');
+        var $message = angular.element('<p class="toast animate-hide ms-hide" style="margin:5px auto">' + message + '</p>');
 
-        $('#toasts').append($message);
+        angular.element(document.getElementById('toasts')).append($message);
         $message.addClass(cssClass);
-        $message.fadeIn(300, function() {
-            window.setTimeout(function() {
-                $message.fadeOut(300, function() {
-                    $message.remove();
-                });
+        $animate.removeClass($message, 'ms-hide').then(function () {
+            window.setTimeout(function() {  //if $timeout is used ESE tests not working due to waitForAngular does not allow to continue test and check toast contents performed when not visible.
+                $timeout(function() {
+                    $animate.addClass($message, 'ms-hide').then(function() {
+                        $message.remove();
+                    });
+                },0);
             }, timeout);
         });
     };
@@ -548,7 +551,7 @@ servicesMod.service("ModalDialogService", ['$ionicPopup', '$q', function ($ionic
 /**
  * Authentication services
  */
-servicesMod.factory('UserService', function ($window)
+servicesMod.factory('UserService', function ($window, $log)
 {
     var anonymousEmail = 'anonymous@memslate.com';
     var anonymousUser = 'Anonymous';
@@ -610,6 +613,7 @@ servicesMod.factory('UserService', function ($window)
         },
         logout: function ()
         {
+            $log.log('logout');
             delete $window.sessionStorage.token;
             $window.sessionStorage.name = anonymousUser;
             $window.sessionStorage.email = anonymousEmail;
@@ -618,6 +622,7 @@ servicesMod.factory('UserService', function ($window)
         },
         login: function(usr)
         {
+            $log.log('login');
             $window.sessionStorage.token = usr.token;
             $window.sessionStorage.name = usr.name;
             $window.sessionStorage.email = usr.email;
@@ -655,8 +660,7 @@ servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserSe
         /* Revoke client authentication if 401 is received */
         responseError: function (rejection) {
             if (rejection != null && rejection.status === 401 && (UserService.token() || UserService.isAuthenticated())) {
-                UserService.token(null);
-                UserService.isAuthenticated(false);
+                UserService.logout();
             }
 
             return $q.reject(rejection);

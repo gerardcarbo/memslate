@@ -13,8 +13,8 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             {pattern: 'templates/**/*', watched: false, included: false, served: true},
-            'lib/jquery/jquery.min.js',
-            'lib/ionic/release/js/ionic.bundle.js',
+            'lib/jquery/dist/jquery.min.js',
+            'lib/ionic/js/ionic.bundle.min.js',
             'lib/angular-resource/angular-resource.min.js',
             'lib/angular-cookies/angular-cookies.min.js',
             'lib/api-check/dist/api-check.min.js',
@@ -22,11 +22,12 @@ module.exports = function (config) {
             'lib/angular-formly-templates-ionic/dist/angular-formly-templates-ionic.min.js',
             "lib/oclazyload/dist/ocLazyLoad.js",
             "lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.js",
+            "lib/ngCordova/dist/ng-cordova.js",
             'js/*.js',
             '../../tests/lib/ngMidwayTester.js',
             '../../tests/lib/testingData.js',
-            '../../tests/midwayTests/servicesTests.js'
-            //'../../tests/midwayTests/*Tests.js'
+            //'../../tests/midwayTests/directivesTests.js'
+            '../../tests/midwayTests/*Tests.js'
         ],
 
         // list of files to exclude

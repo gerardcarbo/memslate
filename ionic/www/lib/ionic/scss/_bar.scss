@@ -342,11 +342,12 @@
 .bar-header {
   top: 0;
   border-top-width: 0;
-  border-bottom-width: 1px;
   &.has-tabs-top{
     border-bottom-width: 0px;
     background-image: none;
   }
+  border-bottom-width: 1px;
+  box-shadow: 0px 2px 6px -1px #576e73;
 }
 .tabs-top .bar-header{
   border-bottom-width: 0px;

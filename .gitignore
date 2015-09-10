@@ -10,4 +10,5 @@ node_modules
 ionic/engine/
 ionic/resources/
 ionic/www/js/dist/
-ionic/www/lib/
+ionic/www/lib
+ionic/hooks

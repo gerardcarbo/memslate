@@ -1,18 +1,21 @@
 <ion-side-menus enable-menu-with-back-views="false">
     <ion-side-menu-content>
-        <ion-nav-bar class="bar-stable">
+        <ion-nav-bar class="bar-dark">
             <ion-nav-back-button>
             </ion-nav-back-button>
 
             <ion-nav-buttons side="left">
-                <button id="mainMenu" class="button button-icon button-clear ion-navicon" menu-toggle="left">
+
+                <button id="mainMenu" class="button button-icon button-clear ion-navicon" menu-toggle="left" >
+
                 </button>
+
             </ion-nav-buttons>
 
             <ion-nav-buttons side="right">
                 <button id="memoOrderWayMenu" class="button button-icon button-clear" ng-class="getOrderClass()" ng-if="stateIs('app.memo')" ng-click="changeOrderWay($event)">
                 </button>
-                <button id="memoFilterMenu" class="button button-icon button-clear ion-ios-settings-strong" ui-sref="app.memoFilter" ng-if="stateIs('app.memo')">
+                <button id="memoFilterMenu" class="button button-icon button-clear ion-more animate-rotate ms-rotate-90" ui-sref="app.memoFilter" ng-if="stateIs('app.memo')">
                 </button>
                 <button id="userMenu" class="button button-icon button-clear ion-person" ui-sref="app.user" ng-if="userLoggedin()">
                 </button>
@@ -24,22 +27,22 @@
     <ion-side-menu side="left">
         <ion-content>
             <ion-list>
-                <ion-item id="loginMenu" class="ion-person" nav-clear menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
-                    Login
+                <ion-item id="loginMenu" class="item-dark "  menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
+                  <img src="img/icon_bn.svg" class="logo logo-small">Login
                 </ion-item>
-                <ion-item id="logoutMenu" class="ion-person assertive" nav-clear menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
+                <ion-item id="logoutMenu" class="ion-person assertive item-dark" menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
                     Logout {{userName()}}
                 </ion-item>
                 <ion-item id="homeMenu" nav-clear menu-close ui-sref="app.home" >
                     <i class="icon ion-home"></i> Home
                 </ion-item>
-                <ion-item id="translateMenu" nav-clear menu-close ui-sref="app.translate">
+                <ion-item id="translateMenu" menu-close ui-sref="app.translate">
                     <i class="icon ion-search"></i> Translate
                 </ion-item>
-                <ion-item id="memoMenu" nav-clear menu-close ui-sref="app.memo">
+                <ion-item id="memoMenu" menu-close ui-sref="app.memo">
                     <i class="icon ion-clipboard"></i> Memo
                 </ion-item>
-                <ion-item id="playMenu" nav-clear menu-close ui-sref="app.play">
+                <ion-item id="playMenu" menu-close ui-sref="app.play">
                     <i class="icon ion-play"></i> Play
                 </ion-item>
             </ion-list>
