@@ -23,6 +23,8 @@
     <div class="row margin-top-1  margin-left-1">
       <form id="translateForm" ng-submit="translateCtrl.translate()" class="full-width">
         <div class="col item item-input">
+          <button type="button" class="button button-clear button-dark button-medium ion-android-cancel"
+                  ng-if="translateCtrl.textToTranslate" ng-click="translateCtrl.textToTranslate='';translateCtrl.translation=undefined"></button>
           <input id="textToTranslate" type="text" class="center-text" placeholder="Text to Translate"
                  ng-model="translateCtrl.textToTranslate">
           <button id="btnTranslate" type="submit" ng-disabled="translateCtrl.translating"

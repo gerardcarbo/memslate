@@ -10,9 +10,11 @@
         <div ng-if="!translation.error">
             <div class="translation_def translation_yt" ng-if="translation.provider=='yt'">
                 <span class='response_main'>{{::translation.translate}}</span>
+                <button class="button button-clear button-positive button-medium ion-volume-medium" ng-click="msTranslationCtrl.playText(translation.translate, translation.fromLang)"></button>
                 &nbsp;>&nbsp;
             <span>
                 <span class='response_main' ng-repeat="text in translation.rawResult.text">{{::text}}
+                    <button class="button button-clear button-positive button-medium ion-volume-medium" ng-click="msTranslationCtrl.playText(text, translation.toLang)"></button>
                     <span ng-show="!$last">, </span>
                 </span>
             </span>
@@ -24,7 +26,10 @@
                     <b>
                         <span class='response_main'>{{::def.text}}</span>
                         <span class='response_transcript' ng-show="def.ts"> [{{::def.ts}}] </span>
-                        &gt; <span class='response_main'>{{::def.tr[0].text}}</span>
+                        <button class="button button-clear button-positive button-medium ion-volume-medium" ng-click="msTranslationCtrl.playText(def.text, translation.fromLang)"></button>
+                        &gt;
+                        <span class='response_main'>{{::def.tr[0].text}}</span>
+                        <button class="button button-clear button-positive button-medium ion-volume-medium" ng-click="msTranslationCtrl.playText(def.tr[0].text, translation.toLang)"></button>
                     </b>
                 </p>
 
@@ -56,7 +61,7 @@
                                 <input ng-model="msTranslationCtrl.translationSample" type="text" id="sampleValue"
                                        placeholder="... with '{{::translation.translate}}'" class="form-control"
                                        required/>
-                                <button id="btnAddSample" class="button button-energized button-stable btn-success icon ion-plus-round">
+                                <button id="btnAddSample" class="button button-energized button-stable btn-success icon ion-plus-round min-width-80">
                                     Add
                                 </button>
                             </div>

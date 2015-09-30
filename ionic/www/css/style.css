@@ -1,3 +1,9 @@
+body
+{
+  min-width: 360px;
+  min-height: 600px;
+}
+
 .full-width {
   width: 100%;
 }
@@ -53,6 +59,11 @@
 
 .float-right {
   float: right;
+}
+
+.min-width-80
+{
+  min-width: 80px !important;
 }
 
 .btn .caret {

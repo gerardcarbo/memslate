@@ -136,6 +136,39 @@ app.directive('msTranslation', ['$log','TranslateService', function ($log,Transl
             }
           });
       };
+
+      this.playText = function(txt, lang)
+      {
+        var msg = new SpeechSynthesisUtterance();
+        msg.lang = lang+"-"+lang.toUpperCase();
+        msg.text = txt;
+
+        msg.onerror = function(error){
+          $log.log('playingSound: error '+error)
+        };
+
+        window.speechSynthesis.speak(msg);
+
+        $log.log('playingSound: '+txt);
+      };
+
+      this.playAudio = function(url) {
+        // Play the audio file at url
+        var my_media = new Media(url,
+          // success callback
+          function () { console.log("playAudio():Audio Success"); },
+          // error callback
+          function (err) { console.log("playAudio():Audio Error: " + err); }
+        );
+
+        // Play audio
+        my_media.play();
+
+        // Pause after 10 seconds
+        setTimeout(function () {
+          media.pause();
+        }, 10000);
+      }
     },
     controllerAs: 'msTranslationCtrl',
     link: function ($scope, element, attrs) {

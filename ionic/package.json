@@ -25,6 +25,7 @@
   "cordovaPlugins": [
     "com.ionic.keyboard",
     "org.apache.cordova.splashscreen",
+    "org.apache.cordova.speech.speechsynthesis",
     {
       "locator": "https://github.com/apache/cordova-plugin-whitelist.git",
       "id": "cordova-plugin-whitelist"

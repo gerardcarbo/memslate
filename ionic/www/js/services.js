@@ -743,7 +743,6 @@ servicesMod.factory('RegistrationService', function ($http, $rootScope, UserServ
     };
 });
 
-
 servicesMod.factory('GamesService', function ($http, $rootScope, UserService, BaseUrlService) {
     return {
         getGames: function () {
