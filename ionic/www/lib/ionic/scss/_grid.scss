@@ -108,6 +108,10 @@
   @include flex(0, 0, 10%);
   max-width: 10%;
 }
+.col-15 {
+  @include flex(0, 0, 15%);
+  max-width: 15%;
+}
 .col-20 {
   @include flex(0, 0, 20%);
   max-width: 20%;

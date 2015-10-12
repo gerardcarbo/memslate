@@ -113,13 +113,13 @@ describe("Midway: Services Tests", function () {
     describe('Translate Service tests', function () {
         var TranslateService;
         var LanguagesService;
-        var MemoFilterService;
+        var MemoSettingsService;
         var translation5;
 
         beforeEach(function () {
             TranslateService = tester.inject('TranslateService');
             LanguagesService = tester.inject('LanguagesService');
-            MemoFilterService = tester.inject('MemoFilterService');
+            MemoSettingsService = tester.inject('MemoSettingsService');
         });
 
         it("should translate simple word", function (done) {

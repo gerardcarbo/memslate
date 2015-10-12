@@ -13,17 +13,17 @@
             <i class="icon no-padding positive"
                ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-chevron-up' : 'ion-chevron-down'">&nbsp&nbsp</i>
 
-            <div class="col col-40 no-padding no-overflow">{{::translation.translate}} > {{::translation.mainResult}}</div>
-            <div class="col col-20 no-padding"><span>{{::translation.fromLang}}</span> <i
-              class="icon ion-arrow-right-b smaller-font"></i><span> {{::translation.toLang}}</span></div>
-            <div class="col col-30 no-padding">{{::translation.insertTime|date}}</div>
+            <div class="col col-50 no-padding no-overflow">{{::translation.translate}} > {{::translation.mainResult}}</div>
+            <div class="col col-20 no-padding margin-left-1 smaller-font"><span>{{::translation.fromLang}}</span>
+              <i class="icon ion-arrow-right-b smaller-font"></i><span> {{::translation.toLang}}</span></div>
+            <div class="col col-20 no-padding smaller-font">{{::translation.insertTime|date}}</div>
           </div>
         </div>
         <div class="item item-accordion" ng-if="memoCtrl.isTranslationShown(translation)">
           <ms-translation id="translation_{{::translation.id}}" translation="translation"></ms-translation>
         </div>
       </div>
-      <ion-infinite-scroll ng-if="memoCtrl.moreDataCanBeLoaded()"
+      <ion-infinite-scroll distance="10%" ng-if="memoCtrl.moreDataCanBeLoaded()"
                            on-infinite="memoCtrl.addItems()"></ion-infinite-scroll>
     </ion-list>
   </ion-content>

@@ -1,6 +1,7 @@
 "use strict";
 
-var controllersMod = angular.module('memslate.controllers', ['ionic', 'ngCordova', 'formly', 'oc.lazyLoad', 'memslate.services']);
+var controllersMod = angular.module('memslate.controllers', ['ionic', 'ngCordova', 'formly', 'oc.lazyLoad',
+                        'memslate.services', 'memslate.services.translate', 'memslate.services.authenticate', 'memslate.services.ui']);
 
 controllersMod.controller('AppCtrl', function ($log, $scope, $timeout, $state, $ionicModal, $ionicPopup,
                                                $cordovaSplashscreen,
@@ -289,7 +290,7 @@ controllersMod.controller('TranslateCtrl', function ($log, $scope, $animate, $do
   this.init();
 });
 
-controllersMod.controller('MemoFilterCtrl', function ($log, $scope, $rootScope, $state, $timeout, MemoFilterService, SessionService, LanguagesService) {
+controllersMod.controller('MemoFilterCtrl', function ($log, $scope, $rootScope, $state, $timeout, SessionService, LanguagesService) {
   var self = this;
 
   this.formData = SessionService.getObject('memoFilterSettings');
@@ -301,7 +302,7 @@ controllersMod.controller('MemoFilterCtrl', function ($log, $scope, $rootScope, 
         id: 'orderBySelect',
         name: 'Order',
         label: 'Order Memo',
-        selectorClass: 'margin-bottom-1',
+        selectorClass: 'margin-vertical-5',
         options: [
           {value: 'Translations.translate,Translations.mainResult', name: 'Alphabetically'},
           {value: 'UserTranslations.userTranslationInsertTime', name: 'by Date'},

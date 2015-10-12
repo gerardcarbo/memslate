@@ -87,7 +87,7 @@ app.directive('msTranslation', ['$log','TranslateService', function ($log,Transl
       translation: '=',
       parent: '='
     },
-    controller: function ($scope, TranslationSampleRes, ModalDialogService, UI, UserService) {
+    controller: function ($scope, TranslationSampleRes, UI, UserService) {
       this.isAuthenticated = function () {
         $log.log('isAuthenticated', UserService.isAuthenticated())
         return UserService.isAuthenticated();
@@ -124,7 +124,7 @@ app.directive('msTranslation', ['$log','TranslateService', function ($log,Transl
       };
 
       this.deleteTranslation = function (id) {
-        ModalDialogService.showOkCancelModal("Delete Translation", "Do you really want to delete the translation '" + $scope.translation.translate + "' ?")
+        UI.showOkCancelModal("Delete Translation", "Do you really want to delete the translation '" + $scope.translation.translate + "' ?")
           .then(function (res) {
             if (res === true) {
               $log.log('deleteTranslation', id);

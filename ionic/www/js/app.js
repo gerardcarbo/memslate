@@ -1,7 +1,39 @@
 "use strict";
 
-angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui.bootstrap', 'memslate.controllers', 'memslate.services', 'memslate.directives'],
-  function config(formlyConfigProvider, TranslationsProvider) {
+var last_memslate_state='/app/home';
+
+angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui.bootstrap', 'memslate.controllers', 'memslate.services', 'memslate.directives'])
+
+  .filter('searchfilter', function() {
+    return function (input, query) {
+      var r = RegExp('('+ query + ')', 'g');
+      return input.replace(r, '<span class="selected-class">$1</span>');
+    }
+  })
+
+  .run(function ($ionicPlatform) {
+    $ionicPlatform.ready(function () {
+      // Hide the accessory bar by default
+      if (window.cordova && window.cordova.plugins.Keyboard) {
+        cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+      }
+      if (window.StatusBar) {
+        // org.apache.cordova.statusbar required
+        StatusBar.styleDefault();
+      }
+    });
+  })
+
+  .run(function ($rootScope, $log, SessionService) {
+    //watch and retrieve last state (ui-router)
+    $rootScope.$on('$stateChangeStart', function(e, toState, toParams, fromState, fromParams) {
+      SessionService.put('last_memslate_state', '/app'+toState.url);
+    });
+
+    last_memslate_state = SessionService.get('last_memslate_state') || '/app/home';
+  })
+
+  .config(function(formlyConfigProvider) {
     // set formly templates here
     formlyConfigProvider.setType({
       name: 'memslateDate',
@@ -11,20 +43,6 @@ angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui
     formlyConfigProvider.setType({
       name: 'memslateSelect',
       template: "<ms-select id='{{options.templateOptions.id}}' name='{{options.templateOptions.name}}' title='{{options.templateOptions.label}}' items='options.templateOptions.options' prefered-items='options.templateOptions.prefered' selected-item='model[options.key]' selector-class='{{options.templateOptions.selectorClass}}'></ms-select>"
-    });
-  })
-
-  .run(function ($ionicPlatform) {
-    $ionicPlatform.ready(function () {
-      // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-      // for form inputs)
-      if (window.cordova && window.cordova.plugins.Keyboard) {
-        cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-      }
-      if (window.StatusBar) {
-        // org.apache.cordova.statusbar required
-        StatusBar.styleDefault();
-      }
     });
   })
 
@@ -131,7 +149,9 @@ angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui
 
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/app/home');
+    $urlRouterProvider.otherwise(function(){
+      return last_memslate_state
+    });
 
     // Register middleware to ensure our auth token is passed to the server
     $httpProvider.interceptors.push('TokenInterceptor');
