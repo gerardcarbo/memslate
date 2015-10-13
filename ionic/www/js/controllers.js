@@ -68,6 +68,10 @@ controllersMod.controller('AppCtrl', function ($log, $scope, $timeout, $state, $
 
   $scope.getOrderClass = function () {
     var memoSettings = SessionService.getObject('memoSettings');
+    if(!memoSettings)
+    {
+      memoSettings.orderWay = 'desc';
+    }
     return (memoSettings.orderWay === 'desc' ? 'ion-arrow-up-b' : 'ion-arrow-down-b');
   };
 
@@ -290,10 +294,10 @@ controllersMod.controller('TranslateCtrl', function ($log, $scope, $animate, $do
   this.init();
 });
 
-controllersMod.controller('MemoFilterCtrl', function ($log, $scope, $rootScope, $state, $timeout, SessionService, LanguagesService) {
+controllersMod.controller('MemoFilterCtrl', function ($log, $scope, $rootScope, $state, $timeout, LanguagesService, MemoSettingsService) {
   var self = this;
 
-  this.formData = SessionService.getObject('memoFilterSettings');
+  this.formData = MemoSettingsService.get();
   this.formFields = [
     {
       key: 'orderBy',
@@ -394,19 +398,19 @@ controllersMod.controller('MemoFilterCtrl', function ($log, $scope, $rootScope, 
     self.formData.filterDateTo.setMinutes(59);
     self.formData.filterDateTo.setSeconds(59);
 
-    SessionService.putObject('memoFilterSettings', self.formData);
+    MemoSettingsService.set(self.formData);
     $state.go('app.memo', null, {location: 'replace'});
   };
 
   self.onCancel = function () {
     $state.go('app.memo', null, {location: 'replace'});
-    self.formData = SessionService.getObject('memoFilterSettings');
+    self.formData = MemoSettingsService.get();
   };
 });
 
 var MemoCtrl;
 
-controllersMod.controller('MemoCtrl', function ($log, $scope, UI, SessionService, TranslateService) {
+controllersMod.controller('MemoCtrl', function ($log, $scope, UI, SessionService, TranslateService, MemoSettingsService) {
   var self = this;
   MemoCtrl = this;
 
@@ -421,9 +425,9 @@ controllersMod.controller('MemoCtrl', function ($log, $scope, UI, SessionService
       SessionService.putObject('memoSettings', self.settings);
     }
 
-    self.settings.columns = "Translations.id, fromLang, toLang, userTranslationInsertTime as insertTime, translate, mainResult"
+    self.settings.columns = "Translations.id, fromLang, toLang, userTranslationInsertTime as insertTime, translate, mainResult";
 
-    self.filterSettings = SessionService.getObject('memoFilterSettings');
+    self.filterSettings = MemoSettingsService.get();
 
     self.translations = [];
     self.moreDataAvailable = true;

@@ -16,7 +16,7 @@ Options = (function(){
         if (arg != undefined) {
           localStorage['word_key_only'] = arg;
         }
-        return parseInt( localStorage['word_key_only'] );
+        return localStorage['word_key_only'] ? parseInt( localStorage['word_key_only'] ) : 0;
       },
       selection_key_only: function(arg) {
         if (arg != undefined) {
@@ -47,6 +47,12 @@ Options = (function(){
           localStorage['save_translation_sample'] = arg;
         }
         return parseInt(localStorage['save_translation_sample']);
+      },
+      dismiss_on: function(arg) {
+        if (arg != undefined) {
+          localStorage['dismiss_on'] = arg;
+        }
+        return localStorage['dismiss_on'] === undefined ? 'mousemove':localStorage['dismiss_on'];
       }
     };
 })();

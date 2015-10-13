@@ -10,7 +10,8 @@ app.controller("MemslateOptionsApp", function ($scope, SessionService, BaseUrlSe
     Options.word_key_only($('#word_key_only:checked').val() ? 1 : 0);
     Options.selection_key_only($('#selection_key_only:checked').val() ? 1 : 0);
     Options.delay($('#delay').val());
-    Options.save_translation_sample($('#save_translation_sample:checked').val() ? 1 : 0)
+    Options.save_translation_sample($('#save_translation_sample:checked').val() ? 1 : 0);
+    Options.dismiss_on($('#dismiss_on').val());
 
     $('#status').fadeIn().delay(3000).fadeOut();
   };
@@ -18,11 +19,10 @@ app.controller("MemslateOptionsApp", function ($scope, SessionService, BaseUrlSe
   function fill_target_lang() {
     var saved_target_lang = Options.target_lang();
 
-    if (!saved_target_lang) {
-      $('#target_lang').append('<option selected value="">Choose...</option>').append('<optgroup label="----------"></optgroup>');
-    }
-
     LanguagesService.getLanguages().success(function(langs){
+      if (!saved_target_lang) {
+        saved_target_lang = LanguagesService.languages.user.prefered[0];
+      }
       langs.items.forEach(function (lang, i) {
         $('#target_lang').append('<option value="' + lang.value + '"' + (saved_target_lang == lang.value ? ' selected' : '') + '>' + lang.name + '</option>');
       });
@@ -40,7 +40,6 @@ app.controller("MemslateOptionsApp", function ($scope, SessionService, BaseUrlSe
       });
     });
   }
-
 
   function populate_popup_show_trigger() {
     var saved_popup_show_trigger = Options.popup_show_trigger();
@@ -62,44 +61,34 @@ app.controller("MemslateOptionsApp", function ($scope, SessionService, BaseUrlSe
     populate_popup_show_trigger()
 
     if (Options.translate_by() == 'point') {
-      $('#delay').attr('disabled', false).parent().removeClass('disabled');
+      $('#delay').parent().show();
     }
-
-    if (Options.word_key_only()) {
-      $('#delay').attr('disabled', true).parent().addClass('disabled');
+    else
+    {
+      $('#delay').parent().hide();
     }
 
     $('#translate_by').val(Options.translate_by()).change(function () {
-      if ($(this).val() == 'point' && !$('#word_key_only').attr('checked')) {
-        $('#delay').attr('disabled', false).parent().removeClass('disabled');
+      if ($(this).val() == 'point') {
+        $('#delay').parent().show();
       }
       else {
-        $('#delay').attr('disabled', true).parent().addClass('disabled');
+        $('#delay').parent().hide();
       }
     });
 
-    $('#word_key_only').attr('checked', Options.word_key_only() ? true : false).click(function () {
-      if ($('#translate_by').val() == 'point' && !$(this).attr('checked')) {
-        $('#delay').attr('disabled', false).parent().removeClass('disabled');
-      }
-      else {
-        $('#delay').attr('disabled', true).parent().addClass('disabled');
-      }
-    });
+    $('#word_key_only').attr('checked', Options.word_key_only() ? true : false);
 
     $('#delay').val(Options.delay());
 
     $('#save_translation_sample').attr('checked', Options.save_translation_sample() ? true : false);
 
+    $('#dismiss_on').val(Options.dismiss_on());
+
     $(document).on('keydown', function (e) {
       if (e.keyCode == 13) {
         $scope.save_options();
       }
-    });
-
-    $('#set_hotkey').on('click', function () {
-      chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
-      return false;
     });
   });
 });

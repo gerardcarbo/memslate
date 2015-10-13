@@ -9,125 +9,58 @@
   <script type="text/javascript" src="../www/js/utils.js"></script>
   <script type="text/javascript" src="../www/js/services/base.js"></script>
   <script type="text/javascript" src="../www/js/services/translate.js"></script>
-  <script type="text/javascript" src="lib/ext_utils.js"></script>
-  <script type="text/javascript" src="lib/options.js"></script>
-  <script type="text/javascript" src="lib/tooltip.js"></script>
-  <script type="text/javascript" src="lib/options_script.js"></script>
+  <script type="text/javascript" src="js/ext_utils.js"></script>
+  <script type="text/javascript" src="js/tooltip.js"></script>
+  <script type="text/javascript" src="js/options.js"></script>
+  <script type="text/javascript" src="js/options_script.js"></script>
   <link href="../www/css/ionic.app.css" rel="stylesheet">
-  <style type="text/css">
-    body {
-      margin: 10px auto;
-      width: 800px;
-    }
-
-    body, table {
-      color: #4f4f4f;
-      font: normal normal normal 14px Verdana, Tahoma, sans-serif;
-      border-spacing: 0px;
-    }
-
-    input, button {
-      font-size: 14px;
-    }
-
-    select {
-      font-size: 16px;
-    }
-
-    td {
-      width: 140px;
-    }
-
-    div.content {
-      text-align: left;
-    }
-
-    div.heading {
-      text-align: left;
-      font-size: 1.3em;
-    }
-
-    .option {
-      margin-top: 25px;
-    }
-
-    fieldset.option {
-      border-width: 1px;
-      border-radius: 5px;
-      border-style: solid;
-      border-color: #ccc;
-    }
-
-    div.button {
-      float: left;
-    }
-
-    div.button_group {
-      margin-top: 30px;
-    }
-
-    #status {
-      display: none;
-      color: green;
-      float: left;
-      margin-top: 4px;
-      margin-left: 8px;
-    }
-
-    .hint {
-      color: blue;
-    }
-
-    .help {
-      cursor: help;
-      border-bottom: 1px dotted;
-    }
-
-    .disabled {
-      color: #ccc;
-    }
-
-    .bar{
-      display:block; position:inherit; font-size:16px; text-align: center; font-weight: 600; vertical-align: middle; line-height: 35px;
-    }
-
-  </style>
+  <link href="css/options.css" rel="stylesheet">
+  <link href="css/tooltip.css" rel="stylesheet">
 </head>
-<body  ng-app="memslate.chrome_ext.options">
+<body ng-app="memslate.chrome_ext.options">
 <div class="content" ng-controller="MemslateOptionsApp">
-  <div class="bar bar-dark bar-header " >Memslate > Extension Options</div>
-  <div class="">
+  <div class="bar bar-dark bar-header ">Memslate Extension Options</div>
+  <div class="options">
+
     <div class="option">
-      <label for="from_lang">Translate From</label>
+      <label for="from_lang">Translate from </label>
       <select id="from_lang"></select>
-    </div>
-    <div class="option">
-      <label for="target_lang">Translate To</label>
+      <label for="target_lang"> into </label>
       <select id="target_lang"></select>
-      <label for="translate_by">when I</label>
+    </div>
+
+    <div class="option">
+      <label for="translate_by">... when I</label>
       <select id="translate_by" name="translate_by">
         <option value="click">Click on word</option>
         <option value="point">Point at word</option>
       </select>
+      <div style="display:inline">
+        <label for="delay"> and wait before trying to translate for
+        <input type="number" id="delay" name="delay"/> ms</label>
+      </div>
     </div>
     <div class="option">
       <input type="checkbox" id="save_translation_sample" name="save_translation_sample"/>
-      <label for="save_translation_sample">Save Samples: save the phrase where the translated word is on, as a translation sample.</label>
+      <label for="save_translation_sample">Save sample (save the phrase where the translated word is on, as a
+        translation sample)</label>
+    </div>
+    <div class="option" style="display:none">
+      <input type="checkbox" id="word_key_only" name="word_key_only"/>
+      <label for="word_key_only">Only show word translation when</label>
+      <label for="word_key_only_key"> I hold the
+        <select name="word_key_only_key" id="word_key_only_key"></select>
+        key</label>
     </div>
 
-      <div class="option">
-        <input type="checkbox" id="word_key_only" name="word_key_only"/>
-        <label for="word_key_only">Only show word translation when</label>
-        <label for="word_key_only_key"> I hold the
-          <select name="word_key_only_key" id="word_key_only_key"></select>
-          key</label>
-      </div>
-
-      <div class="option disabled">
-        <label for="delay">Wait before trying to translate for ms:</label>
-        <input type="number" id="delay" name="delay" style="display: inline; vertical-align: inherit; font-weight: 600;"/>
-      </div>
-
+    <div class="option">
+      <label for="dismiss_on"> Hide translation tooltip
+        <select name="dismiss_on" id="dismiss_on">
+          <option value="mousemove">On Mouse Move</option>
+          <option value="esc">When ESC key pressed</option>
+        </select>
+      </label>
+    </div>
 
     <div class="button_group">
       <button class="button button-positive button-block" id="save_button" ng-click="save_options()">Save</button>

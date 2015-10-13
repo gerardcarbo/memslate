@@ -20,6 +20,14 @@ git reset <commit>: Move the current branch tip backward to <commit>, reset the 
     the project history using cleaner, more atomic snapshots.
 git branch -D <branch_name>: force delete branch
 git branch --no-merged: list unmerged branches
+git push [-f] remote local_branch[:remote_branch] : push local_branch to remote (into remote_branch) (-f with force push)
+
+git rebase:
+    git checkout experiment
+    git rebase master
+    (fix conflicts if exist and 'git rebase --continue')
+    git checkout master
+    git merge experiment
 
 #Digital Ocean
 
@@ -31,6 +39,8 @@ Install dokku-alt:
     sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/dokku-alt/dokku-alt/master/bootstrap.sh)"  : install dokku alt
     cat digocmemslate.pub | ssh root@memslate.com dokku access:add                                          : give dokku access in local machine
     cat digocmemslate.pub | ssh root@memslate.com "cat >> ~/.ssh/authorized_keys"                           : automatic root login
+    
+    git remote add
 
 Update SO:
     apt-get dist-upgrade
@@ -78,6 +88,9 @@ ionic run -> installs app on connected device
 
 ionic resources -> regenerates logo and splash images
 
+#ANDROID
+adb wait-for-device : start usb debugging
+
 #TESTING
 
 ##Unit tests
@@ -93,3 +106,10 @@ User karmaMidwayTests.conf.js WebStorm configuration.
 Use Protractor Webstorm configuration or in console:
 
 C:\Users\gerard\AppData\Roaming\npm\node_modules\protractor\lib\cli.js tests/protractorE2ETests.js --suite memo
+
+
+#LINUX
+find / -name 'pg_hba.conf' : Find file by name
+/etc/init.d/nginx restart : restart nginx server
+dokku postgresql info {app} {db} : get db info
+sudo apt-get install landscape-client :  conical landscape

@@ -1,17 +1,33 @@
 //do not load inside memslate app
-if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
-{
-  //configure loggin
-  var debug = true;
+"use strict";
 
-  function log() {
-    if (debug) {
-      console.log(arguments);
-    }
+var debug = true;
+function log() {
+  if (debug) {
+    console.log(arguments);
   }
+}
+
+if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
   //recover the options to setup the content script (add listeners...)
   chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
+
+    var options = JSON.parse(response.options);
+
+    var _tooltip;
+    function getToolTip()
+    {
+      if(_tooltip)
+      {
+        _tooltip.hide();
+      }
+      else
+      {
+        _tooltip = new Tooltip({dismiss_on: options.dismiss_on});
+      }
+      return _tooltip;
+    }
 
     function process(e) {
 
@@ -55,16 +71,16 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
 
         if (text_nodes.length == 0) {
           log('no text');
-          return {word:''};
+          return {word: ''};
         }
 
         var hit_text_node = getExactTextNode(text_nodes, e);
         if (!hit_text_node) {
           log('hit between lines');
-          return {word:''};
+          return {word: ''};
         }
 
-        log("getHitWord: node: "+hit_text_node.data);
+        log("getHitWord: node: " + hit_text_node.data);
 
         var hit_word = restorable(hit_text_node, function (node) {
           var hw = '';
@@ -97,7 +113,7 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
 
           var minimal_text_node = getHitText(hit_text_node, parent_font_style);
 
-          log('minimal_text_node',minimal_text_node)
+          log('minimal_text_node', minimal_text_node)
 
           if (minimal_text_node) {
             //wrap words inside text node into <memsext> element
@@ -134,33 +150,33 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
           return hw;
         });
 
-        //extract example. Split lines and find hit word
-        var sample="";
-        if(options.save_translation_sample)
-        {
-            var lines = hit_text_node.data.match( /[^\.!\?]+[\.!\?]+/g );
-            if(!lines)
-            {
-              if(hit_text_node.data.indexOf(hit_word)>=0)
-              {
-                sample = hit_text_node.data;
-              }
+        //extract sample. Split lines and find hit word
+        var sample = "";
+        if (options.save_translation_sample) {
+          var lines = hit_elem[0].innerText.match(/[^\.!\?]+[\.!\?]+/g);
+          if (!lines) {
+            if (hit_text_node.data.indexOf(hit_word) >= 0) {
+              sample = hit_text_node.data;
             }
-            else
-            {
-              lines = lines.filter(function(line){
-                "use strict";
-                return line.indexOf(hit_word)>=0;
-              });
+          }
+          else {
+            lines = lines.filter(function (line) {
+              return line.indexOf(hit_word) >= 0;
+            });
 
-              if(lines.length>0)
-              {
-                sample = lines[0]
-              }
+            if (lines.length > 0) {
+              sample = lines[0];
             }
+          }
+
+          //exclude if less than two number of words
+          if(sample.trim().split(/\s+/).length<=2)
+          {
+            sample = "";
+          }
         }
 
-        log("getHitWord: word: "+hit_word+" sample: "+sample);
+        log("getHitWord: word: " + hit_word + " sample: " + sample);
 
         return {word: hit_word, sample: sample};
       }
@@ -182,7 +198,7 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
         return;
       }
 
-      var hit = {word:''};
+      var hit = {word: ''};
       if (selection.toString()) {
 
         if (options.word_key_only) {
@@ -217,7 +233,7 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
         hit = getHitWord(e);
       }
       if (hit.word != '') {
-        chrome.extension.sendRequest({handler: 'translate', word: hit.word, sample: hit.sample}, function (response) {
+        chrome.extension.sendRequest({handler: 'translate', sl: document.documentElement.lang, word: hit.word, sample: hit.sample}, function (response) {
           log('response: ', response);
 
           var translation = MemsExt.deserialize(response.translation);
@@ -227,7 +243,7 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
             return;
           }
 
-          tooltip.show(e.clientX, e.clientY, MemsExt.formatTranslation(translation), 'ltr');
+          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(translation), 'ltr');
         });
       }
     }
@@ -243,9 +259,7 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
       }
     }
 
-    var options = JSON.parse(response.options);
 
-    var tooltip = new Tooltip();//{dismiss_on: 'mousemove'});
 
     $(document).on('mousestop', function (e) {
       withOptionsSatisfied(e, function () {
@@ -293,7 +307,7 @@ if(document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1)
               return;
             }
 
-            tooltip.show(last_mouse_stop.x, last_mouse_stop.y, MemsExt.formatTranslation(translation), 'ltr');
+            getToolTip().show(last_mouse_stop.x, last_mouse_stop.y, MemsExt.formatTranslation(translation), 'ltr');
           });
         }
       }

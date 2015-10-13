@@ -1,4 +1,4 @@
-(function() {
+(function () {
   "use strict";
 
   /**
@@ -6,25 +6,31 @@
    */
   var servicesMod = angular.module('memslate.services');
 
-  servicesMod.service("MemoSettingsService", function ($resource, BaseUrlService, SessionService){
-    this.reset = function()
-    {
-      this.memoFilterSettings = {};
-      this.memoFilterSettings.orderBy = 'Translations.translate,Translations.mainResult';
-      this.memoFilterSettings.filterByString = false;
-      this.memoFilterSettings.filterByDates = false;
-      this.memoFilterSettings.filterByLanguages = false;
-      this.memoFilterSettings.filterString = "";
-      this.memoFilterSettings.filterDateFrom = new Date().adjustDate(-7);
-      this.memoFilterSettings.filterDateTo = new Date();
+  servicesMod.service("MemoSettingsService", function ($resource, BaseUrlService, SessionService) {
+    this.reset = function () {
+      this._settings = {};
+      this._settings.orderBy = 'Translations.translate,Translations.mainResult';
+      this._settings.filterByString = false;
+      this._settings.filterByDates = false;
+      this._settings.filterByLanguages = false;
+      this._settings.filterString = "";
+      this._settings.filterDateFrom = new Date().adjustDate(-7);
+      this._settings.filterDateTo = new Date();
 
-      SessionService.putObject('memoFilterSettings',this.memoFilterSettings);
+      SessionService.putObject('memoFilterSettings', this.data);
     };
 
-    this.memoFilterSettings = SessionService.getObject('memoFilterSettings');
-    if (this.memoFilterSettings === null)
-    {
-      this.reset();
+    this.get = function () {
+      this._settings = SessionService.getObject('memoFilterSettings');
+      if (!this._settings) {
+        this.reset();
+      }
+      return this._settings;
+    };
+
+    this.set = function (settings) {
+      this._settings = SessionService.putObject('memoFilterSettings', settings);
+      return this._settings;
     }
   });
 })();

@@ -60,7 +60,7 @@ exports.serve = function ()
     app.all('/logout', auth.authenticate);
     app.all('/changePwd', auth.authenticate);
 
-    app.use('/testConnection', function(req, res){res.send('ok')});
+    app.use('/connect', function(req, res){res.send('ok')});
     app.use('/register', auth.register);
     app.use('/unregister', auth.unregister);
     app.use('/login', auth.login);

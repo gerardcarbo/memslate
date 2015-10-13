@@ -272,7 +272,7 @@ body
 * Slider
 */
 .slider {
-  height: inherit;
+  /*height: inherit;*/
   min-height: 250px;
 }
 
@@ -459,3 +459,14 @@ body
 .android-scroll-bar ::-webkit-scrollbar-thumb { border-radius: 10px; background: #3c7f94; }
 
 .android-scroll-bar ::-webkit-scrollbar-thumb:window-inactive {background: #213845; }
+
+.scroll-content
+{
+  max-width: 1248px;
+  margin: auto !important;
+}
+
+.title
+{
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+}

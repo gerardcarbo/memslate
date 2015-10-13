@@ -22,22 +22,42 @@
     }
 
     this.get = function (key) {
+      var value;
       if (this._useLocalStorage) {
-        return localStorage.getItem(key);
+        value = localStorage.getItem(key);
       }
-      return $cookies[key];
-    }
+      else
+      {
+        value = $cookies[key];
+      }
+      if(value === null)
+      {
+        value = undefined;
+      }
+      return value;
+    };
+
+    this._buildObject = function(data)
+    {
+      if(data == "null" || data == "undefined" || data == null || data == undefined)
+      {
+        return undefined;
+      }
+      return angular.fromJson(data);
+    };
 
     this.getObject = function (key) {
-      var obj = {};
+      var value = "";
       if (this._useLocalStorage) {
-        obj = angular.fromJson(localStorage.getItem(key));
+        value = localStorage.getItem(key);
       }
       else {
-        obj = angular.fromJson($cookies[key])
+        value = $cookies[key];
       }
+      //console.log('getObject('+key+'): '+value);
+      var obj = this._buildObject(value);
       return msUtils.convertDateStringsToDates(obj);
-    }
+    };
 
     this.put = function (key, value) {
       if (this._useLocalStorage) {
@@ -45,15 +65,16 @@
         return;
       }
       $cookies[key] = value;
-    }
+    };
 
     this.putObject = function (key, value) {
       if (this._useLocalStorage) {
         localStorage.setItem(key, angular.toJson(value));
-        return;
+        return value;
       }
       $cookies[key] = angular.toJson(value);
-    }
+      return value;
+    };
 
     this.remove = function (key) {
       if (this._useLocalStorage) {
@@ -61,25 +82,25 @@
         return;
       }
       $cookies[key] = null;
-    }
+    };
   });
 
   servicesMod.service('BaseUrlService', function ($log, $http, $q, $rootScope, SessionService) {
     var self = this;
     this.connected = false;
 
-    this.alternatives = ["https://memslate.herokuapp.com/", "http://localhost:5000/"];
+    this.alternatives = ["http://www.memslate.com/", "http://localhost:5000/"];
     this.current = SessionService.get('currentBaseUrlIndex') || 0;
 
-    this.test = function (url) {
-      return $http.get(url + 'testConnection');
+    this._connect = function (url) {
+      return $http.get(url + 'connect');
     };
 
     this.connect = function () {
       var deferred = $q.defer();
 
       angular.forEach(this.alternatives, function (alternative, index) {
-        self.test(alternative).success(function () {
+        self._connect(alternative).success(function () {
           if (!self.connected) {
             self.current = index;
             self.connected = true;

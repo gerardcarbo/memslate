@@ -3,11 +3,11 @@
 var MemslateHomePage = function ()
 {
     this.titles = {};
-    this.titles.home = 'Memslate > Home';
+    this.titles.home = 'Memslate';
     this.titles.translate = 'Memslate > Translate';
     this.titles.memo = 'Memslate > Memo';
     this.titles.play = 'Memslate > Play';
-    this.titles.user = 'Memslate > User';
+    this.titles.user = 'User';
 
     this.translateButton = element(by.id('translateButton'));
     this.memoButton = element(by.id('memoButton'));

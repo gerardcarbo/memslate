@@ -56,9 +56,9 @@ describe("Unit: Services Tests", function ()
             SessionService.remove('key2');
             SessionService.remove('keyObj1');
 
-            expect(SessionService.get('key1')).toBeNull();
-            expect(SessionService.get('key2')).toBeNull();
-            expect(SessionService.getObject('keyObj1')).toBeNull();
+            expect(SessionService.get('key1')).toBeUndefined();
+            expect(SessionService.get('key2')).toBeUndefined();
+            expect(SessionService.getObject('keyObj1')).toBeUndefined();
         });
     });
     
@@ -238,8 +238,8 @@ describe("Unit: Services Tests", function ()
 
         it("Base URL service should return http://localhost:5000/.", function () {
             expect(BaseUrlService).not.toBeNull();
-            httpBackend.expectGET('https://memslate.herokuapp.com/testConnection').respond(500,'');
-            httpBackend.expectGET('http://localhost:5000/testConnection').respond('Ok');
+            httpBackend.expectGET('https://memslate.herokuapp.com/connect').respond(500,'');
+            httpBackend.expectGET('http://localhost:5000/connect').respond('Ok');
 
             var baseUrl2='';
             console.log('Trying to connect...');
@@ -257,8 +257,8 @@ describe("Unit: Services Tests", function ()
 
         it("Base URL service should return https://memslate.herokuapp.com/.", function () {
             expect(BaseUrlService).not.toBeNull();
-            httpBackend.expectGET('https://memslate.herokuapp.com/testConnection').respond('Ok');
-            httpBackend.expectGET('http://localhost:5000/testConnection').respond(500,'');
+            httpBackend.expectGET('https://memslate.herokuapp.com/connect').respond('Ok');
+            httpBackend.expectGET('http://localhost:5000/connect').respond(500,'');
 
             var baseUrl2='';
             console.log('Trying to connect...');

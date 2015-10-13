@@ -14,18 +14,6 @@ var uuid = require('node-uuid');
 var https = require('https');
 var querystring = require('querystring');
 
-/*ColumnBuilder.prototype.onDelete = function(value) {
- return this._tableBuilder.foreign.call(this._tableBuilder, this._args[0], this)
- ._columnBuilder(this)
- .onDelete(value);
- };
-
- ColumnBuilder.prototype.onUpdate = function(value) {
- return this._tableBuilder.foreign.call(this._tableBuilder, this._args[0], this)
- ._columnBuilder(this)
- .onUpdate(value);
- };*/
-
 var startTranslation = 1299;
 var limitTranslation = 1500;
 
@@ -326,3 +314,16 @@ createTables()
     .otherwise(function (error) {
         console.log(error.stack);
     });
+
+
+/*ColumnBuilder.prototype.onDelete = function(value) {
+ return this._tableBuilder.foreign.call(this._tableBuilder, this._args[0], this)
+ ._columnBuilder(this)
+ .onDelete(value);
+ };
+
+ ColumnBuilder.prototype.onUpdate = function(value) {
+ return this._tableBuilder.foreign.call(this._tableBuilder, this._args[0], this)
+ ._columnBuilder(this)
+ .onUpdate(value);
+ };*/

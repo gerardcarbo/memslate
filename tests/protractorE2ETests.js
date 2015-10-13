@@ -7,7 +7,13 @@ exports.config = {
     chromeDriver: 'C:/Users/gerard/AppData/Roaming/npm/node_modules/protractor/selenium/chromedriver',
     // Capabilities to be passed to the webdriver instance.
     capabilities: {
-        'browserName': 'chrome'
+        'browserName': 'chrome',
+        'chromeOptions': {
+            'args': ['incognito', 'disable-extensions', 'start-maximized', 'enable-crash-reporter-for-testing']
+        },
+        'loggingPrefs': {
+            'browser': 'ALL'
+        }
     },
     // Spec patterns are relative to the current working directly when
     // protractor is called.

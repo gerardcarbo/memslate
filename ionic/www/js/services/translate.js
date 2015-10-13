@@ -44,6 +44,7 @@
   servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
 
   servicesMod.factory('TranslationRes', function ($log, $resource, BaseUrlService) {
+    $log.log('TranslationRes: base '+BaseUrlService.get());
     return $resource(BaseUrlService.get() + 'resources/translations/:id', {id: '@id'});
   });
 
@@ -114,6 +115,10 @@
           self.languages.dirs = data[0].dirs;
         }
         self.languages.user = data[1];
+        if(self.languages.user.prefered == undefined)
+        {
+          self.languages.user.prefered = [];
+        }
         self.langsGotten = true;
 
         return self.languages;
@@ -137,7 +142,7 @@
       var promiseGetUserLanguages = deferedGet.promise;
 
       var userLanguages = SessionService.getObject('userLanguages');
-      if (userLanguages !== null) {
+      if (userLanguages !== undefined) {
         deferedGet.resolve(userLanguages);
         return promiseGetUserLanguages;
       }

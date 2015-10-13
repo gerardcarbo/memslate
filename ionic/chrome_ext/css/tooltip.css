@@ -1,0 +1,13 @@
+.pos_translation {
+  white-space: nowrap;
+  display: block;
+}
+
+.smaller-font {
+  font-size: smaller;
+}
+
+#memslate_tooltip a, #memslate_tooltip a:visited {
+  color: #4078c0;
+  text-decoration: none;
+}
