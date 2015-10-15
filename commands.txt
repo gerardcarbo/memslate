@@ -21,6 +21,39 @@ git reset <commit>: Move the current branch tip backward to <commit>, reset the 
 git branch -D <branch_name>: force delete branch
 git branch --no-merged: list unmerged branches
 
+#Digital Ocean
+
+
+Install dokku-alt:
+    http://rogerstringer.com/2015/05/13/make-your-own-heroku
+    https://github.com/dokku-alt/dokku-alt#deploy-an-app
+
+    sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/dokku-alt/dokku-alt/master/bootstrap.sh)"  : install dokku alt
+    cat digocmemslate.pub | ssh root@memslate.com dokku access:add                                          : give dokku access in local machine
+    cat digocmemslate.pub | ssh root@memslate.com "cat >> ~/.ssh/authorized_keys"                           : automatic root login
+
+Update SO:
+    apt-get dist-upgrade
+    sudo shutdown -r now
+
+Create and link DB:
+    dokku postgresql:create memslate
+    dokku postgresql:link memslate memslate
+
+View logs:
+    dokku logs memslate -t
+
+Redirect subdomain:
+    dokku domains:set memslate memslate.memslate.com www.memslate.com
+
+Redirect top domain:
+     vi /etc/nginx/conf.d/dokku.conf
+     add:
+         server {
+           server_name memslate.com;
+           rewrite ^ http://www.memslate.com$request_uri? permanent;
+         }
+      /etc/init.d/nginx restart
 
 #HEROKU
 

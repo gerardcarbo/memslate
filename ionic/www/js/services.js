@@ -21,7 +21,7 @@ servicesMod.service('BaseUrlService', function ($log, $http, $q, $rootScope, Ses
     var self = this;
     this.connected = false;
 
-    this.alternatives = ["https://memslate.herokuapp.com/","http://localhost:5000/"];
+    this.alternatives = ["http://www.memslate.com/","http://localhost:5000/"];
     this.current = SessionService.get('currentBaseUrlIndex') ||  0;
 
     this.test = function(url)
