@@ -1,6 +1,6 @@
 var app = angular.module('memslate.chrome_ext.options', ['memslate.services.translate']);
 
-app.controller("MemslateOptionsApp", function ($scope, SessionService, BaseUrlService, TranslationsProvider, LanguagesService) {
+app.controller("MemslateOptionsApp", function ($scope, SessionService, BaseUrlService, TranslationsProviders, LanguagesService) {
   "use strict";
   $scope.save_options = function() {
 

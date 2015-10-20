@@ -35,6 +35,9 @@ gulp.task('copy', function() {
 
 //copy and compress HTML files
 gulp.task('html', function() {
+	gulp.src('ionic/options.html')
+		.pipe(cleanhtml())
+		.pipe(gulp.dest('build_ext'));
 	gulp.src('ionic/www/*.html')
 		.pipe(cleanhtml())
 		.pipe(gulp.dest('build_ext/www'));

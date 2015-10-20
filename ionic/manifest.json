@@ -7,12 +7,15 @@
     "default_icon": "memslate-16.png",
     "default_popup": "www/index.html"
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com https://translate.google.com https://dictionary.yandex.net; object-src 'self'",
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://dictionary.yandex.net; object-src 'self'",
   "permissions": [
     "activeTab",
     "https://*/",
     "*://translate.google.com/*","https://*.yandex.net/*", "tabs", "tts"
   ],
+  "options_ui": {
+    "page": "options.html"
+  },
   "options_page": "chrome_ext/options.html",
   "icons": { "16": "memslate-16.png", "128": "memslate-128.png" },
   "background": {

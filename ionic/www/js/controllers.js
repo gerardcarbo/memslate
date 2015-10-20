@@ -10,6 +10,7 @@ controllersMod.controller('AppCtrl', function ($log, $scope, $timeout, $state, $
   this.init = function () {
     $scope.loginData = {};
     $scope.registerData = {};
+    $scope.inAction = false;
   };
 
   this.init();
@@ -77,10 +78,12 @@ controllersMod.controller('AppCtrl', function ($log, $scope, $timeout, $state, $
 
   // Perform the login action when the user submits the login form
   $scope.doLogin = function (loginForm) {
+    if ($scope.inAction) return;
     if (!loginForm.$valid) {
       UI.toast("Some data is not correct. Please, check it.");
       return false;
     }
+    $scope.inAction = true;
     $log.log('Doing login: ', $scope.loginData.email);
     RegistrationService.login($scope.loginData.email, $scope.loginData.password).then(function (login) {
       if (login.done) {
@@ -95,6 +98,8 @@ controllersMod.controller('AppCtrl', function ($log, $scope, $timeout, $state, $
           cssClass: 'loginFailedPopup'
         });
       }
+    }).finally(function(){
+      $scope.inAction=false;
     });
   };
 

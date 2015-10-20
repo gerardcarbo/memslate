@@ -113,3 +113,12 @@ find / -name 'pg_hba.conf' : Find file by name
 /etc/init.d/nginx restart : restart nginx server
 dokku postgresql info {app} {db} : get db info
 sudo apt-get install landscape-client :  conical landscape
+
+#TYPESCRIPT
+Download and install d.ts for angular:
+- npm install -g tsd
+- tsd init
+- tsd query jquery --save --action install
+- tsd query angular --save --action install
+- Add reference to angular.d.ts inside .ts file: /// <reference path="../typings/angularjs/angular.d.ts" />
+                     or better all defined d.ts: /// <reference path="../typings/tsd.d.ts" />

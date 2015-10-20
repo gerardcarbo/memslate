@@ -80,6 +80,10 @@
                 class="btn btn-danger">&nbsp;Delete Translation
         </button>
       </div>
+
+      <div ng-if="translation.provider == 'yd' || translation.provider == 'yt'" class="row powered_by margin-top-1">
+        Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a>
+      </div>
     </div>
     <div class="error_translation_div" ng-if="translation.error">
     </div>

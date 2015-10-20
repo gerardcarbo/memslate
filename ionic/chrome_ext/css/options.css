@@ -13,6 +13,7 @@ body, table {
 {
   width: 800px;
   margin: auto;
+  padding: 10px;
 }
 
 input, button {

@@ -1,6 +1,6 @@
 var app = angular.module('MyApp', ['memslate.services.translate']);
 
-app.run(function ($q, SessionService, BaseUrlService, TranslationsProvider, TranslateService) {
+app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, TranslateService) {
     "use strict";
 
     RegExp.quote = function (str) {
@@ -75,7 +75,7 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProvider, Tran
 
       return TranslateService.translate(sl, tl, request.word)
         .success(function (translation) {
-          onTranslationResponse(TranslationsProvider.getProvider().name, sl, tl, request.word, translation, sendResponse);
+          onTranslationResponse(TranslationsProviders.getProvider().name, sl, tl, request.word, translation, sendResponse);
           if (request.sample && request.sample != "" && request.sample != request.word) {
             TranslateService.addTranslationSample(translation.id, request.sample);
           }
