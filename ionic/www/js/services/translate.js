@@ -2,6 +2,35 @@
 /// <reference path="translate.d.ts" />
 var Translate;
 (function (Translate) {
+    var Translation = (function () {
+        function Translation() {
+            this.fromLang = "";
+            this.toLang = "";
+            this.translate = "";
+            this.provider = "";
+            this.mainResult = "";
+            this.transcription = "";
+            this.rawResult = "";
+        }
+        return Translation;
+    })();
+    Translate.Translation = Translation;
+    var UserLanguages = (function () {
+        function UserLanguages() {
+            this.fromLang = "";
+            this.toLang = "";
+            this.prefered = [];
+        }
+        return UserLanguages;
+    })();
+    Translate.UserLanguages = UserLanguages;
+    var Languages = (function () {
+        function Languages() {
+            this.user = new UserLanguages();
+        }
+        return Languages;
+    })();
+    Translate.Languages = Languages;
     var TranslationsProviders = (function () {
         function TranslationsProviders($log, SessionService) {
             this.$log = $log;
@@ -103,7 +132,7 @@ var Translate;
             this.BaseUrlService = BaseUrlService;
             this.TranslationsProviders = TranslationsProviders;
             this.langsGotten = false;
-            this.languages = new Translate.Languages;
+            this.languages = new Translate.Languages();
             this.getLanguages = function () {
                 var _this = this;
                 if (this.langsGotten) {
@@ -198,7 +227,6 @@ var Translate;
                     return this.languages.user.toLang;
                 }
             };
-            Translate.Languages;
         }
         LanguagesService.$inject = ['$q', '$rootScope', '$http', '$resource', '$injector', 'SessionService', 'BaseUrlService', 'TranslationsProviders'];
         return LanguagesService;

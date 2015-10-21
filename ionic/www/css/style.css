@@ -476,6 +476,26 @@ body
 
 @media screen and (min-width: 800px) {
   .item {
-    font-size: 20px;
+    font-size: 19px;
+  }
+  .bar .title {
+    font-size: 21px;
+  }
+  .translate-lang
+  {
+    font-size: 19px;
+  }
+  .translation_div
+  {
+    font-size: 17px;
+  }
+  .answers
+  {
+    font-size: 18px;
+  }
+
+  #textToTranslate
+  {
+    font-size: 19px;
   }
 }

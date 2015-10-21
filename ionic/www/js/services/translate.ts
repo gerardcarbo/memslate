@@ -7,6 +7,45 @@ declare var msUtils:any;
 
 module Translate {
 
+  export class Translation {
+    fromLang:string = "";
+    toLang:string = "";
+    translate:string = "";
+    provider:string = "";
+    mainResult:string = "";
+    transcription:string = "";
+    rawResult:string = "";
+  }
+
+  interface Dictionary {
+    [index: string]: string;
+  }
+
+  export class UserLanguages {
+    fromLang: string  = "";
+    toLang: string  = "";
+    prefered: string[]  = [];
+  }
+
+  export class Languages {
+    items:Dictionary;
+    user:UserLanguages = new UserLanguages();
+  }
+
+  interface ILanguagesProvider {
+    getLanguages():Languages;
+  }
+
+  interface ILanguagesService extends ILanguagesProvider {
+    getLanguage(langId:string):string;
+    getUserLanguages():UserLanguages;
+  }
+
+  interface ITranslationsProvider {
+    detect (text) : ng.IPromise<void>
+    translate (fromLang, toLang, text) : ng.IPromise<void>
+  }
+
   export class TranslationsProviders {
     static $inject = ['$log', 'SessionService'];
     _providers = {};
@@ -103,13 +142,13 @@ module Translate {
 
   export class LanguagesService implements ILanguagesService {
     langsGotten:boolean = false;
-    public languages:Languages = new Translate.Languages;
+
+    public languages:Languages = new Translate.Languages();
 
     static $inject = ['$q', '$rootScope', '$http', '$resource', '$injector', 'SessionService', 'BaseUrlService', 'TranslationsProviders'];
 
     constructor(public $q, public $rootScope, public $http, public $resource, public $injector,
                 public SessionService, public BaseUrlService, public TranslationsProviders) {
-      Translate.Languages
     }
 
     public getLanguages = function () {

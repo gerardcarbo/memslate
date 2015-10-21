@@ -7,6 +7,13 @@
   font-size: smaller;
 }
 
+#memslate_tooltip
+{
+  padding:5px;
+  background-color: #cc9f00;
+  color: white;
+}
+
 #memslate_tooltip a, #memslate_tooltip a:visited {
   color: #4078c0;
   text-decoration: none;

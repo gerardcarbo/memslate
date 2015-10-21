@@ -21,7 +21,7 @@
           <div class="item item-stable" id="question_{{i}}" data-answer="{{::question.answer}}">
             <b>{{question.question}} ?</b>
 
-            <div class="padding-5">
+            <div class="answers padding-5">
               <div ng-repeat="(j, option) in question.options track by $index" class="padding-5">
                 <input type="radio" id="answer_{{i}}_{{j}}" name="answer_{{i}}_{{j}}"
                        ng-model="question.givenAnswer" value="{{::option}}"

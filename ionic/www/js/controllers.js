@@ -250,7 +250,7 @@ controllersMod.controller('TranslateCtrl', function ($log, $scope, $animate, $do
         UI.toast(translateCtrl.translation.error);
 
         // log the error to the console
-        $log.error("The following error occured: status:" + error.status + " data:" + JSON.stringify(error.data));
+        $log.error("Translate: The following error happened: " + error);
       })
       .finally(function ()	//finally
       {

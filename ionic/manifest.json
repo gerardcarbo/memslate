@@ -17,7 +17,7 @@
     "page": "options.html"
   },
   "options_page": "chrome_ext/options.html",
-  "icons": { "16": "memslate-16.png", "128": "memslate-128.png" },
+  "icons": { "16": "memslate-16.png", "128": "memslate-128.png", "256": "memslate-256.png" },
   "background": {
     "page": "chrome_ext/background.html"
     },

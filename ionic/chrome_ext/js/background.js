@@ -62,9 +62,9 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
       sendResponse(translation);
     }
 
-    function translateWithService(sl, tl, request, sendResponse) {
-      if (sl == tl) return;
-      if (sl =='und')
+    function translateWithService(sl, tl, request, sendResponse)
+    {
+      if (sl =='und' || sl == tl)
       {
         var deferred = $q.defer();
         var promise = deferred.promise;

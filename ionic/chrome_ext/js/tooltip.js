@@ -121,7 +121,7 @@ Tooltip = (function () {
 
     tt = $('<div>', {
         css: {
-          background: '#fcf7d9',
+          /*background: '#fcf7d9',*/
           'text-align': 'left',
           'border-style': 'solid',
           'border-width': '1px',
