@@ -2,78 +2,85 @@
   "use strict";
 
   var servicesMod = angular.module('memslate.services.authenticate', ['memslate.services']);
+
+  servicesMod.config(function ($httpProvider) {
+    // Register middleware to ensure our auth token is passed to the server
+    console.log("Config TokenInterceptor");
+    $httpProvider.interceptors.push('TokenInterceptor');
+  });
+
   /**
    * Authentication services
    */
-  servicesMod.factory('UserService', function ($window, $log) {
+  servicesMod.factory('UserService', function ($window, $log, SessionService) {
     var anonymousEmail = 'anonymous@memslate.com';
     var anonymousUser = 'Anonymous';
 
-    if (!$window.sessionStorage.name) //user not already defined
+    if (!SessionService.get('name')) //user not already defined
     {
-      $window.sessionStorage.name = anonymousUser;
-      $window.sessionStorage.email = anonymousEmail;
-      $window.sessionStorage.isAuthenticated = "false";
-      $window.sessionStorage.isAdmin = "false";
-      $window.sessionStorage.tokenDisabled = "false";
+      SessionService.put('name', anonymousUser);
+      SessionService.put('email', anonymousEmail);
+      SessionService.put('isAuthenticated', false);
+      SessionService.put('isAdmin', false);
+      SessionService.put('tokenDisabled', false);
     }
 
     var userService = {
       isAuthenticated: function (val) {
         if (val !== undefined) {
-          $window.sessionStorage.isAuthenticated = val;
+          SessionService.put('isAuthenticated', val);
         }
         else {
-          return JSON.parse($window.sessionStorage.isAuthenticated);
+          return JSON.parse(SessionService.get('isAuthenticated'));
         }
       },
       isAdmin: function (val) {
         if (val !== undefined) {
-          $window.sessionStorage.isAdmin = val;
+          SessionService.put('isAdmin', val);
         }
         else {
-          return JSON.parse($window.sessionStorage.isAdmin);
+          return JSON.parse(SessionService.get('isAdmin'));
         }
       },
       name: function (val) {
         if (val !== undefined) {
-          $window.sessionStorage.name = val;
+          SessionService.put('name', val);
         }
         else {
-          return $window.sessionStorage.name;
+          return SessionService.get('name');
         }
       },
       email: function (val) {
         if (val !== undefined) {
-          $window.sessionStorage.email = val;
+          SessionService.put('email', val);
         }
         else {
-          return $window.sessionStorage.email;
+          return SessionService.get('email');
         }
       },
       token: function (val) {
         if (val !== undefined) {
-          $window.sessionStorage.token = val;
+          SessionService.put('token', val);
         }
         else {
-          return $window.sessionStorage.token;
+          return SessionService.get('token');
         }
       },
       logout: function () {
         $log.log('logout');
-        delete $window.sessionStorage.token;
-        $window.sessionStorage.name = anonymousUser;
-        $window.sessionStorage.email = anonymousEmail;
-        $window.sessionStorage.isAdmin = false;
-        $window.sessionStorage.isAuthenticated = false;
+        SessionService.remove('token');
+        SessionService.put('name', anonymousUser);
+        SessionService.put('email', anonymousEmail);
+        SessionService.put('isAdmin', false);
+        SessionService.put('isAuthenticated', false);
       },
       login: function (usr) {
         $log.log('login');
-        $window.sessionStorage.token = usr.token;
-        $window.sessionStorage.name = usr.name;
-        $window.sessionStorage.email = usr.email;
-        $window.sessionStorage.isAdmin = usr.isAdmin;
-        $window.sessionStorage.isAuthenticated = true;
+        SessionService.put('token', usr.token);
+        SessionService.put('name', usr.name);
+        SessionService.put('email', usr.email);
+        SessionService.put('isAdmin', usr.isAdmin);
+        SessionService.put('isAuthenticated', true);
       }
     };
 
@@ -181,4 +188,6 @@
       }
     };
   });
+
+
 })();

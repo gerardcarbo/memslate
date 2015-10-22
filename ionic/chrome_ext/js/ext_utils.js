@@ -24,7 +24,6 @@ MemsExt.deserialize = function (text) {
 MemsExt.formatTranslation = function (translation) {
   var formatted_translation = '';
   var powered_by = '';//'<div class="powered_by smaller-font" style="padding-top:3px">Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a></div>';
-  //powered_by="";
   if (translation instanceof Array) {
     translation.forEach(function (pos_block) {
       var formatted_pos = pos_block.pos ? '<strong>' + pos_block.pos + '</strong>: ' : '';

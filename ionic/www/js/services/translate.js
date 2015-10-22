@@ -1,5 +1,4 @@
 /// <reference path="../typings/tsd.d.ts" />
-/// <reference path="translate.d.ts" />
 var Translate;
 (function (Translate) {
     var Translation = (function () {

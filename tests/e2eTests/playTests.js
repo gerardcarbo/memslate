@@ -3,7 +3,7 @@
  */
 "use strict";
 
-require('../lib/testUtils.js');
+var utils = require('../lib/testUtils.js');
 var MemslatePlayPage = require('./pages/playPage.js');
 var MemslateBasicTestPage = require('./pages/games/basicTestPage');
 var MainPage = require('./pages/mainPage.js');
@@ -19,7 +19,10 @@ describe("Memslate Play Page and Basic Test Game", function () {
 
     });
 
-/*
+    afterEach(function () {
+        utils.LogConsoleAndTakeSnapshots(browser, jasmine);
+    });
+
     it('should contain basic test button game', function () {
         "use strict";
         expect(playPage.basicTestButton.isDisplayed()).toBeTruthy();
@@ -83,7 +86,7 @@ describe("Memslate Play Page and Basic Test Game", function () {
         expect(basicTestPage.basicTestModalTitle.isDisplayed()).toBeTruthy();
 
     });
-*/
+
 
     it('should evaluate properly', function () {
         "use strict";

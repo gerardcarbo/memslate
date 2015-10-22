@@ -1,6 +1,6 @@
-var app = angular.module('MyApp', ['memslate.services.translate']);
+var app = angular.module('MyApp', ['memslate.services.translate','memslate.services.authenticate']);
 
-app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, TranslateService) {
+app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, TranslateService, UserService) {
     "use strict";
 
     RegExp.quote = function (str) {

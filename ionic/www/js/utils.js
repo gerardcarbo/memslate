@@ -1,6 +1,3 @@
-/**
- * Created by gerard on 18/03/2015.
- */
 "use strict";
 
 if(!Date.prototype.adjustDate){
@@ -60,9 +57,21 @@ msUtils.objectFindByKey = function(array, key, value) {
             }
         }
     }
-
     return null;
 };
+
+msUtils.objectDeleteByKey = function(array, key, value) {
+  if(array && array.length)
+  {
+    for (var i = 0; i < array.length; i++) {
+      if (array[i][key] === value) {
+        array.splice(i,1);
+        break;
+      }
+    }
+  }
+};
+
 
 msUtils.decoratePromise = function(promise)
 {

@@ -35,7 +35,7 @@ var MainPage = function()
 
     this.clickLogout = function()
     {
-        this.waitAndClick();
+        this.mainMenu.waitAndClick();
         browser.sleep(1000);
         this.logoutMenu.waitAndClick();
     };

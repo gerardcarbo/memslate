@@ -171,8 +171,5 @@
         $injector.get('$log').log('Otherwise: '+lastState);
         return lastState;
       });
-
-      // Register middleware to ensure our auth token is passed to the server
-      $httpProvider.interceptors.push('TokenInterceptor');
     });
 })();

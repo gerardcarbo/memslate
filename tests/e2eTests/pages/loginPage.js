@@ -1,7 +1,10 @@
 "use strict";
+var OkCancelDlg = require('../dialogs/okCancelDlg');
 
 var MemslateLogin = function (mainMenu)
 {
+    this.okCancelDlg = new OkCancelDlg();
+
     this.mainMenu = mainMenu;
 
     this.formLogin = element(by.id('loginForm'));
@@ -63,6 +66,7 @@ var MemslateLogin = function (mainMenu)
     this.logout = function()
     {
         this.mainMenu.clickLogout();
+        this.okCancelDlg.clickOk();
     };
 };
 

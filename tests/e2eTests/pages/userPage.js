@@ -1,3 +1,4 @@
+"use strict";
 var MemslateUserPage = function()
 {
     this.userName = element(by.id('userName'));

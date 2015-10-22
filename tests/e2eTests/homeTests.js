@@ -1,6 +1,6 @@
 'use strict';
 
-require('../lib/testUtils.js');
+var utils = require('../lib/testUtils.js');
 var MainPage = require('./pages/mainPage.js');
 var MemslateHomePage = require('./pages/homePage.js');
 
@@ -15,6 +15,10 @@ describe("Memslate Home Page and Basic navigation", function()
 		//var ptor = protractor.getInstance();
 	    //ptor.ignoreSynchronization = true;   //<- for non angularjs sites
 		homePage.get();
+	});
+
+	afterEach(function () {
+		utils.LogConsoleAndTakeSnapshots(browser, jasmine);
 	});
 	
 	it('Testing navigation', function()

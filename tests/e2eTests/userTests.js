@@ -1,11 +1,10 @@
 'use strict';
 
-require('../lib/testUtils.js');
+var utils = require('../lib/testUtils.js');
 var MemslateLogin = require('./pages/loginPage.js');
 var MemslateHomePage = require('./pages/homePage.js');
 var MemslateUserPage = require('./pages/userPage.js');
 var MemslateRegisterPage = require('./pages/registerPage.js');
-var MemslateTranslatePage = require('./pages/translatePage.js');
 var MainPage = require('./pages/mainPage.js');
 
 console.log('user tests....');
@@ -36,7 +35,7 @@ describe("Memslate User Tests", function ()
                 done();
             }
             else {
-                loginPage.loginFailedPopupOkButton.click();
+                //loginPage.loginFailedPopupOkButton.click();  -> changed to Toast
                 loginPage.closeButton.waitAndClick();
                 loginPage.login('test@test.com', 'testtest2');
                 mainPage.userMenu.isPresent().then(function (present) {
@@ -47,13 +46,17 @@ describe("Memslate User Tests", function ()
                         userPage.deleteAccountPopupOkButton.waitAndClick();
                     }
                     else {
-                        loginPage.loginFailedPopupOkButton.waitAndClick();
+                        //loginPage.loginFailedPopupOkButton.waitAndClick();
                         loginPage.closeButton.waitAndClick();
                     }
                     done();
                 });
             }
         });
+    });
+
+    afterEach(function () {
+        utils.LogConsoleAndTakeSnapshots(browser, jasmine);
     });
 
     it('register new user, check user page, change password and delete it', function () {
@@ -84,7 +87,7 @@ describe("Memslate User Tests", function ()
 
         registerPage.pwd2.sendKeys('testtest2');
         registerPage.registerButton.waitAndClick();
-        browser.sleep(200);
+        browser.sleep(500);
         expect(registerPage.registrationFailedPopupOkButton.isDisplayed()).toBeTruthy();
         expect(registerPage.registrationFailedPopup.getText()).toContain('Passwords does not match');
         registerPage.registrationFailedPopupOkButton.waitAndClick();
@@ -93,7 +96,7 @@ describe("Memslate User Tests", function ()
         registerPage.pwd.clear().sendKeys('testtest');
         registerPage.pwd2.clear().sendKeys('testtest');
         registerPage.registerButton.click();
-        browser.sleep(200);
+        browser.sleep(500);
         expect(registerPage.registrationFailedPopup.isDisplayed()).toBeTruthy();
         expect(registerPage.registrationFailedPopup.getText()).toContain('already registered');
         registerPage.registrationFailedPopupOkButton.click();
@@ -106,7 +109,7 @@ describe("Memslate User Tests", function ()
         expect(mainPage.userMenu.isPresent()).toBeTruthy();
 
         //logout
-        mainPage.clickLogout();
+        loginPage.logout();
         expect(mainPage.userMenu.isPresent()).not.toBeTruthy();
 
         //login
@@ -175,7 +178,7 @@ describe("Memslate User Tests", function ()
 
         //logout and login again
         mainPage.backMenu.click();
-        mainPage.clickLogout();
+        loginPage.logout();
         expect(mainPage.userMenu.isPresent()).not.toBeTruthy();
 
         loginPage.login('test@test.com', 'testtest');
@@ -199,8 +202,7 @@ describe("Memslate User Tests", function ()
 
         //try to login again, should fail
         loginPage.login('test@test.com', 'testtest');
-        loginPage.loginFailedPopup.waitVisible(1000);
-        expect(loginPage.loginFailedPopup.isDisplayed()).toBe(true);
-        loginPage.loginFailedPopupOkButton.click();
+        mainPage.toast.expectToContain('Login Failed:');
+        //loginPage.loginFailedPopupOkButton.click();
     },70000);
 });

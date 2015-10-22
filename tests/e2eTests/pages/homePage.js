@@ -7,7 +7,7 @@ var MemslateHomePage = function ()
     this.titles.translate = 'Memslate > Translate';
     this.titles.memo = 'Memslate > Memo';
     this.titles.play = 'Memslate > Play';
-    this.titles.user = 'User';
+    this.titles.user = 'Memslate > User';
 
     this.translateButton = element(by.id('translateButton'));
     this.memoButton = element(by.id('memoButton'));

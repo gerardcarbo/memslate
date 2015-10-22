@@ -244,7 +244,7 @@ body
   margin-bottom: 15px;
 }
 
-.response_main {
+.bold {
   font-weight: bold;
 }
 
@@ -474,6 +474,15 @@ body
   text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
 }
 
+@media screen and (min-width: 400px) {
+  .answers
+  {
+    font-size: 18px;
+    width: 200px;
+    margin: auto;
+  }
+}
+
 @media screen and (min-width: 800px) {
   .item {
     font-size: 19px;
@@ -489,13 +498,32 @@ body
   {
     font-size: 17px;
   }
-  .answers
+
+  .question
   {
-    font-size: 18px;
+    margin-left: -15px;
+    padding-bottom: 10px;
   }
 
   #textToTranslate
   {
     font-size: 19px;
+  }
+
+  .button.icon:before {
+    padding-top: 2px;
+  }
+
+  .button, .bar .button
+  {
+    font-size: 21px;
+  }
+
+  .bar-footer {
+    height: 64px;
+  }
+
+  .bar-footer > .button {
+    height: 54px;
   }
 }

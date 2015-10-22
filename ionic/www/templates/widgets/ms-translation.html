@@ -9,12 +9,12 @@
   <div class="translation_div" ng-if="translation && !parent.translating">
     <div ng-if="!translation.error">
       <div class="translation_def translation_yt" ng-if="translation.provider=='yt'">
-        <span class='response_main'>{{::translation.translate}}</span>
+        <span class='bold response_main'>{{::translation.translate}}</span>
         <button class="button button-clear button-positive button-medium ion-volume-medium"
                 ng-click="msTranslationCtrl.playText(translation.translate, translation.fromLang)"></button>
         &nbsp;>&nbsp;
             <span>
-                <span class='response_main' ng-repeat="text in translation.rawResult.text">{{::text}}
+                <span class='bold response_main' ng-repeat="text in translation.rawResult.text">{{::text}}
                     <button class="button button-clear button-positive button-medium ion-volume-medium"
                             ng-click="msTranslationCtrl.playText(text, translation.toLang)"></button>
                     <span ng-show="!$last">, </span>
@@ -26,12 +26,12 @@
            ng-repeat="def in translation.rawResult.def">
         <p>
           <b>
-            <span class='response_main'>{{::def.text}}</span>
+            <span class='bold response_main'>{{::def.text}}</span>
             <span class='response_transcript' ng-show="def.ts"> [{{::def.ts}}] </span>
             <button class="button button-clear button-positive button-medium ion-volume-medium"
                     ng-click="msTranslationCtrl.playText(def.text, translation.fromLang)"></button>
             &gt;
-            <span class='response_main'>{{::def.tr[0].text}}</span>
+            <span class='bold response_main'>{{::def.tr[0].text}}</span>
             <button class="button button-clear button-positive button-medium ion-volume-medium"
                     ng-click="msTranslationCtrl.playText(def.tr[0].text, translation.toLang)"></button>
           </b>

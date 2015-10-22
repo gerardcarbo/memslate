@@ -14,8 +14,10 @@
                ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-chevron-up' : 'ion-chevron-down'">&nbsp&nbsp</i>
 
             <div class="col col-50 no-padding no-overflow">{{::translation.translate}} > {{::translation.mainResult}}</div>
-            <div class="col col-20 no-padding margin-left-1 smaller-font"><span>{{::translation.fromLang}}&nbsp;</span>
-              <i class="icon ion-arrow-right-b smaller-font"></i><span>{{::translation.toLang}}</span></div>
+            <div class="col col-20 no-padding margin-left-1 smaller-font">
+              <span  style="padding-right: 3px;">{{::translation.fromLang}}</span>
+              <i class="icon ion-arrow-right-b smaller-font"></i>
+              <span style="padding-left: 5px;">{{::translation.toLang}}</span></div>
             <div class="col col-20 no-padding smaller-font right-text">{{::translation.insertTime|date}}</div>
           </div>
         </div>

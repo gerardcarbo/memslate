@@ -27,8 +27,8 @@
     <ion-side-menu side="left">
         <ion-content>
             <ion-list>
-                <ion-item id="loginMenu" class="item-dark "  menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
-                  <img src="img/icon_bn.svg" class="logo logo-small">Login
+                <ion-item id="loginMenu" class="ion-person item-dark "  menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
+                    Login
                 </ion-item>
                 <ion-item id="logoutMenu" class="ion-person assertive item-dark" menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
                     Logout {{userName()}}

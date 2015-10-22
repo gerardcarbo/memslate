@@ -30,7 +30,7 @@
       {
         value = $cookies[key];
       }
-      if(value === null)
+      if(value === null || value === 'undefined')
       {
         value = undefined;
       }

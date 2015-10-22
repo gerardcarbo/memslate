@@ -1,6 +1,6 @@
 'use strict';
 
-require('../lib/testUtils.js');
+var utils = require('../lib/testUtils.js');
 var MemslateTranslatePage = require('./pages/translatePage.js');
 var MainPage = require('./pages/mainPage.js');
 var MemslateLoginPage = require('./pages/loginPage.js');
@@ -16,6 +16,10 @@ describe("Memslate Translate Page", function () {
         translatePage.get();
         browser.waitForAngular();
 	});
+
+    afterEach(function () {
+        utils.LogConsoleAndTakeSnapshots(browser, jasmine);
+    });
 	
 	it('should allow language selection and swap', function()
     {
@@ -44,7 +48,7 @@ describe("Memslate Translate Page", function () {
         expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('es');
     });
 
-/*    it('should be able to translate', function()
+    it('should be able to translate', function()
     {
         browser.waitForAngular();
 
@@ -140,5 +144,5 @@ describe("Memslate Translate Page", function () {
 
         expect(translatePage.textToTranslate.getText()).toBe('');
         loginPage.logout();
-    });*/
+    });
 });

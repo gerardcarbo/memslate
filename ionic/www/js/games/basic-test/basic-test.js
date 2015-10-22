@@ -12,11 +12,60 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
     replace: true,
     controller: function ($scope, $timeout) {
       var self = this;
-      this.numQuestions = 10;
-      this.numAnswers = 5;
-      this.showResults = false;
 
-      this.allResponsesGiven = false;
+      this.init = function ()
+      {
+        this.testStarted = false;
+        this.numQuestions = 10;
+        this.numAnswers = 5;
+        this.showResults = false;
+        this.allResponsesGiven = false;
+        this.gameLangs = [];
+        this.useAnonymousLangs = false;
+        this.getLanguages();
+      };
+
+      this.getLanguages = function()
+      {
+        LanguagesService.getLanguages().then(function () {
+          $log.log("basic-test:getLanguages gotten");
+          GamesService.getGame('basic-test', 'languages?anonymous='+self.useAnonymousLangs).success(function (gameLangs) {
+            $log.log("basic-test:getGame languages  gotten: ", gameLangs);
+            self.gameLangs = [];
+            gameLangs.forEach(function (langs) {
+              if (langs.count > 60) {
+                self.gameLangs.push({
+                  name: "" + LanguagesService.getLanguage(langs.fromLang).name + " > " + LanguagesService.getLanguage(langs.toLang).name + "",
+                  value: langs.fromLang + '-' + langs.toLang
+                })
+              }
+            });
+
+            if(self.gameLangs.length)
+            {
+              var selectedLangs = SessionService.get('basicTestSelectedLangs');
+              if (selectedLangs) {
+                self.selectedLangs = selectedLangs;
+              }
+              else {
+                if (self.gameLangs[0]) {
+                  self.selectedLangs = self.gameLangs[0].value;
+                }
+              }
+            }
+            else
+            {
+              UI.showOkCancelModal('Basic Test', "You do not have enough translations to play the game. Do you want to use anonymous translations from other users to perform the test?")
+                .then(function (res) {
+                  if (res === true) {
+                    self.useAnonymousLangs = true;
+                    self.getLanguages();
+                  }
+                });
+            }
+          });
+        });
+      };
 
       this.startTest = function () {
         var self = this;
@@ -25,7 +74,7 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
 
         var langs = this.selectedLangs.split('-');
 
-        GamesService.getGame('basic-test', 'questions?fromLang=' + langs[0] + '&toLang=' + langs[1] + '&questions=' + this.numQuestions + '&answers=' + this.numAnswers).success(function (gameQuestions) {
+        GamesService.getGame('basic-test', 'questions?fromLang=' + langs[0] + '&toLang=' + langs[1] + '&questions=' + this.numQuestions + '&answers=' + this.numAnswers + '&anonymous='+self.useAnonymousLangs).success(function (gameQuestions) {
           $log.log("Questions: ", gameQuestions);
           $timeout(function(){self.gameQuestions = gameQuestions;},0); //simulate wait
         });
@@ -165,36 +214,17 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
           $scope.modal.remove();
         }
       }
-
     },
     controllerAs: 'basicTestCtrl',
     link: function ($scope, element, attrs, ctrl) {
       $log.log("basic-test:link enter");
-      ctrl.testStarted = false;
-      LanguagesService.getLanguages().then(function () {
-        $log.log("basic-test:getLanguages gotten");
-        GamesService.getGame('basic-test', 'languages').success(function (gameLangs) {
-            $log.log("basic-test:getGame languages  gotten");
-            ctrl.gameLangs = [];
-            gameLangs.forEach(function (langs) {
-              if (langs.count > 60) {
-                ctrl.gameLangs.push({
-                  name: "" + LanguagesService.getLanguage(langs.fromLang).name + " > " + LanguagesService.getLanguage(langs.toLang).name + "",
-                  value: langs.fromLang + '-' + langs.toLang
-                })
-              }
-            });
+      ctrl.init();
 
-            var selectedLangs = SessionService.get('basicTestSelectedLangs');
-            if (selectedLangs) {
-              ctrl.selectedLangs = selectedLangs;
-            }
-            else {
-              if (ctrl.gameLangs[0]) {
-                ctrl.selectedLangs = ctrl.gameLangs[0].value;
-              }
-            }
-        });
+      $scope.$on('ms:logout', function () {
+        ctrl.init();
+      });
+      $scope.$on('ms:login', function () {
+        ctrl.init();
       });
     }
   };

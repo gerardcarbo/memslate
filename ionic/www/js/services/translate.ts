@@ -2,7 +2,6 @@
  * Created by gerard on 20/10/2015.
  */
 /// <reference path="../typings/tsd.d.ts" />
-/// <reference path="translate.d.ts" />
 declare var msUtils:any;
 
 module Translate {
