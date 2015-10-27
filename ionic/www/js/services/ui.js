@@ -23,11 +23,7 @@
         return;
       }
 
-      // … fallback / customized $ionicLoading:
-      /*$ionicLoading.show({
-       template: msg,
-       noBackdrop: true
-       });*/
+      // customized
       this._toast(msg, duration);
     };
 
@@ -57,6 +53,13 @@
 
     this.showOkCancelModal = function (title, msg) {
       return $ionicPopup.confirm({
+        title: title,
+        template: msg
+      });
+    };
+
+    this.showAlert = function (title, msg) {
+      return $ionicPopup.alert({
         title: title,
         template: msg
       });

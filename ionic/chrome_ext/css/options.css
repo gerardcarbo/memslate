@@ -37,7 +37,7 @@ div.heading {
   font-size: 1.3em;
 }
 
-.option {
+.option:not(:first-child) {
   margin-top: 25px;
 }
 
@@ -91,4 +91,9 @@ input[type="number"]
   padding: 0px;
   padding-left:5px;
   height: 25px;
+}
+
+.options-select{
+  font-size: 18px;
+  margin-top:-5px;
 }

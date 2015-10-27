@@ -9,6 +9,7 @@ describe("Unit: Services Tests", function ()
     var baseUrl='';
 
     beforeEach(module('memslate.services'));
+    beforeEach(module('memslate.services.translate'));
 
     beforeEach(function () {
         module(function ($provide) {
@@ -238,7 +239,7 @@ describe("Unit: Services Tests", function ()
 
         it("Base URL service should return http://localhost:5000/.", function () {
             expect(BaseUrlService).not.toBeNull();
-            httpBackend.expectGET('https://memslate.herokuapp.com/connect').respond(500,'');
+            httpBackend.expectGET('http://www.memslate.com/connect').respond(500,'');
             httpBackend.expectGET('http://localhost:5000/connect').respond('Ok');
 
             var baseUrl2='';
@@ -257,7 +258,7 @@ describe("Unit: Services Tests", function ()
 
         it("Base URL service should return https://memslate.herokuapp.com/.", function () {
             expect(BaseUrlService).not.toBeNull();
-            httpBackend.expectGET('https://memslate.herokuapp.com/connect').respond('Ok');
+            httpBackend.expectGET('http://www.memslate.com/connect').respond('Ok');
             httpBackend.expectGET('http://localhost:5000/connect').respond(500,'');
 
             var baseUrl2='';
@@ -270,7 +271,7 @@ describe("Unit: Services Tests", function ()
 
             httpBackend.flush();
 
-            expect(baseUrl2).toBe('https://memslate.herokuapp.com/');
+            expect(baseUrl2).toBe('http://www.memslate.com/');
 
         }, 5000); //*/
     });

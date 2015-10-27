@@ -201,7 +201,11 @@ describe("Midway: Services Tests", function () {
                     expect(result[0].translate).toBe('about');
 
                     for (var i = 0; i < 10 - 1; i++) {
-                        expect(result[i].translate <= result[i + 1].translate).toBeTruthy();
+                        if(result[i].translate.toLowerCase() > result[i + 1].translate.toLowerCase())
+                        {
+                            console.log("result[i].translate > result[i + 1].translate : "+result[i].translate+ " , "+result[i + 1].translate)
+                        }
+                        expect(result[i].translate.toLowerCase() <= result[i + 1].translate.toLowerCase()).toBeTruthy();
                     }
 
                     translation5 = result[5];
@@ -235,10 +239,10 @@ describe("Midway: Services Tests", function () {
             TranslateService.getTranslations({orderWay: 'desc'}).then(function (result) {
                     expect(result).not.toBeNull();
                     expect(result.length).toBe(10);
-                    expect(result[0].translate).toBe('your');
+                    expect(result[0].translate).toBe('zoom');
 
                     for (var i = 0; i < 10 - 1; i++) {
-                        expect(result[i].translate >= result[i + 1].translate).toBeTruthy();
+                        expect(result[i].translate.toLowerCase() >= result[i + 1].translate.toLowerCase()).toBeTruthy();
                     }
 
                     done();
@@ -472,7 +476,7 @@ describe("Midway: Services Tests", function () {
                     done();
                 }
             )
-        });
+        },15000);
 
         it("Register, Logout, Login fail, Login, Unregister", function (done) {
             RegistrationService.register(registerData).then(function (result) {

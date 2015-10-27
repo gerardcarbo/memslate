@@ -5,7 +5,7 @@
   <ion-content class="has-header" id="basic-test-content">
     <div id="langSelectionDiv" ng-if="!basicTestCtrl.testStarted" class="center-text padding-5">
       <div class="center-text padding-5">Please, select the languages to be used in the test:</div>
-      <ms-select id="basic-test-languages" name="" title="Test Languages" items="basicTestCtrl.gameLangs"
+      <ms-select id="basic-test-languages" class="col" title="Test Languages" items="basicTestCtrl.gameLangs"
                  selected-item="basicTestCtrl.selectedLangs"></ms-select>
       <button id="basic-test-start-game" class="button button-block button-energized" ng-disabled="!basicTestCtrl.gameLangs.length"
               ng-click="basicTestCtrl.startTest()">Play!

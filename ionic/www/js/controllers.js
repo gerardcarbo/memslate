@@ -4,7 +4,7 @@
   var controllersMod = angular.module('memslate.controllers', ['ionic', 'ngCordova', 'formly', 'oc.lazyLoad',
     'memslate.services', 'memslate.services.translate', 'memslate.services.authenticate', 'memslate.services.ui']);
 
-  controllersMod.controller('AppCtrl', function ($log, $scope, $timeout, $state, $ionicModal, $ionicPopup,
+  controllersMod.controller('AppCtrl', function ($log, $scope, $rootScope, $timeout, $state, $ionicModal, $ionicPopup,
                                                  $cordovaSplashscreen,
                                                  RegistrationService, UserService, SessionService, UI) {
     // Form data for the login modal
@@ -93,11 +93,6 @@
         }
         else {
           UI.toast("Login Failed: " + login.err.data);
-          /*$ionicPopup.alert({
-            title: 'Login Failed',
-            content: login.err.data,
-            cssClass: 'loginFailedPopup'
-          });*/
         }
       }).finally(function () {
         $scope.inAction = false;
@@ -164,14 +159,15 @@
       }
 
       SessionService.putObject('memoSettings', memoSettings);
-      MemoCtrl.reset();
+
+      $rootScope.$broadcast('ms:changeOrderWay');
     };
 
     //Cleanup the modal when we're done with it!
     $scope.$on('$destroy', function () {
       $scope.loginModal.remove();
       $scope.registerModal.remove();
-    })
+    });
 
     // Execute action on hide modal
     $scope.$on('loginModal.hidden', function () {
@@ -317,7 +313,7 @@
           id: 'orderBySelect',
           name: 'Order',
           label: 'Order Memo',
-          selectorClass: 'margin-vertical-5',
+          selectorClass: 'margin-vertical-5 col',
           options: [
             {value: 'Translations.translate,Translations.mainResult', name: 'Alphabetically'},
             {value: 'UserTranslations.userTranslationInsertTime', name: 'by Date'},
@@ -419,11 +415,8 @@
     };
   });
 
-  var MemoCtrl;
-
   controllersMod.controller('MemoCtrl', function ($log, $scope, UI, SessionService, TranslateService, MemoSettingsService) {
     var self = this;
-    MemoCtrl = this;
 
     self.init = function () {
       self.settings = SessionService.getObject('memoSettings');
@@ -540,6 +533,10 @@
     });
 
     $scope.$on('ms:logout', function () {
+      self.reset();
+    });
+
+    $scope.$on('ms:changeOrderWay', function () {
       self.reset();
     });
 

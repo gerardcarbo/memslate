@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Memslate Chrome Extension Options</title>
+
+
+  <script src="../www/lib/ionic/js/ionic.bundle.min.js"></script>
+  <script src="../www/lib/angular-resource/angular-resource.min.js"></script>
+  <script src="../www/lib/angular-cookies/angular-cookies.min.js"></script>
+  <script src="../www/lib/ngCordova/dist/ng-cordova.min.js"></script>
+  <script src="../www/lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.min.js"></script>
+  <script src="../www/lib/api-check/dist/api-check.min.js"></script>
+  <script src="../www/lib/angular-formly/dist/formly.min.js"></script>
+  <script src="../www/lib/angular-formly-templates-ionic/dist/angular-formly-templates-ionic.min.js"></script>
+  <script src="../www/lib/oclazyload/dist/ocLazyLoad.min.js"></script>
+
+  <script src="../www/js/utils.js"></script>
+  <script src="../www/js/services/base.js"></script>
+  <script src="../www/js/services/translate.js"></script>
+  <script src="../www/js/services/ui.js"></script>
+  <script src="../www/js/services/authenticate.js"></script>
+  <script src="../www/js/controllers.js"></script>
+  <script src="../www/js/directives.js"></script>
+
+  <script src="lib/jquery.min.js"></script>
+  <script src="lib/lodash.min.js"></script>
+
+  <script src="js/ext_utils.js"></script>
+  <script src="js/tooltip.js"></script>
+  <script src="js/options.js"></script>
+
+  <link href="../www/css/ionic.app.css" rel="stylesheet">
+  <link href="../www/css/style.css" rel="stylesheet">
+
+  <link href="css/options.css" rel="stylesheet">
+  <link href="css/tooltip.css" rel="stylesheet">
+</head>
+<body ng-app="memslate.chrome_ext">
+<ion-nav-view>
+  <div class="content">
+    <div class="bar bar-dark bar-header "><img src="img/icon_bn.svg" class="logo">Memslate Chrome Extension Options
+    </div>
+
+    <div class="options" ng-controller="AppCtrl">
+      <div ng-if="!userLoggedin()">
+        <label>In order to keep track of your translations, and be able to play with them, you
+          need to create a free user account:</label>
+        <button class="button button-calm button-block" id="register_user" ng-click="openRegister()">Register User
+        </button>
+      </div>
+    </div>
+
+    <div class="options" ng-controller="MemslateExtApp as extApp">
+      <form id="optionsForm" name="optionsForm" ng-submit="extApp.saveOptions(optionsForm)" novalidate>
+        <div class="option">
+          <label for="translate_by">When I&nbsp;</label>
+          <ms-select id="translate_by" name="" title="Translate when ..."
+                     items="extApp.translate_by_opts"
+                     selected-item="extApp.translate_by"
+                     class="button-small button-positive options-select"></ms-select>
+
+          <div style="display:inline" ng-show="extApp.translate_by=='point'">
+            <label for="delay"> wait before trying to translate for
+              <input type="number" id="delay" name="delay" ng-model="extApp.delay"/> ms and </label>
+          </div>
+        </div>
+        <div class="option">
+          <label for="from_lang">Translate from&nbsp;</label>
+          <ms-select id="from_lang" name="" title="From Language"
+                     items="extApp.languagesFrom.items" prefered-items="extApp.languagesFrom.user.prefered"
+                     selected-item="extApp.from_lang"
+                     class="button-small button-positive options-select"></ms-select>
+          <label for="target_lang"> to&nbsp;</label>
+          <ms-select id="target_lang" name="" title="To Language"
+                     items="extApp.languagesTarget.items" prefered-items="extApp.languagesTarget.user.prefered"
+                     selected-item="extApp.target_lang"
+                     class="button-small button-positive options-select"></ms-select>
+        </div>
+
+        <div class="option">
+          <input type="checkbox" id="save_translation_sample" ng-model="extApp.save_translation_sample"/>
+          <label for="save_translation_sample">Save sample (save the phrase where the translated word is on, as a
+            translation sample)</label>
+        </div>
+        <div class="option" style="display:none">
+          <input type="checkbox" id="word_key_only" name="word_key_only" ng-model="extApp.word_key_only"/>
+          <label for="word_key_only">Only show word translation when</label>
+          <label for="word_key_only_key"> I hold the
+            <select name="word_key_only_key" id="word_key_only_key" ng-model="extApp.word_key_only_key"></select>
+            key</label>
+        </div>
+
+        <div class="option">
+          <label for="dismiss_on"> Hide translation tooltip&nbsp;</label>
+          <ms-select id="dismiss_on" name="" title="Dimiss on..."
+                                         items="extApp.dismiss_on_opts"
+                                         selected-item="extApp.dismiss_on"
+                                         class="button-small button-positive options-select"></ms-select>
+        </div>
+
+        <div class="button_group">
+          <button type="submit" class="button button-positive button-block" id="save_button">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</ion-nav-view>
+</body>
+</html>

@@ -1,6 +1,6 @@
-var app = angular.module('MyApp', ['memslate.services.translate','memslate.services.authenticate']);
+var app = angular.module('BackgroundApp', ['memslate.services.translate','memslate.services.authenticate']);
 
-app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, TranslateService, UserService) {
+app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, TranslateService) {
     "use strict";
 
     RegExp.quote = function (str) {
@@ -95,13 +95,13 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
         case 'get_options':
           sendResponse({
             options: JSON.stringify({
-              target_lang: Options.target_lang(),
-              delay: Options.delay(),
-              word_key_only: Options.word_key_only(),
-              popup_show_trigger: Options.popup_show_trigger(),
-              translate_by: Options.translate_by(),
-              save_translation_sample: Options.save_translation_sample(),
-              dismiss_on: Options.dismiss_on()
+              target_lang: MemslateExtOptions.target_lang(),
+              delay: MemslateExtOptions.delay(),
+              word_key_only: MemslateExtOptions.word_key_only(),
+              popup_show_trigger: MemslateExtOptions.popup_show_trigger(),
+              translate_by: MemslateExtOptions.translate_by(),
+              save_translation_sample: MemslateExtOptions.save_translation_sample(),
+              dismiss_on: MemslateExtOptions.dismiss_on()
             })
           });
           break;
@@ -111,19 +111,23 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
           chrome.tabs.detectLanguage(null, function (tab_lang) {
 
             var sl, tl;
-            sl = Options.from_lang();
-            tl = Options.target_lang();
+            sl = MemslateExtOptions.from_lang();
+            tl = MemslateExtOptions.target_lang();
             console.log("translate: chrome tab lang: "+tab_lang+" sl:"+sl+" tl:"+tl);
 
             if (sl == 'auto') {
               //first try with tab_lang
               translateWithService(tab_lang, tl, request, sendResponse).error(function(error){
+                console.log("'auto' translation failed:", error);
                 //... and if failed try to detect word language.
                 if(error.status==400)
                 {
                   TranslateService.detect(request.word)
                     .success(function (data) {
-                      translateWithService(data.lang, tl, request, sendResponse);
+                      translateWithService(data.lang, tl, request, sendResponse).error(function (error) {
+                          console.log("translation failed:", error);
+                          onTranslationError(sl, tl, request.word, error, sendResponse);
+                        });
                     })
                     .error(function (error) {
                       console.log("failed to detect language:", error);
@@ -138,6 +142,7 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
             }
             else {
               translateWithService(sl, tl, request, sendResponse).error(function(error){
+                console.log("translation failed:", error);
                 onTranslationError(sl, tl, request.word, error, sendResponse);
               });
             }
@@ -159,7 +164,7 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
 
     chrome.runtime.onInstalled.addListener(function (details) {
       if (details.reason == 'install') {
-        chrome.tabs.create({url: chrome.extension.getURL('options.html')});
+        chrome.tabs.create({url: chrome.extension.getURL('chrome_ext/options.html')});
       }
     });
   }

@@ -7,7 +7,9 @@ describe("Midway: Testing Directives", function()
 {
     var tester;
     beforeEach(function () {
-        tester = ngMidwayTester('memslate.directives');
+        var options={};
+        options.dependency = "memslate.services.translate";
+        tester = ngMidwayTester('memslate',options);
     });
 
     afterEach(function () {

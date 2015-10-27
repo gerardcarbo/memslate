@@ -66,7 +66,7 @@ describe("Memslate Play Page and Basic Test Game", function () {
         for (var quest = 0; quest < 9; quest++) {
             var answer = Math.floor(Math.random() * 5);
             element(by.id('answer_' + quest + '_' + answer)).click();
-            browser.sleep(200);
+            browser.sleep(250);
         }
 
         basicTestPage.basicTestEvaluateButton.waitAndClick();

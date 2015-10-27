@@ -34,56 +34,83 @@ module.exports = function (bookshelf, models) {
                 });
         }
         else if (req.params.op === 'questions') {
-            return getQuestions(req, req.query.fromLang, req.query.toLang, req.query.questions, userId)
+            return getQuestions(req, req.query.fromLang, req.query.toLang, parseInt(req.query.questions)*1.5, userId)
                 .then(function (questions) {
-                    if (questions.rows && questions.rows.length > 0) {
-                        var questionTranslations = questions.rows;
-                        getQuestions(req, req.query.fromLang, req.query.toLang, req.query.questions * (req.query.answers), userId)
-                            .then(function (answers) {
-                                var questionAnswers = answers.rows;
-                                var guestionsData = [];
-                                questionTranslations.forEach(function (question) {
-                                    var questionData = {
-                                        question: question.translate,
-                                        answer: question.mainResult,
-                                        options: []
-                                    };
-                                    var posOk = Math.floor(Math.random() * req.query.answers);
-                                    var givenOptions = {};
-                                    for (var i = 0; i < req.query.answers;) {
-                                        if (i === posOk) {
-                                            questionData.options[i] = question.mainResult;
+                    console.log('Basic_Test:questions: gotten: ', questions.rows.length);
+                    if (!questions.rows || !questions.rows.length) {
+                        res.status(500).send('no questions gotten');
+                        return;
+                    }
+
+                    var questionTranslations = questions.rows;
+                    getQuestions(req, req.query.fromLang, req.query.toLang, req.query.questions * (req.query.answers), userId)
+                        .then(function (answers) {
+                            console.log('Basic_Test:questions: questionAnswers: ', answers.rows.length);
+                            if (!answers.rows || !answers.rows.length) {
+                                res.status(500).send('no answers gotten');
+                                return;
+                            }
+
+                            var questionAnswers = answers.rows;
+                            var guestionsData = [];
+
+                            for(var pos=0; guestionsData.length < req.query.questions && pos < questionTranslations.length; pos++)
+                            {
+                                var question = questionTranslations[pos];
+                                console.log('Basic_Test:questions: procesing '+question.translate+' ('+pos+')');
+                                if(question.translate.split(' ').length > 2) //no phrases
+                                {
+                                    console.log('Basic_Test:questions: found phrase: '+question.translate);
+                                    continue;
+                                }
+
+                                var questionData = {
+                                    question: question.translate,
+                                    answer: question.mainResult,
+                                    options: []
+                                };
+
+                                var posOk = Math.floor(Math.random() * req.query.answers);
+                                var givenOptions = {};
+                                for (var i = 0; i < req.query.answers;) {
+                                    if (i === posOk) {
+                                        questionData.options[i] = question.mainResult;
+                                    }
+                                    else {
+                                        if (questionAnswers.length === 0) break; //no answers left to complete question.options
+
+                                        var koPos = Math.floor(Math.random() * questionAnswers.length); //choose one wrong answer
+                                        var wrongOption = questionAnswers[koPos].mainResult;
+                                        if (wrongOption.split(' ').length > 2) //no phrases
+                                        {
+                                            questionAnswers.splice(koPos, 1);
+                                            console.log('Basic_Test:questions: found answer phrase: '+wrongOption);
+                                            continue;
+                                        }
+                                        if (wrongOption !== question.mainResult &&    //option is not the correct answer
+                                            givenOptions[wrongOption] === undefined) //option not already given
+                                        {
+                                            givenOptions[wrongOption] = wrongOption;
+                                            questionData.options[i] = wrongOption;
+                                            questionAnswers.splice(koPos, 1);
                                         }
                                         else {
-                                            if (questionAnswers.length === 0) break; //no answers left to complete question.options
-
-                                            var koPos = Math.floor(Math.random() * questionAnswers.length); //choose one wrong answer
-                                            var wrongOption = questionAnswers[koPos].mainResult;
-                                            if (wrongOption !== question.mainResult &&    //option is not the correct answer
-                                                givenOptions[wrongOption] === undefined) //option not already given
-                                            {
-                                                givenOptions[wrongOption] = wrongOption;
-                                                questionData.options[i] = wrongOption;
-                                                questionAnswers.splice(koPos, 1);
-                                            }
-                                            else {
-                                                continue;
-                                            }
+                                            continue;
                                         }
-                                        i++;
                                     }
+                                    i++;
+                                }
 
-                                    guestionsData.push(questionData);
-                                });
+                                guestionsData.push(questionData);
+                            };
 
-                                console.log('Basic_Test:get: questions done:\n', guestionsData);
+                            console.log('Basic_Test:get: questions done:\n', guestionsData);
 
-                                res.json(guestionsData);
-                            }, function (err) {
-                                console.log('Basic_Test:get Questions 2: error:', err);
-                                res.status(500).send('failed to get Questions');
-                            });
-                    }
+                            res.json(guestionsData);
+                        }, function (err) {
+                            console.log('Basic_Test:get Questions 2: error:', err);
+                            res.status(500).send('failed to get Questions');
+                        });
 
                 }, function (err) {
                     console.log('Basic_Test:get Questions: error:', err);

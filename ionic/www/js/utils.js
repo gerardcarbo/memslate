@@ -45,7 +45,10 @@ var msUtils = {};
 
 msUtils.getService = function(serviceName)
 {
+  if(angular.element(document.body).injector())
     return angular.element(document.body).injector().get(serviceName);
+  else
+    return null;
 };
 
 msUtils.objectFindByKey = function(array, key, value) {

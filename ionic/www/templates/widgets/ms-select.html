@@ -1,6 +1,6 @@
-<a class="col button {{selectorClass}}" ng-click="openSelectModal()" selected-value="{{selectedItem}}">
+<a class="button {{selectorClass}}" ng-click="openSelectModal()" selected-value="{{selectedItem}}">
   <span>{{name}}</span>
-  <ion-spinner icon="android"  class="spinner-vertical-aligned"  ng-if="!getSelected()"></ion-spinner>
+  <ion-spinner icon="android"  class="spinner-vertical-aligned" ng-if="!getSelected()"></ion-spinner>
   <b style="margin-left: 0px">{{getSelected()}}</b>
   <span class="ion-arrow-down-b active" style="margin-left: 5px"></span>
   <script id="select-modal.html" type="text/ng-template">

@@ -26,9 +26,13 @@
     .run(function ($rootScope, $log, SessionService) {
       //watch and retrieve last state (ui-router)
       $rootScope.$on('$stateChangeSuccess', function (e, toState, toParams, fromState, fromParams) {
-        var newLocation = msUtils.getService('$location').path();
-        SessionService.put('lastLocation', newLocation);
-        $log.log('State: ' + newLocation);
+        var location = msUtils.getService('$location');
+        if(location)
+        {
+          var newLocation = msUtils.getService('$location').path();
+          SessionService.put('lastLocation', newLocation);
+          $log.log('State: ' + newLocation);
+        }
       });
 
       $rootScope.$on('$stateError', function (e, toState, toParams, fromState, fromParams) {

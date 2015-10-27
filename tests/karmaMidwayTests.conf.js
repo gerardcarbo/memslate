@@ -24,10 +24,11 @@ module.exports = function (config) {
             "lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.js",
             "lib/ngCordova/dist/ng-cordova.js",
             'js/*.js',
+            'js/services/*.js',
             '../../tests/lib/ngMidwayTester.js',
             '../../tests/lib/testingData.js',
-            //'../../tests/midwayTests/directivesTests.js'
-            '../../tests/midwayTests/*Tests.js'
+            '../../tests/midwayTests/servicesTests.js'
+            //'../../tests/midwayTests/*Tests.js'
         ],
 
         // list of files to exclude

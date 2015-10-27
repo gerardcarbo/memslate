@@ -65,8 +65,10 @@
         });
 
         $scope.getName = function (value) {
+          if(!value) return '(unselected)';
           var item = msUtils.objectFindByKey($scope.items, "value", value);
-          return item && item.name;
+          if(item) return item.name;
+          return undefined;
         };
 
         $scope.getSelected = function () {
