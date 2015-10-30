@@ -3,6 +3,9 @@
     <img src="img/icon.svg" class="logo">Memo
   </ion-nav-title>
   <ion-content>
+    <div class="item center-text assertive-bg light" ng-show="memoCtrl.isFiltered()">Filter Active
+      <button class="button button-medium button-energized" ng-click="memoCtrl.unfilter()"><span class=strikethrough><span class="ion-funnel"></span></span>&nbsp;Unfilter</button>
+    </div>
     <ion-list id="memoList">
       <div ng-repeat="(i, translation) in memoCtrl.translations track by $index"
            id="memo_translation_div_{{translation.id}}">
@@ -13,12 +16,12 @@
             <i class="icon no-padding positive"
                ng-class="memoCtrl.isTranslationShown(translation) ? 'ion-chevron-up' : 'ion-chevron-down'">&nbsp&nbsp</i>
 
-            <div class="col col-50 no-padding no-overflow">{{::translation.translate}} > {{::translation.mainResult}}</div>
+            <div class="col col-50 no-padding no-overflow">{{translation.translate}} > {{translation.mainResult}}</div>
             <div class="col col-20 no-padding margin-left-1 smaller-font">
-              <span  style="padding-right: 3px;">{{::translation.fromLang}}</span>
+              <span  style="padding-right: 3px;">{{translation.fromLang}}</span>
               <i class="icon ion-arrow-right-b smaller-font"></i>
-              <span style="padding-left: 5px;">{{::translation.toLang}}</span></div>
-            <div class="col col-20 no-padding smaller-font right-text">{{::translation.insertTime|date}}</div>
+              <span style="padding-left: 5px;">{{translation.toLang}}</span></div>
+            <div class="col col-20 no-padding smaller-font right-text">{{translation.insertTime|date}}</div>
           </div>
         </div>
         <div class="item item-accordion" ng-if="memoCtrl.isTranslationShown(translation)">

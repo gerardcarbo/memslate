@@ -2333,9 +2333,14 @@ a, button, :focus, a:focus, button:focus, a:active, a:hover {
 a {
   -webkit-user-drag: none;
   -webkit-tap-highlight-color: transparent;
-  -webkit-tap-highlight-color: transparent; }
+  -webkit-tap-highlight-color: transparent;
+  color: #3c7f94; }
   a[href]:hover {
-    cursor: pointer; }
+    cursor: pointer;
+    color: #3c7f94;
+    font-weight: 500; }
+  a[href]:visited {
+    color: #3c7f94; }
 
 /* ==========================================================================
    Typography

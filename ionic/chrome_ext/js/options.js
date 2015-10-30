@@ -1,17 +1,18 @@
 var app = angular.module('memslate.chrome_ext', ['memslate.controllers', 'memslate.directives', 'memslate.services', 'memslate.services.ui', 'memslate.services.translate']);
 
-var MemslateExtOptions = {
-  target_lang: function (lang) {
-    if (lang) {
-      localStorage['target_lang'] = lang;
-    }
-    return localStorage['target_lang'];
-  },
+var MemslateExtOptions =
+{
   from_lang: function (lang) {
     if (lang) {
       localStorage['from_lang'] = lang;
     }
     return localStorage['from_lang'] || 'auto';
+  },
+  to_lang: function (lang) {
+    if (lang) {
+      localStorage['to_lang'] = lang;
+    }
+    return localStorage['to_lang'];
   },
   word_key_only: function (arg) {
     if (arg != undefined) {
@@ -65,7 +66,7 @@ app.controller("MemslateExtApp", function ($scope, SessionService, BaseUrlServic
   "use strict";
   var self = this;
   this.from_lang = MemslateExtOptions.from_lang();
-  this.target_lang = MemslateExtOptions.target_lang();
+  this.to_lang = MemslateExtOptions.to_lang();
   this.translate_by = MemslateExtOptions.translate_by();
   this.word_key_only = MemslateExtOptions.word_key_only();
   this.selection_key_only = MemslateExtOptions.selection_key_only();
@@ -82,18 +83,24 @@ app.controller("MemslateExtApp", function ($scope, SessionService, BaseUrlServic
   ];
 
   LanguagesService.getLanguages().success(function (langs) {
-    self.languagesFrom = langs;
+    self.languagesFrom = angular.copy(langs);
     self.languagesFrom.items.unshift({name:'Autodetect', value:'auto'});
     self.languagesFrom.user.prefered.unshift('auto');
-    self.languagesTarget = langs;
+    self.languagesTo = angular.copy(langs);
+
+    if(!self.to_lang || !msUtils.objectFindByKey(langs.items,'value',self.to_lang))
+    {
+      self.to_lang = langs.user.prefered[0];
+      self.saveOptions(false);
+    }
   });
 
-  this.saveOptions = function (optionsForm) {
-    if(!this.target_lang) {
+  this.saveOptions = function (showToast) {
+    if(!this.to_lang) {
       UI.showAlert('To Language Not Defined','You must define a language to translate to.');
       return;
     }
-    MemslateExtOptions.target_lang(this.target_lang);
+    MemslateExtOptions.to_lang(this.to_lang);
     MemslateExtOptions.from_lang(this.from_lang);
     MemslateExtOptions.translate_by(this.translate_by);
     MemslateExtOptions.word_key_only(this.word_key_only);
@@ -102,7 +109,10 @@ app.controller("MemslateExtApp", function ($scope, SessionService, BaseUrlServic
     MemslateExtOptions.save_translation_sample(this.save_translation_sample);
     MemslateExtOptions.dismiss_on(this.dismiss_on);
 
-    UI.toast('Options Saved! Please reload the pages for the changes to take effect.',3000);
+    chrome.extension.sendRequest({handler: 'options_changed'});
+
+    if(showToast)
+      UI.toast('Options Applied!');
   };
 
   function populate_popup_show_trigger() {

@@ -55,7 +55,7 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
             }
             else
             {
-              UI.showOkCancelModal('Basic Test', "You do not have enough translations to play the game. Do you want to use anonymous translations from other users to perform the test?")
+              UI.showOkCancelModal('Basic Test', "You do not have enough translations to play the game(60). Do you want to use anonymous translations from other users to perform the test?")
                 .then(function (res) {
                   if (res === true) {
                     self.useAnonymousLangs = true;

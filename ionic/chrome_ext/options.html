@@ -18,6 +18,7 @@
   <script src="../www/js/services/translate.js"></script>
   <script src="../www/js/services/ui.js"></script>
   <script src="../www/js/services/authenticate.js"></script>
+  <script src="../www/js/services/memo.js"></script>
   <script src="../www/js/controllers.js"></script>
   <script src="../www/js/directives.js"></script>
 
@@ -50,7 +51,7 @@
     </div>
 
     <div class="options" ng-controller="MemslateExtApp as extApp">
-      <form id="optionsForm" name="optionsForm" ng-submit="extApp.saveOptions(optionsForm)" novalidate>
+      <form id="optionsForm" name="optionsForm" ng-submit="extApp.saveOptions(true)" novalidate>
         <div class="option">
           <label for="translate_by">When I&nbsp;</label>
           <ms-select id="translate_by" name="" title="Translate when ..."
@@ -71,15 +72,14 @@
                      class="button-small button-positive options-select"></ms-select>
           <label for="target_lang"> to&nbsp;</label>
           <ms-select id="target_lang" name="" title="To Language"
-                     items="extApp.languagesTarget.items" prefered-items="extApp.languagesTarget.user.prefered"
-                     selected-item="extApp.target_lang"
+                     items="extApp.languagesTo.items" prefered-items="extApp.languagesTo.user.prefered"
+                     selected-item="extApp.to_lang"
                      class="button-small button-positive options-select"></ms-select>
         </div>
 
         <div class="option">
           <input type="checkbox" id="save_translation_sample" ng-model="extApp.save_translation_sample"/>
-          <label for="save_translation_sample">Save sample (save the phrase where the translated word is on, as a
-            translation sample)</label>
+          <label for="save_translation_sample">Save samples: save the phrase where the translated word is on</label>
         </div>
         <div class="option" style="display:none">
           <input type="checkbox" id="word_key_only" name="word_key_only" ng-model="extApp.word_key_only"/>
@@ -98,8 +98,8 @@
         </div>
 
         <div class="button_group">
-          <button type="submit" class="button button-positive button-block" id="save_button">
-            Save
+          <button type="submit" class="button button-positive button-block bold" id="save_button">
+            Apply
           </button>
         </div>
       </form>

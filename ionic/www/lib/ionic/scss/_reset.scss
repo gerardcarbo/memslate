@@ -119,8 +119,16 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 
+  color: $positive;
+
   &[href]:hover {
     cursor: pointer;
+    color: $positive;
+    font-weight: 500;
+  }
+
+  &[href]:visited {
+    color: $positive;
   }
 }
 

@@ -10,23 +10,40 @@ function log() {
 
 if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
+  var options = {};
+  var tooltip;
+  var font_size='1em';
+
+  chrome.runtime.onMessage.addListener(function (message){
+    if(message=='options_changed');
+    {
+      chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
+        options = JSON.parse(response.options);
+        tooltip=undefined;
+        log('options_changed: get_options: ', options);
+      });
+    }
+  });
+
   //recover the options to setup the content script (add listeners...)
   chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
 
-    var options = JSON.parse(response.options);
+    options = JSON.parse(response.options);
+    log('get_options: ',options);
 
-    var _tooltip;
+    tooltip = undefined;
+
     function getToolTip()
     {
-      if(_tooltip)
+      if(tooltip)
       {
-        _tooltip.hide();
+        tooltip.hide();
       }
       else
       {
-        _tooltip = new Tooltip({dismiss_on: options.dismiss_on});
+        tooltip = new Tooltip({dismiss_on: options.dismiss_on});
       }
-      return _tooltip;
+      return tooltip;
     }
 
     function process(e) {
@@ -64,6 +81,8 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
           'font-size': '1em',
           'font-family': hit_elem.css('font-family')
         };
+
+        font_size = hit_elem.css('font-size');
 
         var text_nodes = hit_elem.contents().filter(function () {
           return this.nodeType == Node.TEXT_NODE && XRegExp(word_re).test(this.nodeValue)
@@ -243,13 +262,13 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
             return;
           }
 
-          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(translation), 'ltr');
+          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(translation,font_size), 'ltr');
         });
       }
     }
 
     function withOptionsSatisfied(e, do_stuff) {
-      if (options.target_lang) {
+      if (options.to_lang) {
         //respect 'translate only when alt pressed' option
         if (options.word_key_only && !show_popup_key_pressed) {
           return
@@ -258,8 +277,6 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         do_stuff();
       }
     }
-
-
 
     $(document).on('mousestop', function (e) {
       withOptionsSatisfied(e, function () {
@@ -307,7 +324,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
               return;
             }
 
-            getToolTip().show(last_mouse_stop.x, last_mouse_stop.y, MemsExt.formatTranslation(translation), 'ltr');
+            getToolTip().show(last_mouse_stop.x, last_mouse_stop.y, MemsExt.formatTranslation(translation,font_size), 'ltr');
           });
         }
       }

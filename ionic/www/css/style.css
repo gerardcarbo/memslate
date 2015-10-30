@@ -527,3 +527,23 @@ body
     height: 54px;
   }
 }
+
+.strikethrough {
+  position: relative;
+  padding: 3px;
+}
+.strikethrough:before {
+  position: absolute;
+  content: "";
+  left: 0;
+  top: 50%;
+  right: 0;
+  border-top: 2px solid;
+  border-color: inherit;
+
+  -webkit-transform:rotate(-15deg);
+  -moz-transform:rotate(-15deg);
+  -ms-transform:rotate(-15deg);
+  -o-transform:rotate(-15deg);
+  transform:rotate(-15deg);
+}

@@ -21,9 +21,9 @@ MemsExt.deserialize = function (text) {
   }
   return res;
 };
-MemsExt.formatTranslation = function (translation) {
+MemsExt.formatTranslation = function (translation,font_size) {
   var formatted_translation = '';
-  var powered_by = '';//'<div class="powered_by smaller-font" style="padding-top:3px">Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a></div>';
+  var powered_by = '<div class="powered_by smaller-font" style="padding-top:3px">Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a></div>';
   if (translation instanceof Array) {
     translation.forEach(function (pos_block) {
       var formatted_pos = pos_block.pos ? '<b>' + pos_block.pos + '</b>: ' : '';
@@ -33,15 +33,15 @@ MemsExt.formatTranslation = function (translation) {
       {
         formatted_syn = " (" + pos_block.syn.slice(0, 5).join(', ') + ( pos_block.syn.length > 5 ? '...' : '' ) + ")";
       }
-      formatted_translation = formatted_translation + '<div class="pos_translation">' + formatted_pos + formatted_meanings + formatted_syn + '</div>';
+      formatted_translation = formatted_translation + '<div>' + formatted_pos + formatted_meanings + formatted_syn + '</div>';
     });
     formatted_translation += powered_by;
   }
   else {
-    formatted_translation = '<div class="pos_translation">' + MemsExt.escape_html(translation) + powered_by + '</div>';
+    formatted_translation = '<div>' + MemsExt.escape_html(translation) + powered_by + '</div>';
   }
 
-  return formatted_translation;
+  return '<div class="pos_translation" style="font-size:'+font_size+'">'+formatted_translation+'</div>';
 };
 
 MemsExt.escape_html = function (text) {

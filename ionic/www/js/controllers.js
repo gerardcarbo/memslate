@@ -6,7 +6,7 @@
 
   controllersMod.controller('AppCtrl', function ($log, $scope, $rootScope, $timeout, $state, $ionicModal, $ionicPopup,
                                                  $cordovaSplashscreen,
-                                                 RegistrationService, UserService, SessionService, UI) {
+                                                 RegistrationService, UserService, SessionService, UI, MemoSettingsService) {
     // Form data for the login modal
     this.init = function () {
       $scope.loginData = {};
@@ -66,14 +66,6 @@
 
     $scope.stateIs = function (state) {
       return $state.is(state);
-    };
-
-    $scope.getOrderClass = function () {
-      var memoSettings = SessionService.getObject('memoSettings');
-      if (!memoSettings) {
-        memoSettings.orderWay = 'desc';
-      }
-      return (memoSettings.orderWay === 'desc' ? 'ion-arrow-up-b' : 'ion-arrow-down-b');
     };
 
     // Perform the login action when the user submits the login form
@@ -145,8 +137,17 @@
       });
     };
 
+    $scope.getOrderClass = function () {
+      var memoSettings = MemoSettingsService.get();
+      if (!memoSettings) {
+        memoSettings.orderWay = 'desc';
+      }
+      return (memoSettings.orderWay === 'desc' ? 'ion-arrow-up-b' : 'ion-arrow-down-b');
+    };
+
+
     $scope.changeOrderWay = function ($event) {
-      var memoSettings = SessionService.getObject('memoSettings');
+      var memoSettings = MemoSettingsService.get();
       if (memoSettings.orderWay == 'asc') {
         memoSettings.orderWay = 'desc';
         angular.element($event.target).removeClass('ion-arrow-down-b');
@@ -158,7 +159,7 @@
         angular.element($event.target).removeClass('ion-arrow-up-b');
       }
 
-      SessionService.putObject('memoSettings', memoSettings);
+      MemoSettingsService.set(memoSettings);
 
       $rootScope.$broadcast('ms:changeOrderWay');
     };
@@ -372,6 +373,7 @@
         templateOptions: {
           name: 'From',
           label: 'From Languate',
+          selectorClass: 'col',
           options: []
         }
       },
@@ -382,6 +384,7 @@
         templateOptions: {
           name: 'To',
           label: 'To Language',
+          selectorClass: 'col',
           options: []
         }
       }
@@ -520,6 +523,22 @@
     self.isTranslationShown = function (translation) {
       if(!translation) return false;
       return self.shownTranslation && self.shownTranslation.id === translation.id;
+    };
+
+    self.isFiltered = function() {
+      return self.filterSettings.filterByString ||
+              self.filterSettings.filterByDates ||
+              self.filterSettings.filterByLanguages;
+    };
+
+    self.unfilter = function() {
+      self.filterSettings.filterByString=false;
+      self.filterSettings.filterByDates=false;
+      self.filterSettings.filterByLanguages=false;
+
+      MemoSettingsService.set(self.filterSettings);
+
+      self.reset();
     };
 
     $scope.$on('ms:translationDeleted', function (event, data) {

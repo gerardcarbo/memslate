@@ -9,7 +9,8 @@
   servicesMod.service("MemoSettingsService", function ($resource, BaseUrlService, SessionService) {
     this.reset = function () {
       this._settings = {};
-      this._settings.orderBy = 'Translations.translate,Translations.mainResult';
+      this._settings.orderBy = 'UserTranslations.userTranslationInsertTime';
+      this._settings.orderWay = 'desc';
       this._settings.filterByString = false;
       this._settings.filterByDates = false;
       this._settings.filterByLanguages = false;

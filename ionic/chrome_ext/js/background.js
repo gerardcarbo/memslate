@@ -86,24 +86,37 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
         });
     }
 
+    function getOptions()
+    {
+      return {
+        options: JSON.stringify({
+          to_lang: MemslateExtOptions.to_lang(),
+          delay: MemslateExtOptions.delay(),
+          word_key_only: MemslateExtOptions.word_key_only(),
+          popup_show_trigger: MemslateExtOptions.popup_show_trigger(),
+          translate_by: MemslateExtOptions.translate_by(),
+          save_translation_sample: MemslateExtOptions.save_translation_sample(),
+          dismiss_on: MemslateExtOptions.dismiss_on()
+        })
+      };
+    }
+
     function mainListener(request, sender, sendResponse) {
       switch (request.handler) {
         case 'get_last_tat_sl_tl':
           console.log('get_last_tat_sl_tl');
           sendResponse({last_tl: localStorage['last_tat_tl'], last_sl: localStorage['last_tat_sl']});
           break;
-        case 'get_options':
-          sendResponse({
-            options: JSON.stringify({
-              target_lang: MemslateExtOptions.target_lang(),
-              delay: MemslateExtOptions.delay(),
-              word_key_only: MemslateExtOptions.word_key_only(),
-              popup_show_trigger: MemslateExtOptions.popup_show_trigger(),
-              translate_by: MemslateExtOptions.translate_by(),
-              save_translation_sample: MemslateExtOptions.save_translation_sample(),
-              dismiss_on: MemslateExtOptions.dismiss_on()
-            })
+        case 'options_changed':
+          chrome.tabs.query({}, function(tabs) {
+            for (var i=0; i<tabs.length; ++i) {
+              chrome.tabs.sendMessage(tabs[i].id, 'options_changed');
+            }
           });
+          break;
+        case 'get_options':
+          console.log("sending options: "+request.handler);
+          sendResponse(getOptions());
           break;
         case 'translate':
           console.log("translate: " + request.word);
@@ -112,7 +125,7 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
 
             var sl, tl;
             sl = MemslateExtOptions.from_lang();
-            tl = MemslateExtOptions.target_lang();
+            tl = MemslateExtOptions.to_lang();
             console.log("translate: chrome tab lang: "+tab_lang+" sl:"+sl+" tl:"+tl);
 
             if (sl == 'auto') {
@@ -149,7 +162,7 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
           });
           break;
         default:
-          console.log("Error! Unknown handler");
+          console.log("Error! Unknown handler: "+request.handler);
           sendResponse({});
       }
     }
@@ -158,9 +171,9 @@ app.run(function ($q, SessionService, BaseUrlService, TranslationsProviders, Tra
       chrome.extension.onRequest.addListener(mainListener);
     });
 
-    chrome.browserAction.onClicked.addListener(function (tab) {
+    /*chrome.browserAction.onClicked.addListener(function (tab) {
       chrome.tabs.sendRequest(tab.id, 'open_type_and_translate');
-    });
+    });*/
 
     chrome.runtime.onInstalled.addListener(function (details) {
       if (details.reason == 'install') {
