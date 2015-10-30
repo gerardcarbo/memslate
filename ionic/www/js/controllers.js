@@ -4,7 +4,7 @@
   var controllersMod = angular.module('memslate.controllers', ['ionic', 'ngCordova', 'formly', 'oc.lazyLoad',
     'memslate.services', 'memslate.services.translate', 'memslate.services.authenticate', 'memslate.services.ui']);
 
-  controllersMod.controller('AppCtrl', function ($log, $scope, $rootScope, $timeout, $state, $ionicModal, $ionicPopup,
+  controllersMod.controller('AppCtrl', function ($scope, $rootScope, $timeout, $state, $ionicModal, $ionicPopup,
                                                  $cordovaSplashscreen,
                                                  RegistrationService, UserService, SessionService, UI, MemoSettingsService) {
     // Form data for the login modal
@@ -76,12 +76,12 @@
         return false;
       }
       $scope.inAction = true;
-      $log.log('Doing login: ', $scope.loginData.email);
+      console.log('Doing login: ', $scope.loginData.email);
       RegistrationService.login($scope.loginData.email, $scope.loginData.password).then(function (login) {
         if (login.done) {
           $scope.loginModal.hide();
           $scope.loginData.email = $scope.loginData.password = "";
-          $log.log('Login done!');
+          console.log('Login done!');
         }
         else {
           UI.toast("Login Failed: " + login.err.data);
@@ -113,7 +113,7 @@
         UI.toast("Some data is not correct. Please, check it.");
         return false;
       }
-      $log.log('Doing register: ', $scope.registerData.email);
+      console.log('Doing register: ', $scope.registerData.email);
       if ($scope.registerData.password !== $scope.registerData.password2) {
         $ionicPopup.alert({
           title: 'Registration Failed',
@@ -125,7 +125,7 @@
       RegistrationService.register($scope.registerData).then(function (register) {
         if (register.done) {
           $scope.registerModal.hide();
-          $log.log('register done!');
+          console.log('register done!');
         }
         else {
           $ionicPopup.alert({
@@ -187,7 +187,7 @@
     });
   });
 
-  controllersMod.controller('TranslateCtrl', function ($log, $scope, $animate, $document, $timeout, UI, TranslateService, LanguagesService) {
+  controllersMod.controller('TranslateCtrl', function ($scope, $animate, $document, $timeout, UI, TranslateService, LanguagesService) {
     var translateCtrl = this;
     this.options = {};
     this.swappingFrom = false;
@@ -196,7 +196,7 @@
 
     this.init = function () {
       LanguagesService.getLanguages().then(function (languages) {
-        $log.log(languages);
+        console.log(languages);
         translateCtrl.languages = languages;
       });
     };
@@ -253,7 +253,7 @@
           UI.toast(translateCtrl.translation.error);
 
           // log the error to the console
-          $log.error("Translate: The following error happened: " + error);
+          console.error("Translate: The following error happened: " + error);
         })
         .finally(function ()	//finally
         {
@@ -302,7 +302,7 @@
     this.init();
   });
 
-  controllersMod.controller('MemoFilterCtrl', function ($log, $scope, $rootScope, $state, $timeout, LanguagesService, MemoSettingsService) {
+  controllersMod.controller('MemoFilterCtrl', function ($scope, $rootScope, $state, $timeout, LanguagesService, MemoSettingsService) {
     var self = this;
 
     this.formData = MemoSettingsService.get();
@@ -418,7 +418,7 @@
     };
   });
 
-  controllersMod.controller('MemoCtrl', function ($log, $scope, UI, SessionService, TranslateService, MemoSettingsService) {
+  controllersMod.controller('MemoCtrl', function ($scope, UI, SessionService, TranslateService, MemoSettingsService) {
     var self = this;
 
     self.init = function () {
@@ -449,7 +449,7 @@
 
     self.addItems = function () {
       if (self.adding) {
-        $log.log('addItems: already adding');
+        console.log('addItems: already adding');
         return;
       }
 
@@ -457,7 +457,7 @@
 
       var options = angular.extend({}, self.settings, self.filterSettings)
 
-      $log.log('addItems: getting items ', options);
+      console.log('addItems: getting items ', options);
 
       TranslateService.getTranslations(
         options).then(function (translations) {
@@ -466,7 +466,7 @@
             return item;
           });
           self.translations.push.apply(self.translations, newTranslations);
-          $log.log("Translations: ", self.translations);
+          console.log("Translations: ", self.translations);
 
           if (translations.length === 0) {
             self.moreDataAvailable = false;
@@ -477,7 +477,7 @@
           self.settings.offset += 10;
           self.adding = false;
 
-          $log.log('addItems: adding items done');
+          console.log('addItems: adding items done');
         },
         function (err) {
           UI.toast("error while getting translations: " + JSON.toString(err))
@@ -485,7 +485,7 @@
     };
 
     self.reset = function () {
-      $log.log('reset');
+      console.log('reset');
       self.init();
       self.addItems();
     };
@@ -542,7 +542,7 @@
     };
 
     $scope.$on('ms:translationDeleted', function (event, data) {
-      $log.log('translationDeleted:' + data);
+      console.log('translationDeleted:' + data);
       msUtils.objectDeleteByKey(self.translations, 'id', data);
       console.log(self.translations);
     });
@@ -564,7 +564,7 @@
     });
   });
 
-  controllersMod.controller('UserCtrl', function ($log, $scope, $state, $animate, $ionicHistory, $ionicPopup, UserService, RegistrationService, UI) {
+  controllersMod.controller('UserCtrl', function ($scope, $state, $animate, $ionicHistory, $ionicPopup, UserService, RegistrationService, UI) {
     var self = this;
 
     this.User = UserService;
@@ -614,7 +614,7 @@
     }
   });
 
-  controllersMod.controller('PlayCtrl', function ($log, $scope, $http, $compile, $timeout, $ocLazyLoad, $state, $ionicHistory, UI, GamesService) {
+  controllersMod.controller('PlayCtrl', function ($scope, $http, $compile, $timeout, $ocLazyLoad, $state, $ionicHistory, UI, GamesService) {
 
     var self = this;
 
@@ -626,10 +626,10 @@
     });
 
     self.playGame = function (gameIndex) {
-      $log.log("playGame:", self.games[gameIndex]);
+      console.log("playGame:", self.games[gameIndex]);
 
       $state.go('app.games', {gameName: self.games[gameIndex].name_id}).then(function () {
-        $log.log('playGame ' + self.games[gameIndex].name_id + ' loaded')
+        console.log('playGame ' + self.games[gameIndex].name_id + ' loaded')
       });
     };
   });

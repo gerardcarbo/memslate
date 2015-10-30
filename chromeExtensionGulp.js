@@ -11,17 +11,66 @@ var gulp = require('gulp'),
 	uglify = require('gulp-uglify'),
 	zip = require('gulp-zip'),
 	merge = require('merge-stream'),
+	rename = require('gulp-rename'),
+	runSequence = require('run-sequence'),
 	debug = require('gulp-debug');
 
 //run all tasks after build_ext directory has been cleaned
-gulp.task('default', ['clean'], function() {
-	gulp.start('zip');
+gulp.task('default', ['build_release']);
+
+gulp.task('build_release', function(callback) {
+	runSequence('clean', 'copy_all', 'copy_config_release', 'clean_end', 'zip', callback);
 });
+
+gulp.task('build_debug', ['clean'], function(callback) {
+	runSequence('clean', 'copy_all', 'copy_config_debug', 'clean_end', 'zip', callback);
+});
+
+gulp.task('copy_config_debug', function() {
+	return merge(
+		gulp.src(['ionic/www/js/config.debug.js'])
+			.pipe(rename('config.js'))
+			.pipe(gulp.dest('chrome_ext/build/www/js/'))
+	);
+});
+
+gulp.task('copy_config_release', function() {
+	return merge(
+		gulp.src(['ionic/www/js/config.release.js'])
+			.pipe(rename('config.js'))
+			.pipe(gulp.dest('chrome_ext/build/www/js/'))
+	);
+});
+
+gulp.task('copy_all', ['html', 'scripts', 'styles', 'copy']);
+
+//build ditributable and sourcemaps after other tasks completed
+gulp.task('zip', function() {
+	var manifest = require('./ionic/manifest'),
+		distFileName = manifest.name + ' v' + manifest.version + '.zip',
+		mapFileName = manifest.name + ' v' + manifest.version + '-maps.zip';
+	//collect all source maps
+	gulp.src('chrome_ext/build/scripts/**/*.map')
+		.pipe(zip(mapFileName))
+		.pipe(gulp.dest('dist'));
+	//build distributable extension
+	return gulp.src(['chrome_ext/build/**/*.*','!chrome_ext/build/scripts/**/*.map'])
+		.pipe(debug({title: 'zipFiles:'}))
+		.pipe(zip(distFileName))
+		.pipe(gulp.dest('chrome_ext/dist'));
+});
+
 
 //clean build directory
 gulp.task('clean', function() {
 	return gulp.src('chrome_ext/build/*', {read: false})
 			.pipe(clean());
+});
+
+//clean build directory once build done
+gulp.task('clean_end', function() {
+	return merge(gulp.src('chrome_ext/build/www/js/config.*.js', {read: false})
+			.pipe(clean()));
 });
 
 //copy static folders to build directory
@@ -97,7 +146,7 @@ gulp.task('scripts', function() {
 			.pipe(gulp.dest('chrome_ext/build/www/lib/oclazyload/dist')),
 		gulp.src('ionic/www/lib/ngCordova/dist/ng-cordova.min.js')
 			.pipe(gulp.dest('chrome_ext/build/www/lib/ngCordova/dist')),
-		gulp.src(['ionic/www/js/**/*.js'])
+		gulp.src(['ionic/www/js/**/*.js','!ionic/www/js/config.js'])
 			.pipe(gulp.dest('chrome_ext/build/www/js')),
 		//chrome ext
 		gulp.src('ionic/www/lib/angular/angular.min.js')
@@ -128,19 +177,4 @@ gulp.task('styles', function() {
 	);
 });
 
-//build ditributable and sourcemaps after other tasks completed
-gulp.task('zip', ['html', 'scripts', 'styles', 'copy'], function() {
-	var manifest = require('./ionic/manifest'),
-		distFileName = manifest.name + ' v' + manifest.version + '.zip',
-		mapFileName = manifest.name + ' v' + manifest.version + '-maps.zip';
-	//collect all source maps
-	gulp.src('chrome_ext/build/scripts/**/*.map')
-		.pipe(zip(mapFileName))
-		.pipe(gulp.dest('dist'));
-	//build distributable extension
-	return gulp.src(['chrome_ext/build/**/*.*','!chrome_ext/build/scripts/**/*.map'])
-		.pipe(debug({title: 'zipFiles:'}))
-		.pipe(zip(distFileName))
-		.pipe(gulp.dest('chrome_ext/dist'));
-});
 

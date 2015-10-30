@@ -1,13 +1,6 @@
 //do not load inside memslate app
 "use strict";
 
-var debug = true;
-function log() {
-  if (debug) {
-    console.log(arguments);
-  }
-}
-
 if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
   var options = {};
@@ -20,7 +13,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
         options = JSON.parse(response.options);
         tooltip=undefined;
-        log('options_changed: get_options: ', options);
+        console.log('options_changed: get_options: ', options);
       });
     }
   });
@@ -29,7 +22,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
   chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
 
     options = JSON.parse(response.options);
-    log('get_options: ',options);
+    console.log('get_options: ',options);
 
     tooltip = undefined;
 
@@ -89,23 +82,23 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         });
 
         if (text_nodes.length == 0) {
-          log('no text');
+          console.log('no text');
           return {word: ''};
         }
 
         var hit_text_node = getExactTextNode(text_nodes, e);
         if (!hit_text_node) {
-          log('hit between lines');
+          console.log('hit between lines');
           return {word: ''};
         }
 
-        log("getHitWord: node: " + hit_text_node.data);
+        console.log("getHitWord: node: " + hit_text_node.data);
 
         var hit_word = restorable(hit_text_node, function (node) {
           var hw = '';
 
           function getHitText(node, parent_font_style) {
-            log("getHitText: '" + node.textContent + "'");
+            console.log("getHitText: '" + node.textContent + "'");
 
             if (XRegExp(word_re).test(node.textContent)) {
               $(node).replaceWith(function () {
@@ -132,7 +125,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
           var minimal_text_node = getHitText(hit_text_node, parent_font_style);
 
-          log('minimal_text_node', minimal_text_node)
+          console.log('minimal_text_node', minimal_text_node)
 
           if (minimal_text_node) {
             //wrap words inside text node into <memsext> element
@@ -158,11 +151,11 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
             //no word under cursor? we are done
             if (hit_word_elem.nodeName != 'MEMSEXT') {
-              log("missed!");
+              console.log("missed!");
             }
             else {
               hw = $(hit_word_elem).text();
-              log("got it: '" + hw + "'");
+              console.log("got it: '" + hw + "'");
             }
           }
 
@@ -195,7 +188,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
           }
         }
 
-        log("getHitWord: word: " + hit_word + " sample: " + sample);
+        console.log("getHitWord: word: " + hit_word + " sample: " + sample);
 
         return {word: hit_word, sample: sample};
       }
@@ -221,11 +214,11 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       if (selection.toString()) {
 
         if (options.word_key_only) {
-          log('Skip because "word_key_only"');
+          console.log('Skip because "word_key_only"');
           return;
         }
 
-        log('Got selection: ' + selection.toString());
+        console.log('Got selection: ' + selection.toString());
 
         var sel_container = selection.getRangeAt(0).commonAncestorContainer;
 
@@ -253,12 +246,12 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       }
       if (hit.word != '') {
         chrome.extension.sendRequest({handler: 'translate', sl: document.documentElement.lang, word: hit.word, sample: hit.sample}, function (response) {
-          log('response: ', response);
+          console.log('response: ', response);
 
           var translation = MemsExt.deserialize(response.translation);
 
           if (!translation) {
-            log('skipping empty translation');
+            console.log('skipping empty translation');
             return;
           }
 
@@ -312,15 +305,15 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         var selection = window.getSelection().toString();
 
         if (options.word_key_only && selection) {
-          log('Got word_key_only');
+          console.log('Got word_key_only');
 
           chrome.extension.sendRequest({handler: 'translate', word: selection}, function (response) {
-            log('response: ', response);
+            console.log('response: ', response);
 
             var translation = MemsExt.deserialize(response.translation);
 
             if (!translation) {
-              log('skipping empty translation');
+              console.log('skipping empty translation');
               return;
             }
 

@@ -1,7 +1,7 @@
 {
   "name": "Memslate",
   "description": "Memslate > Memorize your Translations.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "memslate-16.png",
@@ -21,7 +21,9 @@
   "content_scripts": [ {
     "all_frames": true,
     "css": [ "chrome_ext/css/page.css" ],
-    "js": [ "chrome_ext/lib/jquery.min.js", "chrome_ext/lib/xregexp-min.js", "chrome_ext/lib/xregexp-unicode-base.js", "chrome_ext/lib/xregexp-unicode-categories.js", "chrome_ext/js/tooltip.js", "chrome_ext/js/ext_utils.js", "chrome_ext/js/contentscript.js" ],
+    "js": [ "chrome_ext/lib/jquery.min.js", "chrome_ext/lib/xregexp-min.js", "chrome_ext/lib/xregexp-unicode-base.js",
+      "chrome_ext/lib/xregexp-unicode-categories.js", "chrome_ext/js/tooltip.js", "chrome_ext/js/ext_utils.js",
+      "www/js/utils.js", "www/js/config.js", "chrome_ext/js/contentscript.js" ],
     "matches": [ "\u003Call_urls>" ]
   } ],
   "web_accessible_resources": ["chrome_ext/css/tooltip.css", "chrome_ext/options.html" ]
