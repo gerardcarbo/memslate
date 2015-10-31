@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    clean = require('gulp-clean'),
     gutil = require('gulp-util'),
     nodemon = require('gulp-nodemon'),
     jshint = require('gulp-jshint'),
@@ -70,21 +71,26 @@ gulp.task('eslint', function () {
         //.pipe(eslint.failOnError());
 });
 
+gulp.task('clean_config', function() {
+    return gulp.src('ionic/www/js/config.js', {read: false})
+        .pipe(clean());
+});
+
 gulp.task('config_debug', function() {
-    return gulp.src(['ionic/www/js/config.debug.js'])
+    return gulp.src('ionic/www/js/config.debug.js', { base: './' })
             .pipe(rename('config.js'))
             .pipe(gulp.dest('ionic/www/js/'));
 });
 
 gulp.task('config_release', function() {
-    return gulp.src(['ionic/www/js/config.release.js'])
+    return gulp.src('ionic/www/js/config.release.js', { base: './' })
         .pipe(rename('config.js'))
         .pipe(gulp.dest('ionic/www/js/'));
 });
 
-gulp.task('git_amend', shell.task('git commit -a --amend --no-edit'));
+gulp.task('git_amend_config', shell.task('git -c core.quotepath=false commit --amend --only --no-edit -- ionic/www/js/config.js'));
 gulp.task('git_dokku_master', shell.task('git push dokku master'));
 
-gulp.task('dokku_install', function(cb){
-    runSequence('config_release','git_amend','git_dokku_master');
+gulp.task('dokku_install',function(cb){
+    runSequence('config_release','git_amend_config','git_dokku_master',cb);
 });
