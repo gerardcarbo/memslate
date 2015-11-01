@@ -21,13 +21,25 @@ var Schema = {
             name: {type: 'string'},
             email: {type: 'string',index: 'btree'},
             cryptedPassword: {type: 'string'},
-            token: {type: 'string',index: 'btree'},
             isAdmin: {type: 'boolean', defaultTo: false},
             createdAt: {type: 'timestamp', defaultToRaw: 'now()'},
             updatedAt: {type: 'timestamp', defaultToRaw: 'now()'}
         },
         constrains: {
             uniques: [['email']]
+        }
+    },
+    UserSessions: {
+        fields: {
+            id: {type: 'increments',  primary: true},
+            token: {type: 'string',index: 'btree'},
+            userId: {type: 'integer',  unsigned: true, references: 'Users.id', onDelete:'CASCADE',index: 'btree'},
+            accessedAt: {type: 'timestamp', defaultToRaw: 'now()'},
+            updatedAt: {type: 'timestamp', defaultToRaw: 'now()'}
+        }
+        ,
+        constrains: {
+            uniques: [['token']]
         }
     },
     UserTranslations: {

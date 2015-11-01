@@ -5,12 +5,11 @@ var bcrypt = require('bcryptjs'),
     utils = require('./utils'),
     config = require('./config'),
     validator = require('validator'),
-    _       = require('lodash');
+    _ = require('lodash');
 
 module.exports = function (models) {
 
-    var userCache = {};
-    var registerCallback = null;
+    var usersCache = {};
 
     function comparePassword(password, hash, callback) {
         console.log("Comparing ", password, " to hash ", hash);
@@ -31,15 +30,14 @@ module.exports = function (models) {
         return user;
     }
 
-    function sendUser(res,user)
-    {
+    function sendUser(res, user, token) {
         cleanUser(user);
-        var sentUser = _.omit(user,'cryptedPassword');
+        var sentUser = _.omit(user, 'cryptedPassword');
+        if(token) sentUser.token = token;
         res.json(sentUser);
     }
 
-    function unregister(req, res, next)
-    {
+    function unregister(req, res, next) {
         var user = req.user; //comes from authenticate call
 
         console.log("Unregistering ", user);
@@ -82,20 +80,21 @@ module.exports = function (models) {
                 } else {
                     var hash = utils.encryptPassword(user.password);
 
-                    user.token = uuid.v4();
                     user.cryptedPassword = hash;
                     user.isAdmin = false;
+                    user.updatedAt = new Date();
 
+                    var  password = user.password;
+
+                    //do not save pwds
                     delete user.password;
                     delete user.password2;
 
                     new models.User(user).save().then(function (userModel) {
-                        if (registerCallback) {
-                            registerCallback(userModel);
-                        }
                         console.log("register done!: ", userModel.attributes);
 
-                        sendUser(res, userModel.attributes);
+                        req.body.password = password; //re-put user password for the login phase
+                        login(req, res, next);
                     }).catch(next);
                 }
             });
@@ -104,30 +103,37 @@ module.exports = function (models) {
     function login(req, res, next) {
         var user = req.body;
 
-        console.log("login enter: ", user);
+        console.log("login enter: ", user.email);
 
         new models.User({
             email: user.email
-        }).fetch().then(function (model) {
-                if (!model) {
+        }).fetch().then(function (userModel) {
+                if (!userModel) {
                     console.log("login failed: unknown user");
                     return res.status(401).send("Invalid credentials");
                 }
 
-                console.log("login: Compare user ", user, " to model ", model.attributes);
+                console.log("login: Compare user ", user, " to model ", userModel.attributes);
 
-                comparePassword(user.password, model.get("cryptedPassword"), function (err, match) {
+                comparePassword(user.password, userModel.get("cryptedPassword"), function (err, match) {
                     if (err) {
-                        console.log("login failed: ",err);
+                        console.log("login failed: ", err);
                         return res.status(401).send("Invalid Credentials");
                     }
                     if (match) {
-                        model.set('token', uuid.v4());
-                        model.save().then(function (savedUser) {
-                            console.log("login succeeded: ",savedUser);
-                            sendUser(res, savedUser.attributes);
-                        }).catch(next);
+                        console.log("login succeeded: ", userModel);
+                        var newToken = uuid.v4();
+                        sendUser(res, userModel.attributes, newToken);
 
+                        new models.UserSessions({
+                            userId: userModel.get("id"),
+                            token: newToken,
+                            accessedAt: new Date(),
+                            updatedAt: new Date()
+                        }).save().then(function(userSessionModel){
+                                usersCache[newToken] = {user: userModel, session: userSessionModel};
+                                updateAccessedAt(usersCache[newToken], next);
+                            });
                     } else {
                         // Passwords don't match
                         console.log("login failed: Passwords don't match");
@@ -139,8 +145,7 @@ module.exports = function (models) {
 
     function logout(req, res, next) {
         var user = req.body;
-
-        console.log("logout ", user);
+        var userId = req.user.id;
 
         var token = req.headers.authorization;
         if (token) {
@@ -150,20 +155,20 @@ module.exports = function (models) {
             delete req.query.token;
         }
 
-        if (token && token in userCache) {
-            delete userCache[token];
+        console.log("logout: user: " + req.user + ' token: ' + token);
+
+        if (token && token in usersCache) {
+            console.log("logout: destroying session");
+            usersCache[token].session.destroy();
+            delete usersCache[token];
         }
+
+        console.log('logout: usersCache: \n', _.keys(usersCache));
 
         res.status(200).send('logout');
     }
 
-    function onRegister(callback)
-    {
-        registerCallback = callback;
-    }
-
-    function authenticate(req, res, next)
-    {
+    function authenticate(req, res, next) {
         var token = req.headers.authorization;
         if (token) {
             token = token.split(' ')[1];
@@ -174,29 +179,58 @@ module.exports = function (models) {
 
         console.log("authenticate: ", token);
 
-        if (token in userCache) {
-            req.user = userCache[token];
-            next();
-        } else {
-            if (!token) {
+        if (!token) { // use anonymous user
+            if(usersCache['anonymous'])
+            {
+                req.user = usersCache['anonymous'].user;
+                return next();
+            }
+            else
+            {
                 new models.User({
                     email: 'anonymous@memslate.com'
                 }).fetch().then(function (model) {
                         if (model) {
-                            userCache[token] = model;
+                            console.log("authenticate: anonymous fetched");
+                            usersCache['anonymous'] = {user:model, session:null};
                             req.user = model;
                             return next();
                         }
                     });
             }
-            else {
-                new models.User({
+        }
+        else {
+            if (token in usersCache) {
+                console.log("authenticate: token in usersCache");
+                req.user = usersCache[token].user;
+
+                updateAccessedAt(usersCache[token]);
+                updateToken(usersCache[token], res, next);
+
+                next();
+            }
+            else { //try to recover session from db
+                new models.UserSessions({
                     token: token
-                }).fetch().then(function (model) {
-                        if (model) {
-                            userCache[token] = model;
-                            req.user = model;
-                            return next();
+                }).fetch().then(function (sessionModel) {
+                        if (sessionModel) {
+                            new models.User({id:sessionModel.get('userId')}).fetch().then(function(userModel){
+                                if(userModel)
+                                {
+                                    usersCache[token] = {user: userModel, session: sessionModel};
+                                    req.user = userModel;
+
+                                    updateAccessedAt(usersCache[token]);
+                                    updateToken(usersCache[token], res, next);
+
+                                    return next();
+                                }
+                                else
+                                {
+                                    console.log("Invalid user '"+sessionModel.get('userId')+"' , returning 401");
+                                    return res.status(401).send("Invalid token");
+                                }
+                            });
                         } else {
                             console.log("Invalid token, returning 401");
                             return res.status(401).send("Invalid token");
@@ -206,8 +240,52 @@ module.exports = function (models) {
         }
     }
 
-    function requireAdmin(req, res, next)
-    {
+    function updateAccessedAt(userCache, next) {
+        userCache.session.set('accessedAt', new Date());
+        userCache.session.save().then(function (savedSessionModel) {
+            //debugging...
+        }).catch(next);
+    }
+
+    function updateUpdatedAt(userCache, next) {
+        userCache.user.set('updatedAt', new Date());
+        userCache.user.save().then(function (savedUserModel) {
+            //debugging...
+        }).catch(next);
+        userCache.session.set('updatedAt', new Date());
+        userCache.session.save().then(function (savedSessionModel) {
+            //debugging...
+        }).catch(next);
+    }
+
+    function updateToken(userCache, response, next) {
+        var numDaysTokenExpiration = 0;
+        var numHoursTokenExpiration = 0;
+        var numMinutesTokenExpiration = 1;
+        var updatedAt = userCache.session.get('updatedAt');
+        var accessedAt = userCache.session.get('accessedAt');
+        if (accessedAt > updatedAt.adjustDate(numDaysTokenExpiration, numHoursTokenExpiration, numMinutesTokenExpiration)) {
+            //clean old session token
+            var oldToken = userCache.session.get('token');
+            delete usersCache[oldToken];
+
+            //create new token and save
+            var newToken = uuid.v4();
+            console.log('updateToken: updating token -> updatedAt: ' + updatedAt.toLocaleString() + ' accessedAt: ' + accessedAt.toLocaleString() +
+                '\n' + oldToken + ' -> ' + newToken);
+
+            response.setHeader('Access-Control-Expose-Headers', 'updated_token');
+            response.setHeader('updated_token', newToken);
+
+            userCache.session.set('token', newToken);
+            updateUpdatedAt(userCache, next);
+
+            usersCache[newToken] = userCache;
+            console.log('updateToken: userCache: \n', _.keys(usersCache));
+        }
+    }
+
+    function requireAdmin(req, res, next) {
         if (!req.user.get('isAdmin')) {
             res.status(401).send("Unauthorized");
         } else {
@@ -215,15 +293,13 @@ module.exports = function (models) {
         }
     }
 
-    function changePwd(req, res)
-    {
+    function changePwd(req, res) {
         var user = req.user; //comes from authenticate call
         var data = req.body;
 
         console.log("changePwd: ", user);
 
-        if (!validator.isLength(data.newPwd, 6))
-        {
+        if (!validator.isLength(data.newPwd, 6)) {
             return res.status(400).send("Password must be at least 6 characters");
         }
 
@@ -237,7 +313,7 @@ module.exports = function (models) {
                 console.log('changePwd:user.cryptedPassword: ', user.get('cryptedPassword'));
                 user.save().then(function (savedUser) {
                     sendUser(res, savedUser.attributes);
-                }).catch(function (err){
+                }).catch(function (err) {
                     return res.status(500).send(err);
                 });
 
@@ -254,7 +330,6 @@ module.exports = function (models) {
         login: login,
         logout: logout,
         requireAdmin: requireAdmin,
-        onRegister: onRegister,
         authenticate: authenticate,
         changePwd: changePwd
     };

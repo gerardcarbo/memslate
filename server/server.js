@@ -17,7 +17,7 @@ exports.serve = function ()
     var auth = require('./auth')(models);
     var routes = require('./routes')(models);
     var games = require('./games')(bookshelf,models);
-
+    var tasks = require('./tasks')(models);
 
     var app = express();
 
@@ -77,4 +77,9 @@ exports.serve = function ()
     app.listen(app.get('port'), function () {
         log.debug('Express server listening on port ' + app.get('port'));
     });
+
+    //start maintenance tasks
+    tasks.cleanSessionsTask(config.maxSessionDays);
+
+    models.UserSessions.cleanSessions(config.maxSessionDays,0,0);
 };

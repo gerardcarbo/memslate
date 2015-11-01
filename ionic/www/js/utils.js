@@ -1,74 +1,55 @@
 "use strict";
 
-if(!Date.prototype.adjustDate){
-    Date.prototype.adjustDate = function(days){
-        var date;
+if (!Date.prototype.adjustDate) {
+  Date.prototype.adjustDate = function (days, hours, minutes) {
 
-        days = days || 0;
+    days = days || 0;
+    hours = hours || 0;
+    minutes = minutes || 0;
 
-        if(days === 0){
-            date = new Date( this.getTime() );
-        } else if(days > 0) {
-            date = new Date( this.getTime() );
+    var date = new Date(
+      this.getTime() + minutes*60000 + hours*60*60000 + days*24*60*60000);
 
-            date.setDate(date.getDate() + days);
-        } else {
-            date = new Date(
-                this.getFullYear(),
-                this.getMonth(),
-                this.getDate() - Math.abs(days),
-                this.getHours(),
-                this.getMinutes(),
-                this.getSeconds(),
-                this.getMilliseconds()
-            );
-        }
-
-        this.setTime(date.getTime());
-
-        return this;
-    };
+    return date;
+  };
 }
 
-String.prototype.toCamelCase = function() {
-    return this.replace(/^([A-Z])|\s(\w)/g, function(match, p1, p2, offset) {
-        if (p2) return p2.toUpperCase();
-        return p1.toLowerCase();
-    });
+String.prototype.toCamelCase = function () {
+  return this.replace(/^([A-Z])|\s(\w)/g, function (match, p1, p2, offset) {
+    if (p2) return p2.toUpperCase();
+    return p1.toLowerCase();
+  });
 };
 
-String.prototype.toDash = function(){
-    return this.replace(/\s+/g, '-').toLowerCase();
+String.prototype.toDash = function () {
+  return this.replace(/\s+/g, '-').toLowerCase();
 };
 
 var msUtils = {};
 
-msUtils.getService = function(serviceName)
-{
-  if(angular.element(document.body).injector())
+msUtils.getService = function (serviceName) {
+  if (angular.element(document.body).injector())
     return angular.element(document.body).injector().get(serviceName);
   else
     return null;
 };
 
-msUtils.objectFindByKey = function(array, key, value) {
-    if(array && array.length)
-    {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i][key] === value) {
-                return array[i];
-            }
-        }
-    }
-    return null;
-};
-
-msUtils.objectDeleteByKey = function(array, key, value) {
-  if(array && array.length)
-  {
+msUtils.objectFindByKey = function (array, key, value) {
+  if (array && array.length) {
     for (var i = 0; i < array.length; i++) {
       if (array[i][key] === value) {
-        array.splice(i,1);
+        return array[i];
+      }
+    }
+  }
+  return null;
+};
+
+msUtils.objectDeleteByKey = function (array, key, value) {
+  if (array && array.length) {
+    for (var i = 0; i < array.length; i++) {
+      if (array[i][key] === value) {
+        array.splice(i, 1);
         break;
       }
     }
@@ -76,84 +57,80 @@ msUtils.objectDeleteByKey = function(array, key, value) {
 };
 
 
-msUtils.decoratePromise = function(promise)
-{
-    //define success and error methods for the promise
-    promise.success = function(fn) {
-        promise.then(fn);
-        return promise;
-    };
-    promise.error = function(fn) {
-        promise.then(null, fn);
-        return promise;
-    };
+msUtils.decoratePromise = function (promise) {
+  //define success and error methods for the promise
+  promise.success = function (fn) {
+    promise.then(fn);
+    return promise;
+  };
+  promise.error = function (fn) {
+    promise.then(null, fn);
+    return promise;
+  };
 };
 
-msUtils.loadJsCssfile = function(filename, filetype){
-    if (filetype=="js"){ //if filename is a external JavaScript file
-        var fileref=document.createElement('script')
-        fileref.setAttribute("type","text/javascript")
-        fileref.setAttribute("src", filename)
-    }
-    else if (filetype=="css"){ //if filename is an external CSS file
-        var fileref=document.createElement("link")
-        fileref.setAttribute("rel", "stylesheet")
-        fileref.setAttribute("type", "text/css")
-        fileref.setAttribute("href", filename)
-    }
-    if (typeof fileref!="undefined")
-        document.getElementsByTagName("head")[0].appendChild(fileref)
+msUtils.loadJsCssfile = function (filename, filetype) {
+  if (filetype == "js") { //if filename is a external JavaScript file
+    var fileref = document.createElement('script')
+    fileref.setAttribute("type", "text/javascript")
+    fileref.setAttribute("src", filename)
+  }
+  else if (filetype == "css") { //if filename is an external CSS file
+    var fileref = document.createElement("link")
+    fileref.setAttribute("rel", "stylesheet")
+    fileref.setAttribute("type", "text/css")
+    fileref.setAttribute("href", filename)
+  }
+  if (typeof fileref != "undefined")
+    document.getElementsByTagName("head")[0].appendChild(fileref)
 };
 
 var regexIso8601 = /^(\d{4}|\+\d{6})(?:-(\d{2})(?:-(\d{2})(?:T(\d{2}):(\d{2}):(\d{2})\.(\d{1,})(Z|([\-+])(\d{2}):(\d{2}))?)?)?)?$/;
 
-msUtils.convertDateStringsToDates = function(input)
-{
-    // Ignore things that aren't objects.
-    if (typeof input !== "object") return input;
+msUtils.convertDateStringsToDates = function (input) {
+  // Ignore things that aren't objects.
+  if (typeof input !== "object") return input;
 
-    for (var key in input) {
-        if (!input.hasOwnProperty(key)) continue;
+  for (var key in input) {
+    if (!input.hasOwnProperty(key)) continue;
 
-        var value = input[key];
-        var match;
-        // Check for string properties which look like dates.
-        if (typeof value === "string" && (match = value.match(regexIso8601))) {
-            var milliseconds = Date.parse(match[0])
-            if (!isNaN(milliseconds)) {
-                input[key] = new Date(milliseconds);
-            }
-        } else if (typeof value === "object") {
-            // Recurse into object
-            msUtils.convertDateStringsToDates(value);
-        }
+    var value = input[key];
+    var match;
+    // Check for string properties which look like dates.
+    if (typeof value === "string" && (match = value.match(regexIso8601))) {
+      var milliseconds = Date.parse(match[0])
+      if (!isNaN(milliseconds)) {
+        input[key] = new Date(milliseconds);
+      }
+    } else if (typeof value === "object") {
+      // Recurse into object
+      msUtils.convertDateStringsToDates(value);
     }
+  }
 
-    return input;
+  return input;
 }
 
 var msConfig = {
-    toastShowTime: 2000
+  toastShowTime: 2000
 };
 
 
-var msLogger = function()
-{
+var msLogger = function () {
   var oldConsoleLog = null;
   var pub = {};
 
-  pub.enableLogger =  function enableLogger()
-  {
-    if(oldConsoleLog == null)
+  pub.enableLogger = function enableLogger() {
+    if (oldConsoleLog == null)
       return;
 
     window['console']['log'] = oldConsoleLog;
   };
 
-  pub.disableLogger = function disableLogger()
-  {
+  pub.disableLogger = function disableLogger() {
     oldConsoleLog = console.log;
-    window['console']['log'] = function() {};
+    window['console']['log'] = function () {
+    };
   };
 
   return pub;

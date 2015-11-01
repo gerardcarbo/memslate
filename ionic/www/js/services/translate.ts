@@ -523,10 +523,15 @@ module Translate {
    */
   var servicesMod = angular.module('memslate.services.translate', ['memslate.services', 'ngResource']);
 
-  servicesMod.run(function (SessionService, TranslateService) {
+  servicesMod.run(function ($rootScope, SessionService, TranslateService, TranslationRes) {
     //Configure current translations provider
     var provider = SessionService.get('TranslateServiceProvider') || 'Yandex';
     TranslateService.setProvider(provider);
+
+    //wait connected
+    $rootScope.$on('ms:connected', function(){
+      console.log('servicesMod: ms:connected');
+    });
   });
 
   servicesMod.service('TranslationsProviders', Translate.TranslationsProviders);

@@ -12,7 +12,47 @@
   /**
    * Authentication services
    */
-  servicesMod.factory('UserService', function ($window, $log, SessionService) {
+  servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserService) {
+    return {
+      request: function (config) {
+        config.headers = config.headers || {};
+        var withCredentials = (config.withCredentials != undefined ? config.withCredentials : true);
+        if (UserService.token() && withCredentials) {
+          config.headers.Authorization = 'Bearer ' + UserService.token();
+        }
+        return config;
+      },
+
+      requestError: function (rejection) {
+        return $q.reject(rejection);
+      },
+
+      /* Set Authentication.isAuthenticated to true if 200 received */
+      response: function (response) {
+        if (response != null && response.status === 200 && UserService.token() && !UserService.isAuthenticated()) {
+          UserService.isAuthenticated(true);
+        }
+        var updated_token;
+        if(updated_token = response.headers().updated_token)
+        {
+          console.log('response: update_token: ' + updated_token)
+          UserService.token(updated_token);
+        }
+        return response || $q.when(response);
+      },
+
+      /* Revoke client authentication if 401 is received */
+      responseError: function (rejection) {
+        if (rejection != null && rejection.status === 401 && (UserService.token() || UserService.isAuthenticated())) {
+          UserService.logout();
+        }
+
+        return $q.reject(rejection);
+      }
+    };
+  });
+
+  servicesMod.factory('UserService', function ($window, $rootScope, SessionService) {
     var anonymousEmail = 'anonymous@memslate.com';
     var anonymousUser = 'Anonymous';
 
@@ -67,59 +107,28 @@
         }
       },
       logout: function () {
-        $log.log('logout');
+        console.log('logout');
         SessionService.remove('token');
         SessionService.put('name', anonymousUser);
         SessionService.put('email', anonymousEmail);
         SessionService.put('isAdmin', false);
         SessionService.put('isAuthenticated', false);
+        $rootScope.$broadcast('ms:logout')
       },
       login: function (usr) {
-        $log.log('login');
+        console.log('login');
         SessionService.put('token', usr.token);
         SessionService.put('name', usr.name);
         SessionService.put('email', usr.email);
         SessionService.put('isAdmin', usr.isAdmin);
         SessionService.put('isAuthenticated', true);
+        $rootScope.$broadcast('ms:login')
       }
     };
 
     return userService;
   });
 
-  servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserService) {
-    return {
-      request: function (config) {
-        config.headers = config.headers || {};
-        var withCredentials = (config.withCredentials != undefined ? config.withCredentials : true);
-        if (UserService.token() && withCredentials) {
-          config.headers.Authorization = 'Bearer ' + UserService.token();
-        }
-        return config;
-      },
-
-      requestError: function (rejection) {
-        return $q.reject(rejection);
-      },
-
-      /* Set Authentication.isAuthenticated to true if 200 received */
-      response: function (response) {
-        if (response != null && response.status === 200 && UserService.token() && !UserService.isAuthenticated()) {
-          UserService.isAuthenticated(true);
-        }
-        return response || $q.when(response);
-      },
-
-      /* Revoke client authentication if 401 is received */
-      responseError: function (rejection) {
-        if (rejection != null && rejection.status === 401 && (UserService.token() || UserService.isAuthenticated())) {
-          UserService.logout();
-        }
-
-        return $q.reject(rejection);
-      }
-    };
-  });
 
   servicesMod.factory('RegistrationService', function ($http, $rootScope, UserService, BaseUrlService) {
     return {
@@ -129,9 +138,6 @@
           password: password
         }).then(function (result) {
           UserService.login(result.data);
-
-          $rootScope.$broadcast('ms:login');
-
           return {done: true};
         }).catch(function (err) {
           return {done: false, err: err};
@@ -139,24 +145,19 @@
       },
 
       logout: function () {
-        ;
         return $http.post(BaseUrlService.get() + 'logout').then(function (result) {
           return {done: true};
         }).catch(function (err) {
           return {done: false, err: err};
         }).finally(function () {
           UserService.logout();
-          $rootScope.$broadcast('ms:logout')
         });
       },
 
       register: function (user) {
         return $http.post(BaseUrlService.get() + 'register', user).then(function (result) {
-          UserService.login(result.data);
-
           $rootScope.$broadcast('ms:register');
-          $rootScope.$broadcast('ms:login');
-
+          UserService.login(result.data);
           return {done: true};
         }).catch(function (err) {
           return {done: false, err: err};
@@ -168,7 +169,6 @@
           .then(function (result) {
             $rootScope.$broadcast('ms:unregister');
             UserService.logout();
-
             return {done: true};
           })
           .catch(function (err) {

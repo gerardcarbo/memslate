@@ -6,102 +6,18 @@
 var Schema = require('./schema');
 var config = require('../config');
 var knex = require('knex')(config.knex_options);
+var Promise = require('knex/lib/promise');
 var bookshelf = require('bookshelf')(knex);
 var models = require('../models')(bookshelf);
+var when = require('when/when');
 var sequence = require('when/sequence');
 var _ = require('lodash');
 var uuid = require('node-uuid');
 var https = require('https');
 var querystring = require('querystring');
-
+var schema_builder = require('./schema_builder');
 var startTranslation = 1299;
 var limitTranslation = 1500;
-
-function createTable(tableName) {
-    console.log('Creating table ' + tableName + '...');
-    return knex.schema.createTable(tableName, function (table) {
-        var column;
-        var fields = Schema[tableName].fields;
-        var columnKeys = _.keys(fields);
-        _.each(columnKeys, function (key) {
-            if (fields[key].type === 'text' && fields[key].hasOwnProperty('fieldtype')) {
-                column = table[fields[key].type](key, fields[key].fieldtype);
-            }
-            else if (fields[key].type === 'string' && fields[key].hasOwnProperty('maxlength')) {
-                column = table[fields[key].type](key, fields[key].maxlength);
-            }
-            else {
-                try {
-                    column = table[fields[key].type](key);
-                }
-                catch (e) {
-                    column = table.specificType(key, fields[key].type);
-                }
-            }
-
-            column.onDelete = function (value) {
-                return this._tableBuilder.foreign.call(this._tableBuilder, this._args[0], this)
-                    ._columnBuilder(this)
-                    .onDelete(value);
-            };
-
-            if (fields[key].hasOwnProperty('nullable') && fields[key].nullable === true) {
-                column.nullable();
-            }
-            else {
-                column.notNullable();
-            }
-            if (fields[key].hasOwnProperty('primary') && fields[key].primary === true) {
-                column.primary();
-            }
-            if (fields[key].hasOwnProperty('unique') && fields[key].unique) {
-                column.unique();
-            }
-            if (fields[key].hasOwnProperty('unsigned') && fields[key].unsigned) {
-                column.unsigned();
-            }
-            if (fields[key].hasOwnProperty('references')) {
-                column.references(fields[key].references);
-            }
-            if (fields[key].hasOwnProperty('onDelete')) {
-                column.onDelete(fields[key].onDelete);
-            }
-            if (fields[key].hasOwnProperty('defaultTo')) {
-                column.defaultTo(fields[key].defaultTo);
-            }
-            if (fields[key].hasOwnProperty('defaultToRaw')) {
-                column.defaultTo(knex.raw(fields[key].defaultToRaw));
-            }
-            if (fields[key].hasOwnProperty('index')) {
-                column.index('index_' + key + '_' + fields[key].index, fields[key].index);
-            }
-        });
-
-        var uniques = Schema[tableName].constrains.uniques;
-        _.each(uniques, function (unique) {
-            table.unique(unique);
-        });
-    });
-}
-
-function createTables() {
-    var tables = [];
-    var tableNames = _.keys(Schema);
-    tables = _.map(tableNames, function (tableName) {
-        return knex.schema.hasTable(tableName).then(function (exists) {
-            if (!exists) {
-                return function () {
-                    return createTable(tableName);
-                };
-            }
-            console.log(tableName + ' already exists');
-            return function () {
-                return null;
-            };
-        });
-    });
-    return sequence(tables);
-}
 
 function addTranslations(start, limit, lang) {
     var fs = require('fs');
@@ -139,20 +55,6 @@ function addTranslations(start, limit, lang) {
                                 if (!model) {
                                     translate(word, 'en', lang, onTranslated);
                                 }
-                                else {
-                                    //reverse translation
-                                    var reverseWord = model.get('mainResult');
-                                    new models.Translations({
-                                        translate: reverseWord,
-                                        fromLang: lang,
-                                        toLang: 'en'
-                                    }).fetch().then(function (reverseModel) {
-                                            if(!reverseModel)
-                                            {
-                                                translate(reverseWord, lang, 'en', onReverseTranslated);
-                                            }
-                                        });
-                                }
                             });
 
                         index++;
@@ -167,6 +69,7 @@ function addTranslations(start, limit, lang) {
 }
 
 function translate(word, fromLang, toLang, onTranslated) {
+    console.log('translating: ' + word + '...')
     var params = {
         key: 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb',
         lang: fromLang + "-" + toLang,
@@ -203,10 +106,10 @@ function addTranslation(translate, fromLang, toLang, result) {
 
     if (!result.def[0]) return;
 
-    console.log("addTranslation:",translate);
-    console.log("addTranslation:",result);
+    console.log("addTranslation:", translate);
+    console.log("addTranslation:", result);
 
-    if(!result.def[0]) return;
+    if (!result.def[0]) return;
 
     var translation = {
         provider: 'yd',
@@ -231,34 +134,38 @@ function addTranslation(translate, fromLang, toLang, result) {
     })
 }
 
-function onTranslated(word, fromLang, toLang, result)
-{
-    if(!result.def[0]) return;
+function onTranslated(word, fromLang, toLang, result) {
+    if (!result.def[0]) return;
 
     addTranslation(word, fromLang, toLang, result);
 
     //reverse translation
-    translate(result.def[0].tr[0].text, toLang, fromLang, onReverseTranslated);
+    new models.Translations({
+        translate: result.def[0].tr[0].text,
+        fromLang: toLang,
+        toLang: fromLang
+    }).fetch().then(function (model) {
+            if (!model) {
+                translate(result.def[0].tr[0].text, toLang, fromLang, onReverseTranslated);
+            }
+        });
 }
 
 function onReverseTranslated(word, fromLang, toLang, resutl) {
     addTranslation(word, fromLang, toLang, resutl);
 }
 
-
 function createUsers() {
     var admin = {
         name: 'Memslate admin user',
         email: 'admin@memslate.com',
-        password: '_.,$late_',
-        token: uuid.v4()
+        password: '_.,$late_'
     };
 
     var anonymous = {
         name: 'Memslate anonymous user',
         email: 'anonymous@memslate.com',
-        password: 'Memolate_',
-        token: uuid.v4()
+        password: 'Memolate_'
     };
 
     var p = models.User.createUser(admin).then(function () {
@@ -278,14 +185,12 @@ function createGames() {
     ];
 
     games.forEach(function (game) {
-        new models.Games(game).fetch().then(function(gameModel){
-            if(!gameModel)
-            {
+        new models.Games(game).fetch().then(function (gameModel) {
+            if (!gameModel) {
                 console.log('Creating game: ' + game.name);
                 new models.Games(game).save();
             }
-            else
-            {
+            else {
                 console.log('Game ' + game.name + ' already created.');
             }
         });
@@ -298,32 +203,18 @@ process.on('uncaughtException', function (err) {
 });
 
 //create tables, users, games and add translations
-createTables()
+schema_builder.createSchema(Schema)
     .then(function () {
-        console.log('Tables created!!');
+        console.log('Schema created!!');
 
         createUsers().then(function () {
             console.log('Users created!!!');
+            addTranslations(startTranslation, limitTranslation, 'es');
+            addTranslations(startTranslation, limitTranslation, 'fr');
+
+            createGames();
         });
-
-        addTranslations(startTranslation, limitTranslation, 'es');
-        addTranslations(startTranslation, limitTranslation, 'fr');
-
-        createGames();
     })
     .otherwise(function (error) {
         console.log(error.stack);
     });
-
-
-/*ColumnBuilder.prototype.onDelete = function(value) {
- return this._tableBuilder.foreign.call(this._tableBuilder, this._args[0], this)
- ._columnBuilder(this)
- .onDelete(value);
- };
-
- ColumnBuilder.prototype.onUpdate = function(value) {
- return this._tableBuilder.foreign.call(this._tableBuilder, this._args[0], this)
- ._columnBuilder(this)
- .onUpdate(value);
- };*/

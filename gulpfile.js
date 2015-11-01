@@ -71,11 +71,6 @@ gulp.task('eslint', function () {
         //.pipe(eslint.failOnError());
 });
 
-gulp.task('clean_config', function() {
-    return gulp.src('ionic/www/js/config.js', {read: false})
-        .pipe(clean());
-});
-
 gulp.task('config_debug', function() {
     return gulp.src('ionic/www/js/config.debug.js', { base: './' })
             .pipe(rename('config.js'))
@@ -88,7 +83,7 @@ gulp.task('config_release', function() {
         .pipe(gulp.dest('ionic/www/js/'));
 });
 
-gulp.task('git_amend_config', shell.task('git -c core.quotepath=false commit --amend --only --no-edit -- ionic/www/js/config.js'));
+gulp.task('git_amend_config', shell.task('git -c core.quotepath=false commit --amend --no-edit -- --all'));
 gulp.task('git_dokku_master', shell.task('git push dokku master'));
 
 gulp.task('dokku_install',function(cb){

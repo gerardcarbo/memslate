@@ -35,3 +35,5 @@ exports.warn = function () {
 exports.error = function () {
     console.log.apply(console, ["[ERROR]"].concat(Array.prototype.slice.call(arguments, 0)));
 };
+
+exports.maxSessionDays = 30; //session expiration

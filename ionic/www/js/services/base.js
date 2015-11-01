@@ -107,6 +107,7 @@
             SessionService.put('currentBaseUrlIndex', self.current);
             $log.log("BaseUrlService: connected to base url '" + alternative + "'");
             deferred.resolve(alternative);
+            $rootScope.$broadcast('ms:connected');
           }
         });
       });
@@ -115,15 +116,8 @@
     };
 
     this.get = function () {
-      return this.alternatives[this.current];
+      return msConfig.baseUrl; //currently returning fixed url
     }
-
-    /* moved to app.js state 'app' resolve.
-     this.connect().then(function(baseUrl){
-     $log.log('then: connected to '+baseUrl);
-     })*/
   });
-
-
 
 })();

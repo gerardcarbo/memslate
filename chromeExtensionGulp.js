@@ -30,6 +30,7 @@ gulp.task('copy_config_debug', function() {
 	return merge(
 		gulp.src(['ionic/www/js/config.debug.js'])
 			.pipe(rename('config.js'))
+			.pipe(debug({title: 'copy_config_debug:'}))
 			.pipe(gulp.dest('chrome_ext/build/www/js/'))
 	);
 });
@@ -38,6 +39,7 @@ gulp.task('copy_config_release', function() {
 	return merge(
 		gulp.src(['ionic/www/js/config.release.js'])
 			.pipe(rename('config.js'))
+			.pipe(debug({title: 'copy_config_release:'}))
 			.pipe(gulp.dest('chrome_ext/build/www/js/'))
 	);
 });

@@ -71,12 +71,7 @@
           url: "/app",
           abstract: true,
           templateUrl: "templates/menu.html",
-          controller: 'AppCtrl',
-          resolve: {
-            baseUrl: function (BaseUrlService) {
-              return BaseUrlService.connect();
-            }
-          }
+          controller: 'AppCtrl'
         })
 
         .state('app.home', {

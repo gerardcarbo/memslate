@@ -471,10 +471,14 @@ var Translate;
      * Translate services
      */
     var servicesMod = angular.module('memslate.services.translate', ['memslate.services', 'ngResource']);
-    servicesMod.run(function (SessionService, TranslateService) {
+    servicesMod.run(function ($rootScope, SessionService, TranslateService, TranslationRes) {
         //Configure current translations provider
         var provider = SessionService.get('TranslateServiceProvider') || 'Yandex';
         TranslateService.setProvider(provider);
+        //wait connected
+        $rootScope.$on('ms:connected', function () {
+            console.log('servicesMod: ms:connected');
+        });
     });
     servicesMod.service('TranslationsProviders', Translate.TranslationsProviders);
     servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');

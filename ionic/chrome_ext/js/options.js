@@ -62,7 +62,7 @@ app.factory("MemslateExtOptions", function () {
   return MemslateExtOptions;
 });
 
-app.controller("MemslateExtApp", function ($scope, SessionService, BaseUrlService, TranslationsProviders, LanguagesService, UI, MemslateExtOptions) {
+app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsProviders, LanguagesService, UI, MemslateExtOptions) {
   "use strict";
   var self = this;
   this.from_lang = MemslateExtOptions.from_lang();

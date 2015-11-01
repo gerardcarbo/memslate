@@ -35,7 +35,6 @@ module.exports = function (bookshelf)
                     log.debug('createUser: user "' + user.name + '" already exists.');
                     return true;
                 } else {
-                    user.token = uuid.v4();
                     user.cryptedPassword = utils.encryptPassword(user.password);
                     delete user.password;
                     return bookshelf.knex('Users').insert(user).then(function () {
@@ -75,8 +74,25 @@ module.exports = function (bookshelf)
         tableName: 'Games'
     });
 
+
+    var UserSessions = bookshelf.Model.extend({
+            tableName: 'UserSessions'
+        },
+        {
+            cleanSessions: function (days, hours, minutes) {
+                this.where('accessedAt', '<', new Date().adjustDate(days, hours, minutes)).fetchAll().then(function (sessions) {
+                    sessions.forEach(function (session) {
+                        console.log('cleanSessions: destroying session: ' + session.get('token'));
+                        session.destroy();
+                    })
+                });
+            }
+        });
+
+
     return {
         User: User,
+        UserSessions: UserSessions,
         Translations: Translations,
         UserTranslations: UserTranslations,
         UserTranslationsSamples: UserTranslationsSamples,
