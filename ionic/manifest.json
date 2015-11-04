@@ -1,7 +1,7 @@
 {
   "name": "Memslate",
   "description": "Memslate > Memorize your Translations.",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "memslate-16.png",

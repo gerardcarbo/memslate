@@ -5,14 +5,14 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
   var options = {};
   var tooltip;
-  var font_size='1em';
+  var font_size = '1em';
 
-  chrome.runtime.onMessage.addListener(function (message){
-    if(message=='options_changed');
+  chrome.runtime.onMessage.addListener(function (message) {
+    if (message == 'options_changed');
     {
       chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
         options = JSON.parse(response.options);
-        tooltip=undefined;
+        tooltip = undefined;
         console.log('options_changed: get_options: ', options);
       });
     }
@@ -22,18 +22,15 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
   chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
 
     options = JSON.parse(response.options);
-    console.log('get_options: ',options);
+    console.log('get_options: ', options);
 
     tooltip = undefined;
 
-    function getToolTip()
-    {
-      if(tooltip)
-      {
+    function getToolTip() {
+      if (tooltip) {
         tooltip.hide();
       }
-      else
-      {
+      else {
         tooltip = new Tooltip({dismiss_on: options.dismiss_on});
       }
       return tooltip;
@@ -182,8 +179,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
           }
 
           //exclude if less than two number of words
-          if(sample.trim().split(/\s+/).length<=2)
-          {
+          if (sample.trim().split(/\s+/).length <= 2) {
             sample = "";
           }
         }
@@ -245,7 +241,12 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         hit = getHitWord(e);
       }
       if (hit.word != '') {
-        chrome.extension.sendRequest({handler: 'translate', sl: document.documentElement.lang, word: hit.word, sample: hit.sample}, function (response) {
+        chrome.extension.sendRequest({
+          handler: 'translate',
+          sl: document.documentElement.lang,
+          word: hit.word,
+          sample: hit.sample
+        }, function (response) {
           console.log('response: ', response);
 
           var translation = MemsExt.deserialize(response.translation);
@@ -255,7 +256,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
             return;
           }
 
-          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(translation,font_size), 'ltr');
+          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(translation, font_size), 'ltr');
         });
       }
     }
@@ -274,28 +275,47 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
     $(document).on('mousestop', function (e) {
       withOptionsSatisfied(e, function () {
         // translate selection unless 'translate selection on alt only' is set
-        if (window.getSelection().toString()) {
-          if (!options.word_key_only) {
-            process(e);
-          }
-        } else {
-          if (options.translate_by == 'point') {
+        if (options.translate_by == 'point') {
+          if (window.getSelection().toString()) {
+            if (!options.word_key_only) {
+              process(e);
+            }
+          } else {
             process(e);
           }
         }
       });
     });
-    $(document).click(function (e) {
-      withOptionsSatisfied(e, function () {
-        if (options.translate_by != 'click')
-          return
-        if ($(e.target).closest('a').length > 0)
-          return
 
-        process(e);
-      });
-      return true;
+    var downtime;
+    $(document).on('mousedown', function() {
+      downtime = new Date().getTime();
     });
+
+    $(document).on('mouseup', function(e) {
+      if((new Date().getTime() - downtime) < 500) {
+        //perform click function
+        withOptionsSatisfied(e, function () {
+          if (options.translate_by != 'click')
+            return;
+          if ($(e.target).closest('a').length > 0)
+            return;
+          if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON')
+            return;
+
+          process(e);
+        });
+        return true;
+      }
+      else {
+        //highlight text
+        return true;
+      }
+    });
+
+    /*$(document).click(function (e) {
+
+    });*/
 
     var show_popup_key_pressed = false;
     $(document).keydown(function (e) {
@@ -317,7 +337,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
               return;
             }
 
-            getToolTip().show(last_mouse_stop.x, last_mouse_stop.y, MemsExt.formatTranslation(translation,font_size), 'ltr');
+            getToolTip().show(last_mouse_stop.x, last_mouse_stop.y, MemsExt.formatTranslation(translation, font_size), 'ltr');
           });
         }
       }

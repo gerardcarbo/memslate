@@ -83,9 +83,9 @@ gulp.task('config_release', function() {
         .pipe(gulp.dest('ionic/www/js/'));
 });
 
-gulp.task('git_amend_config', shell.task('git -c core.quotepath=false commit --amend --no-edit -- --all'));
-gulp.task('git_dokku_master', shell.task('git push dokku master'));
+gulp.task('git_amend_config', shell.task('git commit --all --amend --no-edit'));
+gulp.task('git_dokku_master', shell.task('git push -f dokku master'));
 
 gulp.task('dokku_install',function(cb){
-    runSequence('config_release','git_amend_config','git_dokku_master',cb);
+    runSequence('config_release', 'git_amend_config', 'git_dokku_master',cb);
 });

@@ -113,8 +113,6 @@ module.exports = function (models) {
                     return res.status(401).send("Invalid credentials");
                 }
 
-                console.log("login: Compare user ", user, " to model ", userModel.attributes);
-
                 comparePassword(user.password, userModel.get("cryptedPassword"), function (err, match) {
                     if (err) {
                         console.log("login failed: ", err);
