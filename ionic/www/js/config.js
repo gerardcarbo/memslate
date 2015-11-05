@@ -1,6 +1,6 @@
-//debug
-msLogger.enableLogger();
+//release
+msLogger.disableLogger();
 
 msConfig = {
-  baseUrl: 'http://localhost:5000/'
+  baseUrl: 'http://www.memslate.com/'
 };

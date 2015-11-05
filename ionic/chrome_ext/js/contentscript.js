@@ -304,8 +304,11 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
             return;
 
           process(e);
+
+          e.target.click();
+
         });
-        return true;
+        return;
       }
       else {
         //highlight text

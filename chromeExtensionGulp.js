@@ -23,7 +23,7 @@ gulp.task('build_release', function(callback) {
 });
 
 gulp.task('build_debug', ['clean'], function(callback) {
-	runSequence('clean', 'copy_all', 'copy_config_debug', 'clean_end', 'zip', callback);
+	runSequence('clean', 'copy_all', 'copy_config_debug', 'clean_end', callback);
 });
 
 gulp.task('copy_config_debug', function() {

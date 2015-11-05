@@ -152,7 +152,7 @@
 
         .state('app.user', {
           cache: false,
-          url: "/user",
+          url: "/user/:param",
           views: {
             'menuContent': {
               templateUrl: "templates/user.html",

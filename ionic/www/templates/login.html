@@ -1,38 +1,49 @@
 <ion-modal-view>
-    <ion-header-bar class="bar-dark">
-        <h1 class="title"><img src="img/icon_bn.svg" class="logo">Login</h1>
-        <div class="buttons">
-            <button id="closeButton" class="button button-clear ion-close" ng-click="closeLogin()"> Close</button>
+  <ion-header-bar class="bar-dark">
+    <h1 class="title"><img src="img/icon_bn.svg" class="logo">Login</h1>
+
+    <div class="buttons">
+      <button id="closeButton" class="button button-clear ion-close" ng-click="closeLogin()"> Close</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list">
+      <form id="loginForm" name="loginForm" ng-submit="doLogin(loginForm)" novalidate>
+        <label class="item item-input">
+          <input name="email" type="email" placeholder="Email" ng-model="loginData.email"
+                 ng-model-options="{ updateOn: 'blur' }" required>
+
+          <div ng-show="(loginForm.$submitted || loginForm.email.$touched)">
+            <span id="emailRequired" class="validation-item" ng-show="loginForm.email.$error.required">(required)</span>
+            <span id="emailInvalid" class="validation-item" ng-show="loginForm.email.$error.email">(invalid)</span>
+          </div>
+        </label>
+        <label class="item item-input">
+          <input name="password" type="password" placeholder="Password" ng-model="loginData.password"
+                 ng-model-options="{ updateOn: 'blur' }" required>
+
+          <div ng-show="(loginForm.$submitted || loginForm.password.$touched)">
+            <span id="passwordRequired" class="validation-item"
+                  ng-show="loginForm.password.$error.required">(required)</span>
+          </div>
+        </label>
+        <label class="item">
+          <button id="loginButton" class="button button-block button-positive" type="submit"
+                  ng-disabled="loginForm.inAction">Log in
+          </button>
+        </label>
+      </form>
+      <form>
+        <div class="item">
+          <a type="button" href="" ng-click="openRecover()">Password Lost...</a>
         </div>
-    </ion-header-bar>
-    <ion-content>
-        <div class="list">
-            <form id="loginForm" name="loginForm" ng-submit="doLogin(loginForm)" novalidate>
-                <label class="item item-input">
-                    <input name="email" type="email" placeholder="Email" ng-model="loginData.email"
-                           ng-model-options="{ updateOn: 'blur' }" required>
-                    <div ng-show="(loginForm.$submitted || loginForm.email.$touched)">
-                        <span id="emailRequired" class="validation-item"  ng-show="loginForm.email.$error.required">(required)</span>
-                        <span id="emailInvalid" class="validation-item"  ng-show="loginForm.email.$error.email">(invalid)</span>
-                    </div>
-                </label>
-                <label class="item item-input">
-                    <input name="password" type="password" placeholder="Password" ng-model="loginData.password"
-                           ng-model-options="{ updateOn: 'blur' }" required>
-                    <div ng-show="(loginForm.$submitted || loginForm.password.$touched)">
-                        <span id="passwordRequired" class="validation-item" ng-show="loginForm.password.$error.required">(required)</span>
-                    </div>
-                </label>
-                <label class="item">
-                    <button id="loginButton" class="button button-block button-positive" type="submit" ng-disabled="loginForm.inAction">Log in</button>
-                </label>
-            </form>
-            <label class="item">
-                <button id="registerButton" class="button button-block button-calm" ng-click="openRegister()">
-                    Or not registered? Register
-                </button>
-            </label>
-        </div>
-    </ion-content>
+      </form>
+      <label class="item">
+        <button id="registerButton" class="button button-block button-calm" ng-click="openRegister()">
+          Not registered? Register
+        </button>
+      </label>
+    </div>
+  </ion-content>
 </ion-modal-view>
 

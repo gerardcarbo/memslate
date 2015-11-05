@@ -11,6 +11,7 @@
     this.init = function () {
       $scope.loginData = {};
       $scope.registerData = {};
+      $scope.recoverData = {};
       $scope.inAction = false;
     };
 
@@ -30,6 +31,13 @@
       $scope.registerModal = modal;
     });
 
+    // Create the register modal
+    $ionicModal.fromTemplateUrl('templates/recoverPwd.html', {
+      scope: $scope
+    }).then(function (modal) {
+      $scope.recoverModal = modal;
+    });
+
     // Triggered in the login modal to close it
     $scope.closeLogin = function () {
       $scope.loginModal.hide();
@@ -37,6 +45,10 @@
 
     $scope.closeRegisterLogin = function () {
       $scope.registerModal.hide();
+    };
+
+    $scope.closeRecover = function () {
+      $scope.recoverModal.hide();
     };
 
     // Open the login modal
@@ -48,8 +60,18 @@
       $scope.registerModal.show();
     };
 
+    $scope.recover = function () {
+      $scope.recoverModal.show();
+    };
+
     $scope.openRegister = function () {
       $scope.loginModal.hide().then(function () {
+        $scope.register();
+      });
+    };
+
+    $scope.openRegisterFromRecover = function () {
+      $scope.recoverModal.hide().then(function () {
         $scope.register();
       });
     };
@@ -57,6 +79,12 @@
     $scope.openLogin = function () {
       $scope.registerModal.hide().then(function () {
         $scope.login();
+      });
+    };
+
+    $scope.openRecover = function () {
+      $scope.loginModal.hide().then(function () {
+        $scope.recover();
       });
     };
 
@@ -131,6 +159,34 @@
           $ionicPopup.alert({
             title: 'Registration Failed',
             content: register.err.data,
+            cssClass: 'registrationFailedPopup'
+          });
+        }
+      });
+    };
+
+    $scope.doRecover = function(recoverForm)
+    {
+      if (!recoverForm.$valid) {
+        UI.toast("Some data is not correct. Please, check it.");
+        return false;
+      }
+      console.log('Doing recover: ', $scope.recoverData.email);
+
+      RegistrationService.recoverPwd($scope.recoverData).then(function (error) {
+        if (!error) {
+          $scope.registerModal.hide();
+          UI.toast('Password recovery mail send! please check your email... and change it, please',4000);
+          //$state.go('app.user', { param: 'changePwd' });
+          console.log('recoverPwd done!');
+          $scope.closeRecover();
+        }
+        else {
+            console.log('recover failed',error)
+          var content = error.data && error.data.errors ?  error.data.errors[0].response : JSON.stringify(error.data);
+          $ionicPopup.alert({
+            title: 'Password Recovery Failed',
+            content: content,
             cssClass: 'registrationFailedPopup'
           });
         }
@@ -421,11 +477,14 @@
   controllersMod.controller('MemoCtrl', function ($scope, UI, SessionService, TranslateService, MemoSettingsService) {
     var self = this;
 
+    self.defOffset = 10;
+    self.defLimit = 20;
+
     self.init = function () {
       self.settings = SessionService.getObject('memoSettings');
       if (!self.settings) {
         self.settings = {};
-        self.settings.limit = 20;
+        self.settings.limit = self.defLimit;
         self.settings.offset = 0;
         self.settings.orderWay = 'asc';
 
@@ -445,6 +504,12 @@
 
     self.moreDataCanBeLoaded = function () {
       return self.moreDataAvailable;
+    };
+
+    self.doRefresh = function ()
+    {
+      self.settings.offset += self.defOffset;
+      self.addItems();
     };
 
     self.addItems = function () {
@@ -473,8 +538,9 @@
           }
 
           $scope.$broadcast('scroll.infiniteScrollComplete');
+          $scope.$broadcast('scroll.refreshComplete');
 
-          self.settings.offset += 10;
+          self.settings.offset += self.defOffset;
           self.adding = false;
 
           console.log('addItems: adding items done');
@@ -564,12 +630,17 @@
     });
   });
 
-  controllersMod.controller('UserCtrl', function ($scope, $state, $animate, $ionicHistory, $ionicPopup, UserService, RegistrationService, UI) {
+  controllersMod.controller('UserCtrl', function ($scope, $rootScope, $state, $animate, $ionicHistory, $ionicPopup, UserService, RegistrationService, UI) {
     var self = this;
 
     this.User = UserService;
-
     this.showingChangePwd = false;
+
+    console.log('UserCtrl: enter: ', $state);
+    if($state.params.param === 'changePwd')
+    {
+      this.showingChangePwd=true;
+    };
 
     this.deleteAccount = function () {
       $ionicPopup.confirm({
@@ -589,7 +660,7 @@
           });
         }
       });
-    }
+    };
 
     this.changePassword = function (changePwdForm) {
       if (!changePwdForm.$valid) {

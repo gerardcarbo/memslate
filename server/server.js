@@ -66,6 +66,7 @@ exports.serve = function ()
     app.use('/login', auth.login);
     app.use('/logout', auth.logout);
     app.use('/changePwd', auth.changePwd);
+    app.use('/recoverPwd', auth.recoverPwd);
 
     app.use('/resources', routes.translations);
     app.use('/resources', routes.translationsSamples);
@@ -79,7 +80,7 @@ exports.serve = function ()
     });
 
     //start maintenance tasks
-    tasks.cleanSessionsTask(config.maxSessionDays);
+    tasks.cleanSessionsTask(config.sessionExpiration);
 
-    models.UserSessions.cleanSessions(config.maxSessionDays,0,0);
+    models.UserSessions.cleanSessions(config.sessionExpiration.days,config.sessionExpiration.hours,config.sessionExpiration.minutes);
 };

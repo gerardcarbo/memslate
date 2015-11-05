@@ -185,6 +185,17 @@
           .catch(function (err) {
             return {done: false, err: err};
           });
+      },
+
+      recoverPwd: function(email)
+      {
+        return $http.post(BaseUrlService.get() + 'recoverPwd', email)
+          .then(function (result) {
+            return;
+          })
+          .catch(function (err) {
+            return err;
+          });
       }
     };
   });

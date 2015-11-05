@@ -1,7 +1,7 @@
 {
   "name": "Memslate",
   "description": "Memslate > Memorize your Translations.",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "memslate-16.png",
@@ -14,7 +14,7 @@
     "*://translate.google.com/*","https://*.yandex.net/*", "tabs", "tts"
   ],
   "options_page": "chrome_ext/options.html",
-  "icons": { "16": "memslate-16.png", "128": "memslate-128.png", "256": "memslate-256.png" },
+  "icons": { "16": "memslate-16.png", "32": "memslate-32.png", "128": "memslate-128.png", "256": "memslate-256.png" },
   "background": {
     "page": "chrome_ext/background.html"
     },

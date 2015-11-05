@@ -80,9 +80,11 @@ module.exports = function (bookshelf)
         },
         {
             cleanSessions: function (days, hours, minutes) {
-                this.where('accessedAt', '<', new Date().adjustDate(days, hours, minutes)).fetchAll().then(function (sessions) {
+                var olderDate = new Date().adjustDate(-days, -hours, -minutes);
+                console.log('cleanSessions: older than days: '+days+' hours: '+hours+' minutes: '+minutes+' -> '+olderDate.toLocaleString());
+                this.where('accessedAt', '<', new Date().adjustDate(-days, -hours, -minutes)).fetchAll().then(function (sessions) {
                     sessions.forEach(function (session) {
-                        console.log('cleanSessions: destroying session: ' + session.get('token'));
+                        console.log('cleanSessions: destroying session: ' + session.get('token') + ' accessedAt: '+session.get('accessedAt'));
                         session.destroy();
                     })
                 });
