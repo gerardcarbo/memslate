@@ -128,6 +128,10 @@ var msLogger = function () {
   };
 
   pub.disableLogger = function disableLogger() {
+    var forceDebug;
+    if((forceDebug=localStorage.getItem('forceDebug')) && forceDebug=="true")
+      return;
+
     oldConsoleLog = console.log;
     window['console']['log'] = function () {
     };

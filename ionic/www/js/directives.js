@@ -35,7 +35,8 @@
         preferedItems: '=',
         name: '@',
         selectorClass: '@selectorClass',
-        title: '@'
+        title: '@',
+        unselectedText: '@'
       },
       link: function ($scope) {
 
@@ -65,7 +66,7 @@
         });
 
         $scope.getName = function (value) {
-          if(!value) return '(unselected)';
+          if(!value) return $scope.unselectedText || '(unselected)';
           var item = msUtils.objectFindByKey($scope.items, "value", value);
           if(item) return item.name;
           return undefined;

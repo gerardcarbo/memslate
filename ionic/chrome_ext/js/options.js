@@ -14,6 +14,12 @@ var MemslateExtOptions =
     }
     return localStorage['to_lang'];
   },
+  not_langs: function (langs) {
+    if (langs) {
+      localStorage['not_langs'] = langs;
+    }
+    return localStorage['not_langs'];
+  },
   word_key_only: function (arg) {
     if (arg != undefined) {
       localStorage['word_key_only'] = arg;
@@ -67,6 +73,7 @@ app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsP
   var self = this;
   this.from_lang = MemslateExtOptions.from_lang();
   this.to_lang = MemslateExtOptions.to_lang();
+  this.not_langs = MemslateExtOptions.not_langs() ? MemslateExtOptions.not_langs().split(',') : [];
   this.translate_by = MemslateExtOptions.translate_by();
   this.word_key_only = MemslateExtOptions.word_key_only();
   this.selection_key_only = MemslateExtOptions.selection_key_only();
@@ -95,13 +102,21 @@ app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsP
     }
   });
 
+  this.getLanguage = function(lang){
+    if (!self.languagesTo) return;
+    var item = msUtils.objectFindByKey(self.languagesTo.items, "value", lang);
+    if (item) return item.name;
+    return;
+  };
+
   this.saveOptions = function (showToast) {
     if(!this.to_lang) {
       UI.showAlert('To Language Not Defined','You must define a language to translate to.');
       return;
     }
-    MemslateExtOptions.to_lang(this.to_lang);
     MemslateExtOptions.from_lang(this.from_lang);
+    MemslateExtOptions.to_lang(this.to_lang);
+    MemslateExtOptions.not_langs(this.not_langs);
     MemslateExtOptions.translate_by(this.translate_by);
     MemslateExtOptions.word_key_only(this.word_key_only);
     MemslateExtOptions.selection_key_only(this.selection_key_only);
@@ -127,9 +142,25 @@ app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsP
     $('#word_key_only_key').change(function () {
       $('#word_key_only_key').val(this.value)
     })
-  }
+  };
 
-  populate_popup_show_trigger()
+  populate_popup_show_trigger();
+
+  $scope.$watch('extApp.not_lang', function (newValue, oldValue) {
+    if(newValue) {
+      console.log('extApp.not_lang: '+newValue);
+      var index=0;
+      if((index = self.not_langs.indexOf(newValue)) == -1)
+      {
+        self.not_langs.push(newValue);
+      }
+      else
+      {
+        self.not_langs.splice(index,1);
+      }
+      self.not_lang = undefined;
+    }
+  });
 
 });
 

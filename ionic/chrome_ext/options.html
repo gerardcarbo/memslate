@@ -77,7 +77,15 @@
                      selected-item="extApp.to_lang"
                      class="button-small button-positive options-select"></ms-select>
         </div>
-
+        <div class="option">
+          <label for="not_langs">Do not translate from the following languages: </label>
+          <label class="bold" ng-repeat="lang in extApp.not_langs track by $index">{{extApp.getLanguage(lang)}}<label ng-if="!$last">,&nbsp;</label></label>
+          <ms-select id="not_langs" name="" title="Languages Not Translated"
+                     items="extApp.languagesTo.items" prefered-items="extApp.not_langs"
+                     selected_item="extApp.not_lang"
+                     unselected_text="(select)"
+                     class="button-small button-positive options-select" style="margin-left: 5px"></ms-select>
+        </div>
         <div class="option">
           <input type="checkbox" id="save_translation_sample" ng-model="extApp.save_translation_sample"/>
           <label for="save_translation_sample">Save samples: save the phrase where the translated word is on</label>

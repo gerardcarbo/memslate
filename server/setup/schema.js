@@ -58,7 +58,7 @@ var Schema = {
             id: {type: 'increments',  primary: true},
             userId: {type: 'integer',  unsigned: true, references: 'Users.id',onDelete:'CASCADE'},
             translationId: {type: 'integer',  unsigned: true, references: 'Translations.id',onDelete:'CASCADE'},
-            sample: {type: 'string' }
+            sample: {type: 'string', maxlength: 512 }
         },
         constrains: {
             uniques: [['userId', 'translationId', 'sample']]

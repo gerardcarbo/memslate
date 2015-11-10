@@ -20,6 +20,8 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
   //recover the options to setup the content script (add listeners...)
   chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
+	  
+	if(!response) return;
 
     options = JSON.parse(response.options);
     console.log('get_options: ', options);
@@ -300,7 +302,10 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
             return;
           if ($(e.target).closest('a').length > 0)
             return;
-          if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON')
+          if (e.target.tagName === 'A' ||
+              e.target.tagName === 'BUTTON' ||
+              e.target.tagName === 'INPUT' ||
+              e.target.tagName === 'IMG')
             return;
 
           process(e);
@@ -315,10 +320,6 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         return true;
       }
     });
-
-    /*$(document).click(function (e) {
-
-    });*/
 
     var show_popup_key_pressed = false;
     $(document).keydown(function (e) {

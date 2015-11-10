@@ -3,6 +3,8 @@ var app = angular.module('BackgroundApp', ['memslate.services.translate', 'memsl
 app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
     "use strict";
 
+    var notLanguages = MemslateExtOptions.not_langs().split(',');
+
     RegExp.quote = function (str) {
       return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
     };
@@ -62,8 +64,19 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
       sendResponse(translation);
     }
 
+    function isLanguageNotTranslated(lang)
+    {
+      if(notLanguages)
+      {
+        return notLanguages.indexOf(lang)!=-1
+      }
+      return false;
+    }
+
     function translateWithService(sl, tl, request, sendResponse) {
-      if (sl == 'und' || sl == tl) {
+      if (sl == 'und' ||
+          sl == tl ||
+          isLanguageNotTranslated(sl)) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         msUtils.decoratePromise(promise);
@@ -88,6 +101,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
       return {
         options: JSON.stringify({
           to_lang: MemslateExtOptions.to_lang(),
+          not_langs: notLanguages,
           delay: MemslateExtOptions.delay(),
           word_key_only: MemslateExtOptions.word_key_only(),
           popup_show_trigger: MemslateExtOptions.popup_show_trigger(),
@@ -110,6 +124,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
               chrome.tabs.sendMessage(tabs[i].id, 'options_changed');
             }
           });
+          notLanguages = MemslateExtOptions.not_langs().split(',');
           break;
         case 'get_options':
           console.log("sending options: " + request.handler);
@@ -126,6 +141,11 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
             console.log("translate: chrome tab lang: " + tab_lang + " sl:" + sl + " tl:" + tl);
 
             if (sl == 'auto') {
+              if(isLanguageNotTranslated(tab_lang))
+              {
+                console.log("'auto' -> "+tab_lang+" not translated!");
+                return;
+              }
               //first try with tab_lang
               translateWithService(tab_lang, tl, request, sendResponse).error(function (error) {
                 console.log("'auto' translation failed:", error);
