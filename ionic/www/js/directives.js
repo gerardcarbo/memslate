@@ -88,10 +88,10 @@
         translation: '=',
         parent: '='
       },
-      controller: function ($scope, TranslationSampleRes, UI, UserService) {
+      controller: function ($scope, TranslationSampleRes, UI, UserStatusService) {
         this.isAuthenticated = function () {
-          $log.log('isAuthenticated', UserService.isAuthenticated())
-          return UserService.isAuthenticated();
+          $log.log('isAuthenticated', UserStatusService.isAuthenticated())
+          return UserStatusService.isAuthenticated();
         }
 
         this.saveTranslationSample = function () {

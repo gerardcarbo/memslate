@@ -42,7 +42,7 @@
 
       $rootScope.$on('$stateChangeError', function (e, toState, toParams, fromState, fromParams) {
         $log.log('State Change Error: ', e);
-        event.preventDefault();
+        e.preventDefault();
         msUtils.getService('$state').go('app.home', null, {location: 'replace'});
       });
     })
@@ -64,7 +64,7 @@
       $ionicConfigProvider.scrolling.jsScrolling(false);
     })
 
-    .config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
       $stateProvider
 
         .state('app', {
@@ -137,13 +137,16 @@
           resolve: {
             game: function ($state, $ocLazyLoad, $stateParams, $log) {
               $log.log('game js resolving "' + $stateParams.gameName + '"..');
-              if ($stateParams.gameName === ":gameName") {
+              if ($stateParams.gameName === ":gameName") { //game name not provided -> load play page
                 $log.log('gameName === ":gameName"');
                 $state.go('app.play', null, {location: 'replace'});
                 return false;
               }
+
+              //load css and js
+              $ocLazyLoad.load("css/games/" + $stateParams.gameName + "/" + $stateParams.gameName + ".css");
               return $ocLazyLoad.load("js/games/" + $stateParams.gameName + "/" + $stateParams.gameName + ".js").then(function () {
-                $log.log('game js resolved');
+                $log.log('game "' + $stateParams.gameName + '" resolved');
                 return true;
               });
             }

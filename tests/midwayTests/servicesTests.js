@@ -403,7 +403,7 @@ describe("Midway: Services Tests", function () {
     });
 
     describe('Registration Service tests', function () {
-        var RegistrationService;
+        var UserService;
 
         var registerData = {};
         registerData.name = 'test';
@@ -413,21 +413,21 @@ describe("Midway: Services Tests", function () {
         var newPassword = "testtest2";
 
         beforeEach(function () {
-            RegistrationService = tester.inject('RegistrationService');
+            UserService = tester.inject('UserService');
         });
 
         beforeEach(function (done) {
             //try to unregister first (if previous test failed)
-            RegistrationService.login(registerData.email, registerData.password).then(function (res) {
+            UserService.login(registerData.email, registerData.password).then(function (res) {
                 if (res.done) {
-                    RegistrationService.unregister().then(function () {
+                    UserService.unregister().then(function () {
                         done()
                     });
                 }
                 else {
-                    RegistrationService.login(registerData.email, newPassword).then(function (res) {
+                    UserService.login(registerData.email, newPassword).then(function (res) {
                         if (res.done) {
-                            RegistrationService.unregister().then(function () {
+                            UserService.unregister().then(function () {
                                 done()
                             });
                         }
@@ -440,35 +440,35 @@ describe("Midway: Services Tests", function () {
         });
 
         it("Register, Change Password, Login, Change Password, Login, Unregister", function (done) {
-            RegistrationService.register(registerData).then(function (result) {
+            UserService.register(registerData).then(function (result) {
                     console.log('register: ', result);
                     expect(result.done).toEqual(true);
-                    return RegistrationService.changePassword(registerData.password, newPassword);
+                    return UserService.changePassword(registerData.password, newPassword);
                 }
             ).then(function (res) {
                     console.log('changePassword', res);
                     expect(res.done).toBe(true);
-                    return RegistrationService.logout();
+                    return UserService.logout();
                 }
             ).then(function (res) {
                     console.log('logout', res);
                     expect(res.done).toBe(true);
-                    return RegistrationService.login(registerData.email, newPassword);
+                    return UserService.login(registerData.email, newPassword);
                 }
             ).then(function (res) {
                     console.log('login new pwd', res);
                     expect(res.done).toBe(true);
-                    return RegistrationService.changePassword(newPassword, registerData.password);
+                    return UserService.changePassword(newPassword, registerData.password);
                 }
             ).then(function (res) {
                     console.log('changePassword II', res);
                     expect(res.done).toBe(true);
-                    return RegistrationService.login(registerData.email, registerData.password);
+                    return UserService.login(registerData.email, registerData.password);
                 }
             ).then(function (res) {
                     console.log('login new pwd II', res);
                     expect(res.done).toBe(true);
-                    return RegistrationService.unregister();
+                    return UserService.unregister();
                 }
             ).then(function (res) {
                     console.log('unregister', res);
@@ -479,34 +479,34 @@ describe("Midway: Services Tests", function () {
         },15000);
 
         it("Register, Logout, Login fail, Login, Unregister", function (done) {
-            RegistrationService.register(registerData).then(function (result) {
+            UserService.register(registerData).then(function (result) {
                     console.log('register: ', result)
                     expect(result.done).toEqual(true);
                     return true;
                 }
             ).then(function () {
                     console.log('logout');
-                    return RegistrationService.logout();
+                    return UserService.logout();
                 }
             ).then(function () {
                     console.log('login fail');
-                    return RegistrationService.login('test@testtest.com', 'KKKK'); //login failed
+                    return UserService.login('test@testtest.com', 'KKKK'); //login failed
                 }
             ).then(function (res) {
                     console.log('login failed: ', res);
                     expect(res.done).toBe(false); //invalid login data. should have failed.
-                    return RegistrationService.login('test@testtest.com', 'testtest');
+                    return UserService.login('test@testtest.com', 'testtest');
                 }
             ).then(function (res) {
                     console.log('login succeeded: ', res);
                     expect(res.done).toBe(true); //valid login data. should have succeeded.
                     //login succeeded -> unregister
-                    return RegistrationService.unregister();
+                    return UserService.unregister();
                 }
             ).then(function (res) {
                     console.log('unregister: ', res);
                     expect(res.done).toBe(true);
-                    return RegistrationService.login('test@testtest.com', 'testtest');
+                    return UserService.login('test@testtest.com', 'testtest');
                 }
             ).then(function (res) {
                     console.log('login failed: ', res);

@@ -71,7 +71,7 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
         var self = this;
         SessionService.put('basicTestSelectedLangs', this.selectedLangs);
         this.testStarted = true;
-
+        this.retrying = false;
         var langs = this.selectedLangs.split('-');
 
         GamesService.getGame('basic-test', 'questions?fromLang=' + langs[0] + '&toLang=' + langs[1] + '&questions=' + this.numQuestions + '&answers=' + this.numAnswers + '&anonymous='+self.useAnonymousLangs).success(function (gameQuestions) {
@@ -98,6 +98,10 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
           }
         }
         this.allResponsesGiven = allDone;
+        if(allDone && !this.retrying) {
+          this.evaluateTest();
+        }
+
       };
 
       this.showAnswer = function (i) {
@@ -123,6 +127,17 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
             break;
           }
         }
+      };
+
+      this.playAgain = function ()
+      {
+        this.gameQuestions = undefined;
+        this.showResults = false;
+        this.testStarted = false;
+        this.allResponsesGiven = false;
+        this.retrying = false;
+
+        $ionicScrollDelegate.scrollTop(true);
       };
 
       this.evaluateTest = function () {
@@ -185,6 +200,7 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
       $scope.tryAgain = function () {
         $scope.modal.hide();
         self.showResults = false;
+        self.retrying=true;
         self.showAnswer(0);
       };
 
@@ -197,12 +213,7 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
       $scope.playAgain = function () {
         $scope.modal.hide();
 
-        self.gameQuestions = undefined;
-        self.showResults = false;
-        self.testStarted = false;
-        self.allResponsesGiven = false;
-
-        $ionicScrollDelegate.scrollTop(true);
+        self.playAgain();
       };
 
       $scope.$on('$destroy', function () {

@@ -49,7 +49,7 @@ textarea {
   @include align-items(center);
   position: relative;
   overflow: hidden;
-  padding: 6px 10px 5px 10px;
+  padding: 6px 0 5px 16px;
 
   input {
     @include border-radius(0);
@@ -154,6 +154,15 @@ textarea {
 .item-stacked-label input {
   overflow: hidden;
   height: $line-height-computed + $font-size-base + 12px;
+}
+
+.item-select.item-stacked-label select {
+  position: relative;
+  padding: 0px;
+  max-width: 90%;
+  direction:ltr;
+  white-space: pre-wrap;
+  margin: -3px;
 }
 
 .item-floating-label {

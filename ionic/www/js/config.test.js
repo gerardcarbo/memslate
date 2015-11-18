@@ -1,4 +1,5 @@
-//release
+//test
+msDebug = true;
 msLogger.enableLogger();
 
 msConfig = {

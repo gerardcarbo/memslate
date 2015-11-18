@@ -14,7 +14,7 @@ var uglify = require("gulp-uglify");
 var eslint = require('gulp-eslint');
 
 var paths = {
-  sass: ['./www/lib/ionic/scss/**/*.scss']
+  sass: ['./scss/scss/**/*.scss']
 };
 
 gulp.task('default', ['serve-ionic']);

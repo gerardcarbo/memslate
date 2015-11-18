@@ -12,6 +12,14 @@
         <span class="input-label">Email:</span>
         <span id="userEmail" class="input-label">{{userCtrl.User.email()}}</span>
       </label>
+      <label class="item item-input" style="align-items: flex-start;">
+        <span class="input-label">Translations:</span>
+        <span>
+        <div id="userTranslations" ng-repeat="langStats in userCtrl.UserStatistics" class="input-label">
+          {{::langStats.fromLang}}<i class="icon ion-arrow-right-b smaller-font" style="margin:5px"></i>{{::langStats.toLang}} : {{::langStats.count}}
+        </div>
+        </span>
+      </label>
       <label class="item item-input">
         <button id="showChangePwdButton" ng-click="userCtrl.showingChangePwd=true" ng-hide="userCtrl.showingChangePwd"
                 class="button button-positive animate-hide">Change Password

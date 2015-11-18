@@ -4,7 +4,6 @@
 exports.serve = function ()
 {
     "use strict";
-
     var express = require('express');
     var bodyParser = require('body-parser');
     var methodOverride = require('method-override');
@@ -17,7 +16,8 @@ exports.serve = function ()
     var auth = require('./auth')(models);
     var routes = require('./routes')(models);
     var games = require('./games')(bookshelf,models);
-    var tasks = require('./tasks')(models);
+    var user = require('./user')(knex,models);
+    var tasks = require('./tasks')(knex,models);
 
     var app = express();
 
@@ -55,18 +55,20 @@ exports.serve = function ()
     app.use(cors());
 
     app.all('/resources/*', auth.authenticate);
-    app.all('/unregister', auth.authenticate);
-    app.all('/changePwd', auth.authenticate);
-    app.all('/logout', auth.authenticate);
-    app.all('/changePwd', auth.authenticate);
+    app.all('/user/unregister', auth.authenticate);
+    app.all('/user/changePwd', auth.authenticate);
+    app.all('/user/logout', auth.authenticate);
+    app.all('/user/changePwd', auth.authenticate);
+    app.all('/user/statistics', auth.authenticate);
 
     app.use('/connect', function(req, res){res.send('ok')});
-    app.use('/register', auth.register);
-    app.use('/unregister', auth.unregister);
-    app.use('/login', auth.login);
-    app.use('/logout', auth.logout);
-    app.use('/changePwd', auth.changePwd);
-    app.use('/recoverPwd', auth.recoverPwd);
+    app.use('/user/register', auth.register);
+    app.use('/user/unregister', auth.unregister);
+    app.use('/user/login', auth.login);
+    app.use('/user/logout', auth.logout);
+    app.use('/user/changePwd', auth.changePwd);
+    app.use('/user/recoverPwd', auth.recoverPwd);
+    app.use('/user/statistics', user.sendStatistics);
 
     app.use('/resources', routes.translations);
     app.use('/resources', routes.translationsSamples);
@@ -81,6 +83,7 @@ exports.serve = function ()
 
     //start maintenance tasks
     tasks.cleanSessionsTask(config.sessionExpiration);
+    tasks.refreshAnonymousTranslationsTask(config.ANONIMOUS_USER_ID);
 
     models.UserSessions.cleanSessions(config.sessionExpiration.days,config.sessionExpiration.hours,config.sessionExpiration.minutes);
 };

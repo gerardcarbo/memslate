@@ -61,6 +61,15 @@ body
   padding: 0px !important;
 }
 
+.no-border {
+  border: 0px;
+}
+
+.multiline
+{
+  white-space: pre-wrap;
+}
+
 .no-overflow
 {
   overflow: hidden;
@@ -94,7 +103,7 @@ body
 
 .logo
 {
-  height: 32px; vertical-align: middle; padding-right: 8px;margin-top: -5px;
+  height: 42px; vertical-align: middle; padding-right: 8px;margin-top: -5px;
 }
 
 .logo-small
@@ -179,7 +188,6 @@ body
 }
 
 .list .item.item-accordion.ng-hide {
-  line-height: 0px;
   height: 0px;
 }
 
@@ -188,10 +196,11 @@ body
 }
 
 .powered_by {
-  margin-top: 3px;
-  text-align: center;
   width: 100%;
-  padding-right: 5px;
+  flex:1;
+  flex-flow: row;
+  flex-direction: row-reverse;
+  padding: 0px
 }
 
 .home .scroll, .translate .scroll {
@@ -241,7 +250,10 @@ body
 }
 
 .translation_def {
-  margin-bottom: 15px;
+  margin-top:3px;
+  overflow: auto;
+  overflow-y: hidden;
+  width:100%;
 }
 
 .bold {
@@ -425,19 +437,14 @@ body
 }
 
 .animate-hide {
-  -webkit-transition: all linear 0.5s;
-  transition: all linear 0.5s;
-  opacity: 1;
-  line-height: 20px;
-  min-width: 0px;
+  -webkit-transition: all linear 0.7s;
+  transition: all linear 0.7s;
+  z-index: 0;
 }
 
 .animate-hide.ng-hide {
-  opacity: 0;
-  width: 0px;
-  height: 0px;
-  line-height: 0;
-  min-height: 0px;
+  transform: translate3d(0, -100%, 0);
+  max-height: 0;
 }
 
 .animate-hide.ms-hide {
@@ -484,11 +491,20 @@ body
 }
 
 @media screen and (min-width: 800px) {
+  .bar-header
+  {
+    height: 50px;
+  }
+
+  .has-header {
+    top: 50px;
+  }
+
   .item {
     font-size: 19px;
   }
   .bar .title {
-    font-size: 21px;
+    font-size: 24px;
   }
   .translate-lang
   {
@@ -517,6 +533,7 @@ body
   .button, .bar .button
   {
     font-size: 21px;
+    min-height: 21px;
   }
 
   .bar-footer {
@@ -525,6 +542,23 @@ body
 
   .bar-footer > .button {
     height: 54px;
+  }
+
+  .question
+  {
+    font-size: 20px;
+    line-height: 20px;
+  }
+
+  label, p, div {
+    font-size: 19px;
+    line-height: 24px;
+  }
+
+  .featurette-text
+  {
+    font-size: 19px;
+    line-height: 19px;
   }
 }
 

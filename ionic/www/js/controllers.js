@@ -6,7 +6,7 @@
 
   controllersMod.controller('AppCtrl', function ($scope, $rootScope, $timeout, $state, $ionicModal, $ionicPopup,
                                                  $cordovaSplashscreen,
-                                                 RegistrationService, UserService, SessionService, UI, MemoSettingsService) {
+                                                 UserService, UserStatusService, SessionService, UI, MemoSettingsService) {
     // Form data for the login modal
     this.init = function () {
       $scope.loginData = {};
@@ -89,7 +89,7 @@
     };
 
     $scope.userLoggedin = function () {
-      return UserService.isAuthenticated();
+      return UserStatusService.isAuthenticated();
     };
 
     $scope.stateIs = function (state) {
@@ -105,7 +105,7 @@
       }
       $scope.inAction = true;
       console.log('Doing login: ', $scope.loginData.email);
-      RegistrationService.login($scope.loginData.email, $scope.loginData.password).then(function (login) {
+      UserService.login($scope.loginData.email, $scope.loginData.password).then(function (login) {
         if (login.done) {
           $scope.loginModal.hide();
           $scope.loginData.email = $scope.loginData.password = "";
@@ -123,17 +123,17 @@
       UI.showOkCancelModal("Close Session", "Do you really want to logout?'")
         .then(function (res) {
           if (res === true) {
-            RegistrationService.logout();
+            UserService.logout();
           }
         });
     };
 
     $scope.isAuthenticated = function () {
-      return UserService.isAuthenticated();
+      return UserStatusService.isAuthenticated();
     };
 
     $scope.userName = function () {
-      return UserService.name();
+      return UserStatusService.name();
     };
 
     $scope.doRegister = function (registerForm) {
@@ -150,7 +150,7 @@
         });
         return null;
       }
-      RegistrationService.register($scope.registerData).then(function (register) {
+      UserService.register($scope.registerData).then(function (register) {
         if (register.done) {
           $scope.registerModal.hide();
           console.log('register done!');
@@ -173,7 +173,7 @@
       }
       console.log('Doing recover: ', $scope.recoverData.email);
 
-      RegistrationService.recoverPwd($scope.recoverData).then(function (error) {
+      UserService.recoverPwd($scope.recoverData).then(function (error) {
         if (!error) {
           $scope.registerModal.hide();
           UI.toast('Password recovery mail send! please check your email... and change it, please',4000);
@@ -265,18 +265,20 @@
 
       angular.element(document.getElementById('btnSwap')).toggleClass('ms-rotate-180');
 
-      var bFrom = angular.element(document.getElementById('fromLang')).children()[0];
+      var bFrom = angular.element(document.getElementById('fromLang')).children()[1];
       $animate.addClass(bFrom, 'ms-hide').then(function () {
         translateCtrl.languages.user.fromLang = toLang;
-        $animate.removeClass(bFrom, 'ms-hide');
-        translateCtrl.swappingFrom = false;
+        $animate.removeClass(bFrom, 'ms-hide').then(function () {
+          translateCtrl.swappingFrom = false;
+        });
       });
 
-      var bTo = angular.element(document.getElementById('toLang')).children()[0];
+      var bTo = angular.element(document.getElementById('toLang')).children()[1];
       $animate.addClass(bTo, 'ms-hide').then(function () {
         translateCtrl.languages.user.toLang = fromLang;
-        $animate.removeClass(bTo, 'ms-hide');
-        translateCtrl.swappingTo = false;
+        $animate.removeClass(bTo, 'ms-hide').then(function () {
+          translateCtrl.swappingTo = false;
+        });
       });
 
 
@@ -474,22 +476,21 @@
     };
   });
 
-  controllersMod.controller('MemoCtrl', function ($scope, UI, SessionService, TranslateService, MemoSettingsService) {
+  controllersMod.controller('MemoCtrl', function ($scope, UI, UserStatusService, SessionService, TranslateService, MemoSettingsService) {
     var self = this;
 
-    self.defOffset = 10;
     self.defLimit = 20;
 
     self.init = function () {
       self.settings = SessionService.getObject('memoSettings');
       if (!self.settings) {
         self.settings = {};
-        self.settings.limit = self.defLimit;
-        self.settings.offset = 0;
         self.settings.orderWay = 'asc';
-
-        SessionService.putObject('memoSettings', self.settings);
       }
+      self.settings.offset = 0;
+      self.settings.limit = self.defLimit;
+
+      SessionService.putObject('memoSettings', self.settings);
 
       self.settings.columns = "Translations.id, fromLang, toLang, userTranslationInsertTime as insertTime, translate, mainResult";
 
@@ -508,7 +509,8 @@
 
     self.doRefresh = function ()
     {
-      self.settings.offset += self.defOffset;
+      self.settings.offset = 0;
+      self.settings.limit = self.defLimit;
       self.addItems();
     };
 
@@ -540,7 +542,7 @@
           $scope.$broadcast('scroll.infiniteScrollComplete');
           $scope.$broadcast('scroll.refreshComplete');
 
-          self.settings.offset += self.defOffset;
+          self.settings.offset += self.settings.limit;
           self.adding = false;
 
           console.log('addItems: adding items done');
@@ -597,6 +599,10 @@
               self.filterSettings.filterByLanguages;
     };
 
+    self.isAuthenticated = function() {
+      return UserStatusService.isAuthenticated();
+    };
+
     self.unfilter = function() {
       self.filterSettings.filterByString=false;
       self.filterSettings.filterByDates=false;
@@ -630,11 +636,21 @@
     });
   });
 
-  controllersMod.controller('UserCtrl', function ($scope, $rootScope, $state, $animate, $ionicHistory, $ionicPopup, UserService, RegistrationService, UI) {
+  controllersMod.controller('UserCtrl', function ($scope, $rootScope, $state, $animate, $ionicHistory, $ionicPopup, UserStatusService, UserService, UI) {
     var self = this;
 
-    this.User = UserService;
+    this.User = UserStatusService;
+    this.UserStatistics = {};
     this.showingChangePwd = false;
+
+    this.RefreshStatistics = function()
+    {
+      UserService.getStatistics().success(function(stats){
+        self.UserStatistics = stats;
+      });
+    };
+
+    this.RefreshStatistics();
 
     console.log('UserCtrl: enter: ', $state);
     if($state.params.param === 'changePwd')
@@ -649,7 +665,7 @@
         cssClass: 'deleteAccountPopup'
       }).then(function (res) {
         if (res) {
-          RegistrationService.unregister().then(function (res) {
+          UserService.unregister().then(function (res) {
             if (res.done) {
               UI.toast("Account Deleted");
               $state.go('app.home', null, {location: 'replace'});
@@ -672,7 +688,7 @@
         return false;
       }
 
-      RegistrationService.changePassword(this.oldPwd, this.newPwd).then(function (res) {
+      UserService.changePassword(this.oldPwd, this.newPwd).then(function (res) {
         if (res.done) {
           UI.toast("Password Changed");
           self.oldPwd = self.newPwd = self.newPwd2 = "";
@@ -682,7 +698,10 @@
           UI.toast("Failed to change password: " + res.err.data);
         }
       });
-    }
+    };
+
+    $scope.$on('ms:login', self.RefreshStatistics);
+    $scope.$on('ms:logout', self.RefreshStatistics);
   });
 
   controllersMod.controller('PlayCtrl', function ($scope, $http, $compile, $timeout, $ocLazyLoad, $state, $ionicHistory, UI, GamesService) {
@@ -692,8 +711,12 @@
     self.games = undefined;
 
     GamesService.getGames().success(function (games) {
-      //$timeout(function(){self.games = games;},4000);
       self.games = games;
+    })
+    .error(function(err){ //404 error -> try again
+      GamesService.getGames().success(function (games) {
+        self.games = games;
+      })
     });
 
     self.playGame = function (gameIndex) {

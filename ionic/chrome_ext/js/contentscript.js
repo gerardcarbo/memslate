@@ -6,6 +6,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
   var options = {};
   var tooltip;
   var font_size = '1em';
+  var dblclicked=false;
 
   chrome.runtime.onMessage.addListener(function (message) {
     if (message == 'options_changed');
@@ -20,7 +21,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
   //recover the options to setup the content script (add listeners...)
   chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
-	  
+
 	if(!response) return;
 
     options = JSON.parse(response.options);
@@ -211,12 +212,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       var hit = {word: ''};
       if (selection.toString()) {
 
-        if (options.word_key_only) {
-          console.log('Skip because "word_key_only"');
-          return;
-        }
-
-        console.log('Got selection: ' + selection.toString());
+        console.log('Selection gotten: ' + selection.toString());
 
         var sel_container = selection.getRangeAt(0).commonAncestorContainer;
 
@@ -251,6 +247,8 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         }, function (response) {
           console.log('response: ', response);
 
+          if(dblclicked) return;
+
           var translation = MemsExt.deserialize(response.translation);
 
           if (!translation) {
@@ -265,11 +263,6 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
     function withOptionsSatisfied(e, do_stuff) {
       if (options.to_lang) {
-        //respect 'translate only when alt pressed' option
-        if (options.word_key_only && !show_popup_key_pressed) {
-          return
-        }
-
         do_stuff();
       }
     }
@@ -278,75 +271,47 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       withOptionsSatisfied(e, function () {
         // translate selection unless 'translate selection on alt only' is set
         if (options.translate_by == 'point') {
-          if (window.getSelection().toString()) {
-            if (!options.word_key_only) {
-              process(e);
-            }
-          } else {
-            process(e);
-          }
+          process(e);
         }
       });
     });
 
-    var downtime;
+    var downtime=null;
     $(document).on('mousedown', function() {
       downtime = new Date().getTime();
     });
 
-    $(document).on('mouseup', function(e) {
-      if((new Date().getTime() - downtime) < 500) {
-        //perform click function
-        withOptionsSatisfied(e, function () {
-          if (options.translate_by != 'click')
-            return;
-          if ($(e.target).closest('a').length > 0)
-            return;
-          if (e.target.tagName === 'A' ||
-              e.target.tagName === 'BUTTON' ||
-              e.target.tagName === 'INPUT' ||
-              e.target.tagName === 'IMG')
-            return;
-
-          process(e);
-
-          e.target.click();
-
-        });
+    $(document).on('click', function(e) {
+      if(e.which!=1) { //check right button
         return;
       }
-      else {
-        //highlight text
-        return true;
+      if(e.originalEvent.detail > 1) { //ckeck double click
+        dblclicked=true;
+        return;
       }
-    });
+      dblclicked=false;
+      if((new Date().getTime() - downtime) > 500) { //check selecting
+        return;
+      }
 
-    var show_popup_key_pressed = false;
-    $(document).keydown(function (e) {
-      if (MemsExt.modifierKeys[event.keyCode] == options.popup_show_trigger) {
-        show_popup_key_pressed = true;
-
-        var selection = window.getSelection().toString();
-
-        if (options.word_key_only && selection) {
-          console.log('Got word_key_only');
-
-          chrome.extension.sendRequest({handler: 'translate', word: selection}, function (response) {
-            console.log('response: ', response);
-
-            var translation = MemsExt.deserialize(response.translation);
-
-            if (!translation) {
-              console.log('skipping empty translation');
-              return;
-            }
-
-            getToolTip().show(last_mouse_stop.x, last_mouse_stop.y, MemsExt.formatTranslation(translation, font_size), 'ltr');
-          });
+      //it is a simple click
+      withOptionsSatisfied(e, function () {
+        if (options.translate_by != 'click')
+          return;
+        if ($(e.target).closest('a').length > 0)
+          return;
+        if (e.target.tagName === 'A' ||
+            e.target.tagName === 'BUTTON' ||
+            e.target.tagName === 'INPUT' ||
+            e.target.tagName === 'IMG' ||
+            e.target.innerText === '')
+        {
+          return;
         }
-      }
-    }).keyup(function (event) {
-      show_popup_key_pressed = false;
+        //process de event
+        process(e);
+      });
+      return;
     });
 
     function hasMouseReallyMoved(e) { //or is it a tremor?
@@ -376,16 +341,6 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       clearTimeout(timer25);
 
       var delay = options.delay;
-
-      if (window.getSelection().toString()) {
-        if (options.word_key_only) {
-          delay = 200;
-        }
-      } else {
-        if (options.word_key_only) {
-          delay = 200;
-        }
-      }
 
       timer25 = setTimeout(function () {
         var mousestop = new $.Event("mousestop");

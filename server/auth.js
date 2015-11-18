@@ -6,7 +6,6 @@ var bcrypt = require('bcryptjs'),
     config = require('./config'),
     validator = require('validator'),
     nodemailer = require('nodemailer'),
-    //smtpTransport = require('nodemailer-smtp-transport'),
     _ = require('lodash');
 
 module.exports = function (models) {

@@ -1,4 +1,5 @@
 //release
+msDebug = false;
 msLogger.disableLogger();
 
 msConfig = {

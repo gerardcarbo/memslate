@@ -3,8 +3,6 @@ var app = angular.module('BackgroundApp', ['memslate.services.translate', 'memsl
 app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
     "use strict";
 
-    var notLanguages = MemslateExtOptions.not_langs().split(',');
-
     RegExp.quote = function (str) {
       return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
     };
@@ -66,9 +64,9 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
 
     function isLanguageNotTranslated(lang)
     {
-      if(notLanguages)
+      if(MemslateExtOptions.not_langs())
       {
-        return notLanguages.indexOf(lang)!=-1
+        return MemslateExtOptions.not_langs().split(',').indexOf(lang)!=-1
       }
       return false;
     }
@@ -101,10 +99,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
       return {
         options: JSON.stringify({
           to_lang: MemslateExtOptions.to_lang(),
-          not_langs: notLanguages,
           delay: MemslateExtOptions.delay(),
-          word_key_only: MemslateExtOptions.word_key_only(),
-          popup_show_trigger: MemslateExtOptions.popup_show_trigger(),
           translate_by: MemslateExtOptions.translate_by(),
           save_translation_sample: MemslateExtOptions.save_translation_sample(),
           dismiss_on: MemslateExtOptions.dismiss_on()
@@ -124,7 +119,6 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
               chrome.tabs.sendMessage(tabs[i].id, 'options_changed');
             }
           });
-          notLanguages = MemslateExtOptions.not_langs().split(',');
           break;
         case 'get_options':
           console.log("sending options: " + request.handler);

@@ -115,7 +115,8 @@ var msConfig = {
   toastShowTime: 2000
 };
 
-
+// Enable or disable console.log
+// To force logging execute: localStorage.setItem('forceDebug','true') on console
 var msLogger = function () {
   var oldConsoleLog = null;
   var pub = {};

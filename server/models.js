@@ -52,6 +52,10 @@ module.exports = function (bookshelf)
         tableName: 'Translations'
     });
 
+    var TranslationsAnonymous = bookshelf.Model.extend({
+        tableName: 'TranslationsAnonymous'
+    });
+
     var UserTranslations = bookshelf.Model.extend({
         tableName: 'UserTranslations',
         translation: function () {
@@ -96,6 +100,7 @@ module.exports = function (bookshelf)
         User: User,
         UserSessions: UserSessions,
         Translations: Translations,
+        TranslationsAnonymous: TranslationsAnonymous,
         UserTranslations: UserTranslations,
         UserTranslationsSamples: UserTranslationsSamples,
         UserLanguages: UserLanguages,

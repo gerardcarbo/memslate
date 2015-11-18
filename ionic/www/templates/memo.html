@@ -7,10 +7,37 @@
       pulling-text="Pull to refresh..."
       on-refresh="memoCtrl.doRefresh()">
     </ion-refresher>
-    <div class="item center-text assertive-bg light" ng-show="memoCtrl.isFiltered()">Filter Active
-      <button class="button button-medium button-energized" ng-click="memoCtrl.unfilter()"><span
-        class=strikethrough><span class="ion-funnel"></span></span>&nbsp;Unfilter
-      </button>
+    <div class="item center-text assertive-bg light"
+         style="padding: 5px;display:flex;flex-flow: row;align-items: center;justify-content: center;"
+         ng-show="memoCtrl.isFiltered()">
+      <div>
+        <div>Filter Active:&nbsp;</div>
+        <div class="smaller-font">
+          <span ng-if="memoCtrl.filterSettings.filterByString">'{{memoCtrl.filterSettings.filterString}}'</span>&nbsp;
+          <span ng-if="memoCtrl.filterSettings.filterByDates">{{memoCtrl.filterSettings.filterDateFrom | date: 'dd MMM yyyy'}} > {{memoCtrl.filterSettings.filterDateTo | date: 'dd MMM yyyy'}}</span>&nbsp;
+          <span ng-if="memoCtrl.filterSettings.filterByLanguages">{{memoCtrl.filterSettings.filterFromLanguage}} <i class="icon ion-arrow-right-b smaller-font"></i> {{memoCtrl.filterSettings.filterToLanguage}}</span>&nbsp;
+        </div>
+      </div>
+      <div class="padding-10">
+        <button class="button button-energized" ng-click="memoCtrl.unfilter()">
+          <span class=strikethrough><span class="ion-funnel"></span></span>&nbsp;Unfilter
+        </button>
+      </div>
+    </div>
+    <div class="item center-text assertive-bg light smaller-font"
+         style="padding: 5px;display:flex;flex-flow: row;align-items: center;justify-content: center;"
+         ng-show="!memoCtrl.isAuthenticated()">
+      <div>
+        Anonymous Translations
+        <div class="smaller-font">
+          will be deleted every day...
+        </div>
+      </div>
+      <div class="padding-10">
+        <button id="registerButton" class="button button-positive" ng-click="openRegister()">
+          Register
+        </button>
+      </div>
     </div>
     <ion-list id="memoList">
       <div ng-repeat="(i, translation) in memoCtrl.translations track by $index"
@@ -30,7 +57,7 @@
             <div class="col col-20 no-padding smaller-font right-text">{{translation.insertTime|date}}</div>
           </div>
         </div>
-        <div class="item item-accordion" ng-if="memoCtrl.isTranslationShown(translation)">
+        <div class="item  item-accordion" ng-show="memoCtrl.isTranslationShown(translation)">
           <ms-translation id="translation_{{::translation.id}}" translation="translation"></ms-translation>
         </div>
       </div>

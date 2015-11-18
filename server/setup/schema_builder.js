@@ -1,3 +1,5 @@
+"use strict";
+
 var config = require('../config');
 var knex = require('knex')(config.knex_options);
 var Promise = require('knex/lib/promise');
@@ -21,7 +23,7 @@ function createFields(Schema, tableName, table, definition) {
         })
     }
 
-    var columns = _.forIn(definition, function (exists, key) {
+    _.forIn(definition, function (exists, key) {
 
         if (exists) return;
         /* promises not listened on 'knex.schema.table'
@@ -85,16 +87,26 @@ function createFields(Schema, tableName, table, definition) {
     });
 };
 
+function createContrains(Schema, tableName, table)
+{
+    var uniques = (Schema[tableName].constrains && Schema[tableName].constrains.uniques ? Schema[tableName].constrains.uniques : null);
+    _.forIn(uniques, function (unique) {
+        table.unique(unique);
+    });
+}
+
 function createSchema(Schema) {
-    var tables = [];
     var tableNames = _.keys(Schema);
     var tablesTransaction = knex.transaction(function (trx) {
         //lookup tables fields existence
         return Promise.reduce(tableNames, function (memo1, tableName) {
             return trx.schema.hasTable(tableName).then(function (exists) {
                 if (!exists){
+                    console.log('createSchema: creating table '+tableName);
                     return trx.schema.createTable(tableName, function(table){
+                        console.log('createSchema: created table '+tableName+': ',Schema[tableName]);
                         createFields(Schema, tableName, table);
+                        createContrains(Schema, tableName, table);
                     });
                 }
                 return Promise.reduce(Object.keys(Schema[tableName].fields), function (memo2, column) {
@@ -107,10 +119,10 @@ function createSchema(Schema) {
             }).return(memo1);
         }, {})
             .then(function (tablesDefs) {
-                //fields existence for each table in definitions
-                console.log(tablesDefs);
+                //check fields existence for each table in definitions
+                console.log("createSchema: ",tablesDefs);
                 var tablesTasks = [];
-                var defs = _.forIn(tablesDefs, function (tableDef, tableName) {
+                _.forIn(tablesDefs, function (tableDef, tableName) {
                     tablesTasks.push(
                         function () {
                             return knex.schema.table(tableName, function (table) {

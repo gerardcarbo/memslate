@@ -22,7 +22,7 @@ gulp.task('build_release', function(callback) {
 	runSequence('clean', 'copy_all', 'copy_config_release', 'clean_end', 'zip', callback);
 });
 
-gulp.task('build_debug', ['clean'], function(callback) {
+gulp.task('build_debug', function(callback) {
 	runSequence('clean', 'copy_all', 'copy_config_debug', 'clean_end', callback);
 });
 
@@ -108,6 +108,9 @@ gulp.task('html', function() {
 			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/www/templates')),
 		gulp.src('ionic/www/templates/register.html')
+			.pipe(cleanhtml())
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/templates')),
+		gulp.src('ionic/www/templates/recoverPwd.html')
 			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/templates')),
 		gulp.src('ionic/www/templates/login.html')

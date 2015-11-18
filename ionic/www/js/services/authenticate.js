@@ -12,13 +12,13 @@
   /**
    * Authentication services
    */
-  servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserService) {
+  servicesMod.factory('TokenInterceptor', function ($q, $window, $location, UserStatusService) {
     return {
       request: function (config) {
         config.headers = config.headers || {};
         var withCredentials = (config.withCredentials != undefined ? config.withCredentials : true);
-        if (UserService.token() && withCredentials) {
-          config.headers.Authorization = 'Bearer ' + UserService.token();
+        if (UserStatusService.token() && withCredentials) {
+          config.headers.Authorization = 'Bearer ' + UserStatusService.token();
         }
         return config;
       },
@@ -29,22 +29,22 @@
 
       /* Set Authentication.isAuthenticated to true if 200 received */
       response: function (response) {
-        if (response != null && response.status === 200 && UserService.token() && !UserService.isAuthenticated()) {
-          UserService.isAuthenticated(true);
+        if (response != null && response.status === 200 && UserStatusService.token() && !UserStatusService.isAuthenticated()) {
+          UserStatusService.isAuthenticated(true);
         }
         var updated_token;
         if(updated_token = response.headers().updated_token)
         {
-          console.log('response: update_token: ' + updated_token)
-          UserService.token(updated_token);
+          console.log('response: update_token: ' + updated_token);
+          UserStatusService.token(updated_token);
         }
         return response || $q.when(response);
       },
 
       /* Revoke client authentication if 401 is received */
       responseError: function (rejection) {
-        if (rejection != null && rejection.status === 401 && (UserService.token() || UserService.isAuthenticated())) {
-          UserService.logout();
+        if (rejection != null && rejection.status === 401 && (UserStatusService.token() || UserStatusService.isAuthenticated())) {
+          UserStatusService.logout();
         }
 
         return $q.reject(rejection);
@@ -52,7 +52,7 @@
     };
   });
 
-  servicesMod.factory('UserService', function ($window, $rootScope, SessionService) {
+  servicesMod.factory('UserStatusService', function ($window, $rootScope, SessionService) {
     var anonymousEmail = 'anonymous@memslate.com';
     var anonymousUser = 'Anonymous';
 
@@ -65,7 +65,7 @@
       SessionService.put('tokenDisabled', false);
     }
 
-    var userService = {
+    var UserStatusService = {
       isAuthenticated: function (val) {
         if (val !== undefined) {
           SessionService.put('isAuthenticated', val);
@@ -126,18 +126,18 @@
       }
     };
 
-    return userService;
+    return UserStatusService;
   });
 
 
-  servicesMod.factory('RegistrationService', function ($http, $rootScope, UserService, BaseUrlService) {
+  servicesMod.factory('UserService', function ($http, $rootScope, UserStatusService, BaseUrlService) {
     return {
       login: function (email, password) {
-        return $http.post(BaseUrlService.get() + 'login', {
+        return $http.post(BaseUrlService.get() + 'user/login', {
           email: email,
           password: password
         }).then(function (result) {
-          UserService.login(result.data);
+          UserStatusService.login(result.data);
           return {done: true};
         }).catch(function (err) {
           return {done: false, err: err};
@@ -145,19 +145,19 @@
       },
 
       logout: function () {
-        return $http.post(BaseUrlService.get() + 'logout').then(function (result) {
+        return $http.post(BaseUrlService.get() + 'user/logout').then(function (result) {
           return {done: true};
         }).catch(function (err) {
           return {done: false, err: err};
         }).finally(function () {
-          UserService.logout();
+          UserStatusService.logout();
         });
       },
 
       register: function (user) {
-        return $http.post(BaseUrlService.get() + 'register', user).then(function (result) {
+        return $http.post(BaseUrlService.get() + 'user/register', user).then(function (result) {
           $rootScope.$broadcast('ms:register');
-          UserService.login(result.data);
+          UserStatusService.login(result.data);
           return {done: true};
         }).catch(function (err) {
           return {done: false, err: err};
@@ -165,10 +165,10 @@
       },
 
       unregister: function () {
-        return $http.post(BaseUrlService.get() + 'unregister')
+        return $http.post(BaseUrlService.get() + 'user/unregister')
           .then(function (result) {
             $rootScope.$broadcast('ms:unregister');
-            UserService.logout();
+            UserStatusService.logout();
             return {done: true};
           })
           .catch(function (err) {
@@ -178,7 +178,7 @@
 
       changePassword: function (oldPwd, newPwd) {
         var data = {oldPwd: oldPwd, newPwd: newPwd};
-        return $http.post(BaseUrlService.get() + 'changePwd', data)
+        return $http.post(BaseUrlService.get() + 'user/changePwd', data)
           .then(function (result) {
             return {done: true};
           })
@@ -189,13 +189,17 @@
 
       recoverPwd: function(email)
       {
-        return $http.post(BaseUrlService.get() + 'recoverPwd', email)
+        return $http.post(BaseUrlService.get() + 'user/recoverPwd', email)
           .then(function (result) {
             return;
           })
           .catch(function (err) {
             return err;
           });
+      },
+
+      getStatistics: function() {
+        return $http.get(BaseUrlService.get() + 'user/statistics');
       }
     };
   });

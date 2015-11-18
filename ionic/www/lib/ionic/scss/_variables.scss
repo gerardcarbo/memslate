@@ -4,25 +4,26 @@
 
 $light:                           #fff !default;
 $stable:                          #f8f8f8 !default;
-$positive:                        #3c7f94 !default;
-$calm:                            #67aede !default;
-$balanced: #3b9052 !default;
-$energized:                       #cc9f00 !default;
-$assertive:                       #d9534f !default;
-$royal:                           #656FA3 !default;
-$dark: #2a5f56 !default;
+$positive:                        #387ef5 !default;
+$calm:                            #11c1f3 !default;
+$balanced:                        #33cd5f !default;
+$energized:                       #ffc900 !default;
+$assertive:                       #ef473a !default;
+$royal:                           #886aea !default;
+$dark:                            #444 !default;
 
 
 // Base
 // -------------------------------
 
-$font-family-sans-serif:          "Helvetica Neue", "Roboto", "Segoe UI", sans-serif !default;
-$font-family-light-sans-serif:    "HelveticaNeue-Light", "Roboto-Light", "Segoe UI-Light", sans-serif-light !default;
+$font-family-sans-serif:           '-apple-system', "Helvetica Neue", "Roboto", "Segoe UI", sans-serif !default;
+
+$font-family-light-sans-serif:    '-apple-system', "HelveticaNeue-Light", "Roboto-Light", "Segoe UI-Light", sans-serif-light !default;
 $font-family-serif:               serif !default;
 $font-family-monospace:           monospace !default;
 
 $font-family-base:                $font-family-sans-serif !default;
-$font-size-base:                  16px !default;
+$font-size-base:                  14px !default;
 $font-size-large:                 18px !default;
 $font-size-small:                 11px !default;
 
@@ -36,8 +37,7 @@ $headings-font-weight:            500 !default;
 $headings-line-height:            1.2 !default;
 
 $base-background-color:           #fff !default;
-$base-color:                      #5A5A5A !default;
-
+$base-color:                      #000 !default;
 
 $link-color:                      $positive !default;
 $link-hover-color:                darken($link-color, 15%) !default;
@@ -83,17 +83,12 @@ $button-large-height:             54px !default;
 $button-large-padding:            16px !default;
 $button-large-icon-size:          32px !default;
 
-$button-medium-font-size:          24px !default;
-$button-medium-height:             24px !default;
-$button-medium-padding:            8px !default;
-$button-medium-icon-size:          24px !default;
-
 $button-small-font-size:          12px !default;
 $button-small-height:             28px !default;
 $button-small-padding:            4px !default;
 $button-small-icon-size:          16px !default;
 
-$button-bar-button-font-size:     16px !default;
+$button-bar-button-font-size:     13px !default;
 $button-bar-button-height:        32px !default;
 $button-bar-button-padding:       8px !default;
 $button-bar-button-icon-size:     20px !default;
@@ -148,7 +143,7 @@ $button-royal-active-border:      darken($royal, 8%) !default;
 
 $button-dark-bg:                  $dark !default;
 $button-dark-text:                #fff !default;
-$button-dark-border: #19413e !default;
+$button-dark-border:              #111 !default;
 $button-dark-active-bg:           #262626 !default;
 $button-dark-active-border:       #000 !default;
 

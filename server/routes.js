@@ -122,7 +122,7 @@ module.exports = function (models) {
      */
     var translations = restful(models.Translations, 'translations',
         {
-            getAll: function (req, res) {
+           getAll: function (req, res) {
                 var offset = req.query.offset || 0;
                 var limit = req.query.limit || 10;
                 var orderWay = req.query.orderWay || 'asc';

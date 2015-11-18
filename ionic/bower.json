@@ -10,7 +10,7 @@
     "angular-sanitize": "1.4.3"
   },
   "dependencies": {
-    "ionic": "driftyco/ionic-bower#1.1.0",
+    "ionic": "driftyco/ionic-bower#1.2.4",
     "angular-resource": "1.4.3",
     "angular-cookies": "1.4.3",
     "angular-formly": "~6.14.1",

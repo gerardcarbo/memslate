@@ -1,6 +1,6 @@
 <div id="translation_{{::translation.id}}">
   <div class="null_translation_div center-text" ng-if="translation==null">
-    <span class="text-muted"><br>Translated text</span>
+    <p class="text-muted"><br>...</p>
   </div>
   <div class="translating_translation_div center-text" ng-if="parent.translating==true">
     <ion-spinner></ion-spinner>
@@ -44,6 +44,10 @@
         </p>
       </div>
 
+      <div style="" ng-if="translation && (translation.provider == 'yd' || translation.provider == 'yt')" class="row powered_by">
+        <a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a><span>Powered by&nbsp;</span>
+      </div>
+
       <div ng_if="translation" class="translation_samples">
         <div>
           <p>
@@ -51,10 +55,10 @@
           </p>
 
           <div class="padding-5 padding-bottom-min" style="clear: both;" ng-repeat="sample in translation.samples">
-            <span class="sample_text"  ng-bind-html="sample.sample | searchfilter:translation.translate">
+            <span class="sample_text" ng-bind-html="sample.sample | searchfilter:translation.translate">
             </span>
             <button class="button button-clear button-positive button-medium ion-volume-medium"
-                           ng-click="msTranslationCtrl.playText(sample.sample, translation.fromLang)"></button>
+                    ng-click="msTranslationCtrl.playText(sample.sample, translation.fromLang)"></button>
             <button class="button button-assertive icon ion-minus-round float-right" id="btnDelSample{{::$index}}"
                     ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);">
               Delete
@@ -76,16 +80,16 @@
         </div>
       </div>
 
-      <div ng-if="translation && msTranslationCtrl.isAuthenticated()" class="delete_translation_div">
-        <button class="button icon ion-trash-b" id="btnDelTranslation"
-                ng-click="msTranslationCtrl.deleteTranslation(translation.id);"
-                class="btn btn-danger">&nbsp;Delete Translation
-        </button>
+      <div class="delete_translation_div" style="display:flex;flex-flow: row">
+
+        <div style="flex:1">
+          <button class="button icon ion-trash-b" id="btnDelTranslation"
+                  ng-click="msTranslationCtrl.deleteTranslation(translation.id);">&nbsp;Delete
+          </button>
+        </div>
       </div>
 
-      <div ng-if="translation.provider == 'yd' || translation.provider == 'yt'" class="row powered_by margin-top-1">
-        Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a>
-      </div>
+
     </div>
     <div class="error_translation_div" ng-if="translation.error">
     </div>

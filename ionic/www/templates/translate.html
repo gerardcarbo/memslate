@@ -24,7 +24,8 @@
       <form id="translateForm" ng-submit="translateCtrl.translate()" class="full-width">
         <div class="col item item-input">
           <button type="button" class="button button-clear button-dark button-medium ion-android-cancel"
-                  ng-if="translateCtrl.textToTranslate" ng-click="translateCtrl.textToTranslate='';translateCtrl.translation=undefined"></button>
+                  ng-if="translateCtrl.textToTranslate"
+                  ng-click="translateCtrl.textToTranslate='';translateCtrl.translation=undefined"></button>
           <input id="textToTranslate" type="text" class="center-text" placeholder="Text to Translate"
                  ng-model="translateCtrl.textToTranslate">
           <button id="btnTranslate" type="submit" ng-disabled="translateCtrl.translating"
@@ -34,8 +35,8 @@
         </div>
       </form>
     </div>
-    <ion-scroll class="row translation_area rest_of_height" style="">
-      <ms-translation translation="translateCtrl.translation" parent="translateCtrl"></ms-translation>
-    </ion-scroll>
+    <div class="row translation_area rest_of_height">
+        <ms-translation translation="translateCtrl.translation" parent="translateCtrl"></ms-translation>
+    </div>
   </ion-content>
 </ion-view>

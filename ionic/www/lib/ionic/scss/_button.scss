@@ -29,8 +29,6 @@
 
   cursor: pointer;
 
-  box-shadow: 0px 2px 5px -1px #576e73;
-
   &:after {
     // used to create a larger button "hit" area
     position: absolute;
@@ -144,24 +142,6 @@
     margin-top: 3px;
   }
 }
-
-.button-medium {
-  padding: 2px $button-medium-padding 1px;
-  min-width: $button-medium-height;
-  min-height: $button-medium-height + 2;
-  font-size: $button-medium-font-size;
-  line-height: $button-medium-height - $button-border-width - 1;
-
-  .icon:before,
-  &.icon:before,
-  &.icon-left:before,
-  &.icon-right:before {
-    font-size: $button-medium-icon-size;
-    line-height: $button-medium-icon-size + 3;
-    margin-top: 1px;
-  }
-}
-
 
 .button-large {
   padding: 0 $button-large-padding;

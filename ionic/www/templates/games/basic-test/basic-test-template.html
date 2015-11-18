@@ -12,15 +12,13 @@
       </button>
     </div>
     <div id="testDiv" ng-if="basicTestCtrl.testStarted">
-      <div class="padding-10">Select the correct translation for the following words:</div>
+      <div class="padding-10 center-text">Select the correct translation for the following words:</div>
       <ion-list id="basic-page-test-list">
         <div class="center-text">
           <ion-spinner icon="android"  class="spinner-vertical-aligned" ng-if="!basicTestCtrl.gameQuestions"></ion-spinner>
         </div>
         <div ng-repeat="(i, question) in basicTestCtrl.gameQuestions track by $index" id="test_div_{{i}}">
           <div class="item item-stable" id="question_{{i}}" data-answer="{{::question.answer}}">
-
-
             <div class="answers padding-5">
               <div class="question bold">{{question.question}} ?</div>
               <div ng-repeat="(j, option) in question.options track by $index" class="padding-5">
@@ -41,8 +39,11 @@
   </ion-content>
   <ion-footer-bar class="bar-footer-wide">
     <button id="basic-test-evaluate" class="button button-block button-positive"
-            ng-if="basicTestCtrl.testStarted"
+            ng-if="basicTestCtrl.testStarted && !basicTestCtrl.showResults"
             ng-click="basicTestCtrl.evaluateTest()">Evaluate Test!
+    <button id="basic-test-play-again" class="button button-block button-energized"
+              ng-if="basicTestCtrl.showResults"
+              ng-click="basicTestCtrl.playAgain()">Play Again!
     </button>
   </ion-footer-bar>
 </ion-view>

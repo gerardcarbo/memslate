@@ -85,6 +85,11 @@ dokku postgres:console:admin :  admin postgresql console
 dokku ps:scale memslate setup=1 : start setup task
 dokku postgres:expose memslate 5444: expose postgress at the specified port
 
+Add storage pesistence (logs app folder persisted in /home/apps/memslate/logs):
+	dokku docker-options:add memslate deploy "-v /home/apps/memslate/logs:/logs"
+	dokku docker-options:add memslate run "-v /home/apps/memslate/logs:/logs"
+	dokku docker-options:add memslate build "-v /home/apps/memslate/logs:/logs"
+
 #HEROKU
 
 heroku auth:token
@@ -103,6 +108,12 @@ heroku ps:scale web=1
 
 
 #IONIC
+
+Update:
+
+npm update -g ionic
+npm update -g cordoba
+bower install ionic (after update bower.json)
 
 ionic run -> installs app on connected device
 
@@ -132,6 +143,9 @@ C:\Users\gerard\AppData\Roaming\npm\node_modules\protractor\lib\cli.js tests/pro
 find / -name 'pg_hba.conf' : Find file by name
 /etc/init.d/nginx restart : restart nginx server
 sudo apt-get install landscape-client :  conical landscape (NOT TO DO IT!!! breaks dokku)
+rm -r mydir : delete folder recursive
+cd ~ : cd F6
+chmod 777 setup/ : give full access to everybody to folder
 
 #TYPESCRIPT
 Download and install d.ts for angular:

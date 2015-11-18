@@ -33,7 +33,8 @@
 
 .col {
   @include flex(1);
-  padding: ($grid-padding-width / 2) - 2;
+  display: block;
+  padding: ($grid-padding-width / 2);
   width: 100%;
 }
 
@@ -80,12 +81,9 @@
 .col-offset-33, .col-offset-34 {
   margin-left: 33.3333%;
 }
-.col-offset-40 {
-  margin-left: 40%;
-}
 .col-offset-50 {
-   margin-left: 50%;
- }
+  margin-left: 50%;
+}
 .col-offset-66, .col-offset-67 {
   margin-left: 66.6666%;
 }
@@ -108,10 +106,6 @@
   @include flex(0, 0, 10%);
   max-width: 10%;
 }
-.col-15 {
-  @include flex(0, 0, 15%);
-  max-width: 15%;
-}
 .col-20 {
   @include flex(0, 0, 20%);
   max-width: 20%;
@@ -128,14 +122,14 @@
   @include flex(0, 0, 40%);
   max-width: 40%;
 }
-.col-45 {
-  @include flex(0, 0, 45%);
-  max-width: 45%;
-}
 .col-50 {
-   @include flex(0, 0, 50%);
-   max-width: 50%;
- }
+  @include flex(0, 0, 50%);
+  max-width: 50%;
+}
+.col-60 {
+  @include flex(0, 0, 60%);
+  max-width: 60%;
+}
 .col-66, .col-67 {
   @include flex(0, 0, 66.6666%);
   max-width: 66.6666%;

@@ -12,25 +12,13 @@ var MemslateExtOptions =
     if (lang) {
       localStorage['to_lang'] = lang;
     }
-    return localStorage['to_lang'];
+    return localStorage['to_lang'] || "";
   },
   not_langs: function (langs) {
     if (langs) {
       localStorage['not_langs'] = langs;
     }
     return localStorage['not_langs'];
-  },
-  word_key_only: function (arg) {
-    if (arg != undefined) {
-      localStorage['word_key_only'] = arg;
-    }
-    return localStorage['word_key_only'] ? parseInt(localStorage['word_key_only']) : 0;
-  },
-  selection_key_only: function (arg) {
-    if (arg != undefined) {
-      localStorage['selection_key_only'] = arg;
-    }
-    return parseInt(localStorage['selection_key_only']);
   },
   translate_by: function (arg) {
     if (arg == 'click' || arg == 'point') {
@@ -43,12 +31,6 @@ var MemslateExtOptions =
       localStorage['delay'] = ms;
     }
     return localStorage['delay'] == undefined ? 700 : parseInt(localStorage['delay']);
-  },
-  popup_show_trigger: function (arg) {
-    if (arg != undefined) {
-      localStorage['popup_show_trigger'] = arg;
-    }
-    return localStorage['popup_show_trigger'] || 'alt';
   },
   save_translation_sample: function (arg) {
     if (arg != undefined) {
@@ -75,8 +57,6 @@ app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsP
   this.to_lang = MemslateExtOptions.to_lang();
   this.not_langs = MemslateExtOptions.not_langs() ? MemslateExtOptions.not_langs().split(',') : [];
   this.translate_by = MemslateExtOptions.translate_by();
-  this.word_key_only = MemslateExtOptions.word_key_only();
-  this.selection_key_only = MemslateExtOptions.selection_key_only();
   this.delay = MemslateExtOptions.delay();
   this.save_translation_sample = MemslateExtOptions.save_translation_sample();
   this.dismiss_on = MemslateExtOptions.dismiss_on();
@@ -118,8 +98,6 @@ app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsP
     MemslateExtOptions.to_lang(this.to_lang);
     MemslateExtOptions.not_langs(this.not_langs);
     MemslateExtOptions.translate_by(this.translate_by);
-    MemslateExtOptions.word_key_only(this.word_key_only);
-    MemslateExtOptions.selection_key_only(this.selection_key_only);
     MemslateExtOptions.delay(this.delay);
     MemslateExtOptions.save_translation_sample(this.save_translation_sample);
     MemslateExtOptions.dismiss_on(this.dismiss_on);
@@ -129,22 +107,6 @@ app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsP
     if(showToast)
       UI.toast('Options Applied!');
   };
-
-  function populate_popup_show_trigger() {
-    var saved_popup_show_trigger = MemslateExtOptions.popup_show_trigger();
-
-    _(MemsExt.modifierKeys).values().uniq().forEach(function (key) {
-      $('#word_key_only_key').each(function () {
-        $(this).append($('<option>', {value: key}).text(key).prop('selected', saved_popup_show_trigger == key))
-      })
-    })
-
-    $('#word_key_only_key').change(function () {
-      $('#word_key_only_key').val(this.value)
-    })
-  };
-
-  populate_popup_show_trigger();
 
   $scope.$watch('extApp.not_lang', function (newValue, oldValue) {
     if(newValue) {

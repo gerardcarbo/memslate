@@ -26,23 +26,23 @@
 
     <ion-side-menu side="left">
         <ion-content>
-            <ion-list>
-                <ion-item id="loginMenu" class="ion-person item-dark "  menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
+            <ion-list class="center-text">
+                <ion-item id="loginMenu" class="ion-person item-dark bar-dark"  menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
                     Login
                 </ion-item>
-                <ion-item id="logoutMenu" class="ion-person assertive item-dark" menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
+                <ion-item id="logoutMenu" class="ion-person assertive item-dark bar-dark" menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
                     Logout {{userName()}}
                 </ion-item>
-                <ion-item id="homeMenu" nav-clear menu-close ui-sref="app.home" >
+                <ion-item id="homeMenu" class="item-positive" nav-clear menu-close ui-sref="app.home" >
                     <i class="icon ion-home"></i> Home
                 </ion-item>
-                <ion-item id="translateMenu" menu-close ui-sref="app.translate">
+                <ion-item id="translateMenu" class="item-positive"  menu-close ui-sref="app.translate">
                     <i class="icon ion-search"></i> Translate
                 </ion-item>
-                <ion-item id="memoMenu" menu-close ui-sref="app.memo">
+                <ion-item id="memoMenu" class="item-positive" menu-close ui-sref="app.memo">
                     <i class="icon ion-clipboard"></i> Memo
                 </ion-item>
-                <ion-item id="playMenu" menu-close ui-sref="app.play">
+                <ion-item id="playMenu" class="item-positive" menu-close ui-sref="app.play">
                     <i class="icon ion-play"></i> Play
                 </ion-item>
             </ion-list>

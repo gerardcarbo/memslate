@@ -15,6 +15,22 @@ var Schema = {
             uniques: [['fromLang','toLang','translate']]
         }
     },
+    TranslationsAnonymous: {
+        fields: {
+            id: {type: 'increments',  primary: true},
+            fromLang: {type: 'string', maxlength: 4, nullable: false },
+            toLang: {type: 'string', maxlength: 4, nullable: false },
+            translate: {type: 'string',nullable: false },
+            transcription: {type: 'string', nullable: true},
+            mainResult: {type: 'string', nullable: false },
+            rawResult: {type: 'text', nullable: false },
+            provider: {type: 'string', maxlength: 4, nullable: false },
+            insertTime: {type: 'timestamp', defaultToRaw: 'now()'}
+        },
+        constrains: {
+            uniques: [['fromLang','toLang','translate']]
+        }
+    },
     Users: {
         fields: {
             id: {type: 'increments',  primary: true},

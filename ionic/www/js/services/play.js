@@ -6,7 +6,7 @@
    */
   var servicesMod = angular.module('memslate.services');
 
-  servicesMod.factory('GamesService', function ($http, $rootScope, UserService, BaseUrlService) {
+  servicesMod.factory('GamesService', function ($http, $rootScope, BaseUrlService) {
     return {
       getGames: function () {
         return $http.get(BaseUrlService.get() + 'resources/games/getAll');

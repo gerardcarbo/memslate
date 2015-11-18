@@ -1,54 +1,67 @@
 <ion-modal-view>
-    <ion-header-bar class="bar-dark">
-        <h1 class="title"><img src="img/icon_bn.svg" class="logo">Register</h1>
-        <div class="buttons">
-            <button id="closeButton" class="button button-clear ion-close" ng-click="closeRegisterLogin()"> Close</button>
+  <ion-header-bar class="bar-dark">
+    <h1 class="title"><img src="img/icon_bn.svg" class="logo">Register</h1>
+
+    <div class="buttons">
+      <button id="closeButton" class="button button-clear ion-close" ng-click="closeRegisterLogin()"> Close</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list list-inset">
+      <form name="registerForm" ng-submit="doRegister(registerForm)" novalidate>
+         <p class="center-text no-padding">Register a Free account and Do not loose your translations:</p>
+
+        <label class="item item-input">
+        <input type="text" name="nameRegister" placeholder="Full Name" ng-model="registerData.name" ng-required="true">
+
+        <div ng-show="(registerForm.$submitted || registerForm.password.$touched)">
+          <span id="nameRequired" class="validation-item" ng-show="registerForm.name.$error.required">(required)</span>
         </div>
-    </ion-header-bar>
-    <ion-content>
-        <div class="list list-inset">
-            <form name="registerForm" ng-submit="doRegister(registerForm)" novalidate>
-                <label class="item item-input">
-                    <input type="text" name="nameRegister" placeholder="Full Name" ng-model="registerData.name" ng-required="true">
-                    <div ng-show="(registerForm.$submitted || registerForm.password.$touched)">
-                        <span id="nameRequired" class="validation-item"  ng-show="registerForm.name.$error.required">(required)</span>
-                    </div>
-                </label>
+        </label>
 
-                <label class="item item-input">
-                    <input type="email" name="emailRegister" placeholder="Email" ng-model="registerData.email" ng-required="true">
-                    <div ng-show="(registerForm.$submitted || registerForm.email.$touched)">
-                        <span id="emailRequired" class="validation-item" ng-show="registerForm.email.$error.required">(required)</span>
-                        <span id="emailInvalid" class="validation-item"  ng-show="registerForm.email.$error.email">(invalid)</span>
-                    </div>
-                </label>
+        <label class="item item-input">
+          <input type="email" name="emailRegister" placeholder="Email" ng-model="registerData.email" ng-required="true">
 
-                <label class="item item-input">
-                    <input type="password" name="passwordRegister" placeholder="Password" ng-model="registerData.password" ng-required="true">
-                    <div ng-show="(registerForm.$submitted || registerForm.password.$touched)">
-                        <span id="pwdRequired" class="validation-item" ng-show="registerForm.password.$error.required">(required)</span>
-                    </div>
-                </label>
+          <div ng-show="(registerForm.$submitted || registerForm.email.$touched)">
+            <span id="emailRequired" class="validation-item"
+                  ng-show="registerForm.email.$error.required">(required)</span>
+            <span id="emailInvalid" class="validation-item" ng-show="registerForm.email.$error.email">(invalid)</span>
+          </div>
+        </label>
 
-                <label class="item item-input">
-                    <input type="password" name="password2Register" placeholder="Re-enter password" ng-model="registerData.password2" ng-required="true">
-                    <div ng-show="(registerForm.$submitted || registerForm.password2.$touched)">
-                        <span id="pwd2Required" class="validation-item" ng-show="registerForm.password2.$error.required">(required)</span>
-                    </div>
-                    <div ng-show="(registerForm.$submitted || registerForm.password2.$touched)">
-                        <span id="pwdMismatch" class="validation-item" ng-show="registerData.password2!==registerData.password">(mismatch)</span>
-                    </div>
-                </label>
+        <label class="item item-input">
+          <input type="password" name="passwordRegister" placeholder="Password" ng-model="registerData.password"
+                 ng-required="true">
 
-                <label class="item">
-                    <button id="registerButtonRegister" class="button button-block button-positive" type="submit">Register!</button>
-                </label>
-            </form>
-            <label class="item">
-            <button id="loginButtonRegister" class="button button-block button-stable button-calm" ng-click="openLogin()">
-                Already registered? Log In<i class="icon-arrow-right"></i>
-            </button>
-            </label>
-        </div>
-    </ion-content>
+          <div ng-show="(registerForm.$submitted || registerForm.password.$touched)">
+            <span id="pwdRequired" class="validation-item"
+                  ng-show="registerForm.password.$error.required">(required)</span>
+          </div>
+        </label>
+
+        <label class="item item-input">
+          <input type="password" name="password2Register" placeholder="Re-enter password"
+                 ng-model="registerData.password2" ng-required="true">
+
+          <div ng-show="(registerForm.$submitted || registerForm.password2.$touched)">
+            <span id="pwd2Required" class="validation-item"
+                  ng-show="registerForm.password2.$error.required">(required)</span>
+          </div>
+          <div ng-show="(registerForm.$submitted || registerForm.password2.$touched)">
+            <span id="pwdMismatch" class="validation-item" ng-show="registerData.password2!==registerData.password">(mismatch)</span>
+          </div>
+        </label>
+
+        <label class="item">
+          <button id="registerButtonRegister" class="button button-block button-positive" type="submit">Register!
+          </button>
+        </label>
+      </form>
+      <label class="item">
+        <button id="loginButtonRegister" class="button button-block button-stable button-calm" ng-click="openLogin()">
+          Already registered? Log In<i class="icon-arrow-right"></i>
+        </button>
+      </label>
+    </div>
+  </ion-content>
 </ion-modal-view>

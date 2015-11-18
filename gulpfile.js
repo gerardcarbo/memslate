@@ -3,7 +3,7 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     nodemon = require('gulp-nodemon'),
     jshint = require('gulp-jshint'),
-    shell = require('gulp-shell'),
+    exec = require('child_process').exec,
     eslint = require('gulp-eslint'),
     runSequence = require('run-sequence'),
     rename = require('gulp-rename');
@@ -89,8 +89,21 @@ gulp.task('config_test', function() {
         .pipe(gulp.dest('ionic/www/js/'));
 });
 
-gulp.task('git_amend_config', shell.task('git commit --amend --all --no-edit'));
-gulp.task('git_dokku_master', shell.task('git push -f dokku master'));
+gulp.task('git_amend_config', function (cb) {
+    exec('git commit --amend --all --no-edit', function (err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        cb(err);
+    });
+});
+
+gulp.task('git_dokku_master', function (cb) {
+    exec('git push -f dokku master', function (err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        cb(err);
+    });
+});
 
 gulp.task('dokku_install',function(cb){
     runSequence('config_release', 'git_amend_config', 'git_dokku_master',cb);

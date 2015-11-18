@@ -1,10 +1,12 @@
-var CronJob = require('cron').CronJob;
+"use strict";
 
-module.exports = function (models) {
+module.exports = function (knex, models) {
+
+    var CronJob = require('cron').CronJob;
+    var setup = require('./setup/setup_lib')(knex, models);
 
     function cleanSessionsTask(sessionExpiration)
     {
-        "use strict";
         console.log('cleanSessionsTask: scheduled with ',sessionExpiration);
         var job = new CronJob('00 00 00 * * *', function() {
                 /*
@@ -19,10 +21,43 @@ module.exports = function (models) {
             true, /* Start the job right now */
             'Europe/Madrid' /* Time zone of this job. */
         );
-        job.start();
     }
 
+    function refreshAnonymousTranslationsTask(userId)
+    {
+        console.log('cleanAnonymousTranslations: scheduled for user '+userId);
+
+        function refreshAnonymousTranslations()
+        {
+            setup.cleanTranslations(userId).then(function() {
+                return setup.refreshAnonymousUserTranslations(userId).then(function(total){
+                    console.log(total[0]+' Translations added!!!');
+                    console.log(total[1]+' User Translations created!!!');
+                });
+            });
+        }
+
+        refreshAnonymousTranslations();
+
+        var job = new CronJob('00 00 01 * * *', function() {
+                /*
+                 * Runs every day
+                 * at 00:00:00 AM.
+                 */
+                console.log('cleanAnonymousTranslations: started...');
+                refreshAnonymousTranslations()
+            }, function () {
+                console.log('cleanAnonymousTranslations: finished!');
+            },
+            true, /* Start the job right now */
+            'Europe/Madrid' /* Time zone of this job. */
+        );
+    }
+
+
     return {
-        cleanSessionsTask: cleanSessionsTask
+
+        cleanSessionsTask: cleanSessionsTask,
+        refreshAnonymousTranslationsTask: refreshAnonymousTranslationsTask
     }
 };
