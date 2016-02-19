@@ -5,12 +5,12 @@
 $light:                           #fff !default;
 $stable:                          #f8f8f8 !default;
 $positive:                        #3c7f94 !default;
-$calm:                            #67aede !default;
-$balanced: #3b9052 !default;
-$energized:                       #cc9f00 !default;
-$assertive:                       #d9534f !default;
+$calm: #4a97ab !default;
+$balanced: #3b6848 !default;
+$energized: #cc8100 !default;
+$assertive: #d94943 !default;
 $royal:                           #656FA3 !default;
-$dark: #28554c !default;
+$dark: #214c43 !default;
 
 $darker: darken($dark, 10%);
 
@@ -70,6 +70,7 @@ $scroll-refresh-icon-color:       #666666 !default;
 
 $button-color:                    #222 !default;
 $button-block-margin:             10px !default;
+$button-block-padding:            5px !default;
 $button-clear-padding:            6px !default;
 $button-border-radius:            4px !default;
 $button-border-width:             1px !default;
@@ -101,7 +102,7 @@ $button-bar-button-icon-size:     20px !default;
 
 $button-light-bg:                 $light !default;
 $button-light-text:               #444 !default;
-$button-light-border:             #ddd !default;
+$button-light-border:             #bbb !default;
 $button-light-active-bg:          #fafafa !default;
 $button-light-active-border:      #ccc !default;
 
@@ -149,7 +150,7 @@ $button-royal-active-border:      darken($royal, 8%) !default;
 
 $button-dark-bg:                  $dark !default;
 $button-dark-text:                #fff !default;
-$button-dark-border:              darken($dark,10%) !default;
+$button-dark-border:              darken($dark,3%) !default;
 $button-dark-active-bg:           #262626 !default;
 $button-dark-active-border:       #000 !default;
 
@@ -169,7 +170,7 @@ $bar-padding-portrait:            5px !default;
 $bar-padding-landscape:           5px !default;
 $bar-transparency:                1 !default;
 
-$bar-footer-height:               $bar-height !default;
+$bar-footer-height:               $bar-height+15 !default;
 $bar-subheader-height:            $bar-height !default;
 $bar-subfooter-height:            $bar-height !default;
 
@@ -622,7 +623,7 @@ $sheet-options-border-color:      #d1d3d6 !default;
 // Popups
 // -------------------------------
 
-$popup-width:                     250px !default;
+$popup-width:                     300px !default;
 $popup-enter-animation:           superScaleIn !default;
 $popup-enter-animation-duration:  0.2s !default;
 $popup-leave-animation-duration:  0.1s !default;

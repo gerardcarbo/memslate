@@ -5,7 +5,4 @@ node_modules/
 platforms/
 plugins/
 node_modules/
-chrome_ext/build/
-ionic/.editorconfig/
-ionic/www/js/typings/
-tests/report/
+test/

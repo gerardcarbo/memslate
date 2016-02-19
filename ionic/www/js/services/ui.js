@@ -4,7 +4,7 @@
   /**
    * Graphical User Interface services
    */
-  var servicesMod = angular.module('memslate.services.ui', ['ionic']);
+  var servicesMod = angular.module('memslate.services.ui',['ionic']);
 
   servicesMod.service('UI', function ($rootScope, $window, $timeout, $animate, $ionicLoading, $ionicBody, $ionicPopup) {
     this.toast = function (msg, duration, position) {
@@ -29,7 +29,7 @@
 
     this._toast = function (message, timeout, cssClass) {
       timeout = timeout || 2000;
-      cssClass = typeof cssClass !== 'undefined' ? cssClass : 'notification_error';
+      cssClass = cssClass || 'notification_error';
 
       var toasts = document.getElementById('toasts');
       if (!toasts) {
@@ -38,16 +38,23 @@
 
       var $message = angular.element('<p class="toast animate-hide ms-hide" style="margin:5px auto">' + message + '</p>');
 
+      var windowWait=300;
       angular.element(document.getElementById('toasts')).append($message);
       $message.addClass(cssClass);
       $animate.removeClass($message, 'ms-hide').then(function () {
-        window.setTimeout(function () {  //if $timeout is used ESE tests not working due to waitForAngular does not allow to continue test and check toast contents performed when not visible.
+        window.setTimeout(function () {   // if only $timeout is used ESE tests not working due to waitForAngular
+                                          // does not allow to continue test and check toast
+                                          // contents until all angular actions finishes (when the toast not exists).
           $timeout(function () {
-            $animate.addClass($message, 'ms-hide').then(function () {
-              $message.remove();
-            });
-          }, 0);
-        }, timeout);
+            window.setTimeout(function () {
+              $timeout(function () {
+                $animate.addClass($message, 'ms-hide').then(function () {
+                  $message.remove();
+                });
+              },0);
+            },windowWait);
+          }, timeout-(2*windowWait));
+        }, windowWait);
       });
     };
 

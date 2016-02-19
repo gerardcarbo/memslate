@@ -2,7 +2,7 @@
   "use strict";
 
   var controllersMod = angular.module('memslate.controllers', ['ionic', 'ngCordova', 'formly', 'oc.lazyLoad',
-    'memslate.services', 'memslate.services.translate', 'memslate.services.authenticate', 'memslate.services.ui']);
+                                                                'memslate.services','memslate.services.ui']);
 
   controllersMod.controller('AppCtrl', function ($scope, $rootScope, $timeout, $state, $ionicModal, $ionicPopup,
                                                  $cordovaSplashscreen,
@@ -108,13 +108,15 @@
       UserService.login($scope.loginData.email, $scope.loginData.password).then(function (login) {
         if (login.done) {
           $scope.loginModal.hide();
-          $scope.loginData.email = $scope.loginData.password = "";
+          loginForm.$setUntouched();
+          loginForm.$setPristine();
           console.log('Login done!');
         }
         else {
           UI.toast("Login Failed: " + login.err.data);
         }
       }).finally(function () {
+        $scope.loginData = {};
         $scope.inAction = false;
       });
     };
@@ -153,6 +155,10 @@
       UserService.register($scope.registerData).then(function (register) {
         if (register.done) {
           $scope.registerModal.hide();
+          $scope.registerData= {};
+          registerForm.$setUntouched();
+          registerForm.$setPristine();
+
           console.log('register done!');
         }
         else {
@@ -176,6 +182,9 @@
       UserService.recoverPwd($scope.recoverData).then(function (error) {
         if (!error) {
           $scope.registerModal.hide();
+          $scope.recoverData= {};
+          recoverForm.$setUntouched();
+          recoverForm.$setPristine();
           UI.toast('Password recovery mail send! please check your email... and change it, please',4000);
           //$state.go('app.user', { param: 'changePwd' });
           console.log('recoverPwd done!');
@@ -195,10 +204,10 @@
 
     $scope.getOrderClass = function () {
       var memoSettings = MemoSettingsService.get();
-      if (!memoSettings) {
-        memoSettings.orderWay = 'desc';
+      if (!memoSettings || !memoSettings.orderWay) {
+        memoSettings.orderWay = 'asc';
       }
-      return (memoSettings.orderWay === 'desc' ? 'ion-arrow-up-b' : 'ion-arrow-down-b');
+      return (memoSettings.orderWay === 'asc' ? 'ion-arrow-down-b' : 'ion-arrow-up-b');
     };
 
 
@@ -360,10 +369,12 @@
     this.init();
   });
 
-  controllersMod.controller('MemoFilterCtrl', function ($scope, $rootScope, $state, $timeout, LanguagesService, MemoSettingsService) {
+  controllersMod.controller('MemoFilterCtrl', function ($scope, $rootScope, $state, $timeout, LanguagesService,
+                                                        MemoSettingsService, memoSettings) {
     var self = this;
 
-    this.formData = MemoSettingsService.get();
+    console.log('MemoFilterCtrl: setting: ', memoSettings);
+    this.formData = memoSettings;
     this.formFields = [
       {
         key: 'orderBy',
@@ -377,6 +388,20 @@
             {value: 'Translations.translate,Translations.mainResult', name: 'Alphabetically'},
             {value: 'UserTranslations.userTranslationInsertTime', name: 'by Date'},
             {value: 'Translations.fromLang,Translations.toLang', name: 'by Language'}
+          ]
+        }
+      },
+      {
+        key: 'orderWay',
+        type: 'memslateSelect',
+        templateOptions: {
+          id: 'orderWaySelect',
+          name: 'Direction',
+          label: 'Direction Memo',
+          selectorClass: 'margin-vertical-5 col',
+          options: [
+            {value: 'asc', name: 'Normal'},
+            {value: 'desc', name: 'Inverse'},
           ]
         }
       },
@@ -432,7 +457,8 @@
           name: 'From',
           label: 'From Languate',
           selectorClass: 'col',
-          options: []
+          options: [],
+          unselectedText: '(select)'
         }
       },
       {
@@ -443,7 +469,8 @@
           name: 'To',
           label: 'To Language',
           selectorClass: 'col',
-          options: []
+          options: [],
+          unselectedText: '(select)'
         }
       }
     ];
@@ -451,10 +478,10 @@
     LanguagesService.getLanguages().then(function (languages) {
       var items = angular.copy(languages.items);
       items.unshift({name: '(any language)', value: ''});
-      self.formFields[7].templateOptions.options = items;
       self.formFields[8].templateOptions.options = items;
-      self.formFields[7].templateOptions.prefered = languages.user.prefered;
+      self.formFields[9].templateOptions.options = items;
       self.formFields[8].templateOptions.prefered = languages.user.prefered;
+      self.formFields[9].templateOptions.prefered = languages.user.prefered;
     });
 
     self.onSubmit = function () {
@@ -476,7 +503,7 @@
     };
   });
 
-  controllersMod.controller('MemoCtrl', function ($scope, UI, UserStatusService, SessionService, TranslateService, MemoSettingsService) {
+  controllersMod.controller('MemoCtrl', function ($scope, $timeout, UI, UserStatusService, SessionService, TranslateService, MemoSettingsService) {
     var self = this;
 
     self.defLimit = 20;
@@ -573,9 +600,10 @@
       }
       else {
         TranslateService.getTranslation(translation.id).then(function (result) {
-          translation = result;
-          self.translations[i] = translation;
-          self.toggleTranslation_(translation);
+          self.translations[i] = result;
+          $timeout(function(){  //otherwise animation not triggered
+            self.toggleTranslation_(translation);
+          },0)
         });
       }
     };

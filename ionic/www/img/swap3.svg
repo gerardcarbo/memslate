@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="18"
+   width="24"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="swap3.svg"
+   inkscape:export-filename="E:\Art\code\Android\Memslate\MemSlate\res\drawable-mdpi\swap2.png"
+   inkscape:export-xdpi="112.39"
+   inkscape:export-ydpi="112.39">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview8"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:zoom="16.440233"
+     inkscape:cx="1.5249914"
+     inkscape:cy="8.6245339"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2">
+    <sodipodi:guide
+       orientation="0,1"
+       position="0.66909029,9.0023057"
+       id="guide2989" />
+  </sodipodi:namedview>
+  <path
+     d="M 20.29535,8.9976943 19.428574,10.5 c -0.412793,0.715457 -0.674,1.5 -1.5,1.5 l -9.788789,0 0,-3 -6,4.5 6,4.5 0,-3 10.499995,0 c 2.482,0 3.321595,-2.457575 4.5,-4.5 l 0.866776,-1.5023057 z"
+     id="path4"
+     inkscape:connector-curvature="0"
+     style="opacity:0.75000000000000000;fill:#ececec"
+     sodipodi:nodetypes="csscccccsscc"
+     inkscape:export-filename="E:\Art\code\Android\Memslate\MemSlate\res\drawable-xxxhdpi\swap2.png"
+     inkscape:export-xdpi="449.57977"
+     inkscape:export-ydpi="449.57977" />
+  <path
+     d="m 4.6322472,7.5 c 0.4184769,-0.7153926 0.6735,-1.5 1.5,-1.5 l 9.7279728,0 0,3 6,-4.5 -6,-4.5 0,3 L 5.360215,3 C 2.878415,3 2.0671855,5.4366659 0.8602151,7.5 l -0.87609311,1.4976943 3.77203211,0 z"
+     id="path6"
+     inkscape:connector-curvature="0"
+     sodipodi:nodetypes="sscccccssccs"
+     inkscape:export-filename="E:\Art\code\Android\Memslate\MemSlate\res\drawable-xxxhdpi\swap2.png"
+     inkscape:export-xdpi="449.57977"
+     inkscape:export-ydpi="449.57977"
+     style="fill:#f2f2f2" />
+</svg>

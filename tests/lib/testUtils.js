@@ -10,18 +10,21 @@ ElementFinder.prototype.waitAndClick = function()
     this.click();
 };
 
-ElementFinder.prototype.waitVisible = function(timeout)
+ElementFinder.prototype.waitVisible = function(timeout, waitPresent, waitNotEmpty)
 {
     var self=this;
     timeout = timeout || 5000;
+    waitPresent = waitPresent || false;
+    waitNotEmpty = waitNotEmpty || false;
 
-    browser.wait(function () {
+    if (waitPresent) browser.wait(function () {
         return self.isPresent().then(function(isPresent)
         {
             console.log('isPresent: ',isPresent);
             return isPresent;
         });
     },timeout);
+
     browser.wait(function () {
         return self.isDisplayed().then(function(isDisplayed)
         {
@@ -29,17 +32,31 @@ ElementFinder.prototype.waitVisible = function(timeout)
             return isDisplayed;
         });
     },timeout);
+
+    if(waitNotEmpty) browser.wait(function () {
+        return self.getText().then(function(text)
+        {
+            console.log('text: ',text);
+            return text!="";
+        });
+    },timeout);
 };
 
-ElementFinder.prototype.expectText = function(text)
+ElementFinder.prototype.expectText = function(text, waitPresent, waitNotEmpty)
 {
-    this.waitVisible();
+    this.waitVisible(5000, waitPresent, waitNotEmpty);
     expect(this.getText()).toBe(text);
 };
 
-ElementFinder.prototype.expectToContain = function(text)
+ElementFinder.prototype.expectToContain = function(text, waitPresent, waitNotEmpty)
 {
-    this.waitVisible();
+    this.waitVisible(5000, waitPresent, waitNotEmpty);
+    expect(this.getText()).toContain(text);
+};
+
+ElementFinder.prototype.sleepAndExpectToContain = function(text)
+{
+    browser.sleep(1000);
     expect(this.getText()).toContain(text);
 };
 
@@ -119,7 +136,7 @@ module.exports = {
             var pngFileName = path.resolve(screenshotsDir + '/' + baseFileName + '.png');
             browser.takeScreenshot().then(function (png) {
                 // Do something with the png...
-                console.log('Writing file ' + pngFileName);
+                console.log('Writing file (' + pngFileName + ':0:0)');
                 fs.writeFileSync(pngFileName, png, {encoding: 'base64'}, function (err) {
                     console.log(err);
                 });
@@ -137,7 +154,7 @@ module.exports = {
                         fs.mkdirSync(consoleLogsDir);
                     }
                     // Write the browser logs to file
-                    console.log('Writing file ' + logFileName);
+                    console.log('Writing file (' + logFileName + ')');
                     var len = logsEntries.length;
                     for (var i = 0; i < len; ++i) {
 

@@ -1,26 +1,41 @@
-<ion-view view-title='Basic Test'>
-  <ion-nav-title>
-    <img src="img/icon.svg" class="logo">Basic Test
-  </ion-nav-title>
-  <ion-content class="has-header" id="basic-test-content">
-    <div id="langSelectionDiv" ng-if="!basicTestCtrl.testStarted" class="center-text padding-5">
+<ion-content class="has-header no-overflow" id="basic-test-content">
+  <ion-content>
+    <div id="langSelectionDiv" ng-if="!basicTestCtrl.testStarted" class="center-text margin-5">
       <div class="center-text padding-5">Please, select the languages to be used in the test:</div>
       <ms-select id="basic-test-languages" class="col" title="Test Languages" items="basicTestCtrl.gameLangs"
                  selected-item="basicTestCtrl.selectedLangs"></ms-select>
-      <button id="basic-test-start-game" class="button button-block button-energized" ng-disabled="!basicTestCtrl.gameLangs.length"
+      <div class="center-text padding-5">And the level of difficulty:</div>
+      <ms-select id="basic-test-level" class="col" title="Level" items="basicTestCtrl.levels"
+                 selected-item="basicTestCtrl.selectedLevel"></ms-select>
+      <ion-checkbox ng-if="userLoggedin()" ng-disabled="basicTestCtrl.useAnonymousLangsDisabled"
+                    ng-model="basicTestCtrl.useAnonymousLangs" class="useAnonymous">
+        Use Anonymous Translations
+      </ion-checkbox>
+      <button ng-if="userLoggedin()" class="button button-clear button-positive button-medium ion-help-circled useAnonymousIcon"
+                              ng-click="basicTestCtrl.showAnonymosuTranslationsHelp()"></button>
+      <button id="basic-test-start-game" class="button button-block button-positive"
+              ng-disabled="!basicTestCtrl.gameLangs.length"
               ng-click="basicTestCtrl.startTest()">Play!
       </button>
     </div>
+
     <div id="testDiv" ng-if="basicTestCtrl.testStarted">
       <div class="padding-10 center-text">Select the correct translation for the following words:</div>
       <ion-list id="basic-page-test-list">
         <div class="center-text">
-          <ion-spinner icon="android"  class="spinner-vertical-aligned" ng-if="!basicTestCtrl.gameQuestions"></ion-spinner>
+          <ion-spinner icon="android" class="spinner-vertical-aligned"
+                       ng-if="!basicTestCtrl.gameQuestions"></ion-spinner>
         </div>
         <div ng-repeat="(i, question) in basicTestCtrl.gameQuestions track by $index" id="test_div_{{i}}">
           <div class="item item-stable" id="question_{{i}}" data-answer="{{::question.answer}}">
             <div class="answers padding-5">
-              <div class="question bold">{{question.question}} ?</div>
+              <div class="question bold">
+                {{question.question}} ?
+                <button class="button button-clear button-positive button-medium ion-help-circled" ng-show="basicTestCtrl.showResults" ng-click="question.show=!question.show"></button>
+              </div>
+              <div class="item-accordion test_translation" ng-show="question.show">
+                <ms-translation id="translation_{{::question.translation.id}}" translation="question.translation" show-extended="false"></ms-translation>
+              </div>
               <div ng-repeat="(j, option) in question.options track by $index" class="padding-5">
                 <input type="radio" id="answer_{{i}}_{{j}}" name="answer_{{i}}_{{j}}"
                        ng-model="question.givenAnswer" value="{{::option}}"
@@ -37,14 +52,15 @@
       </ion-list>
     </div>
   </ion-content>
-  <ion-footer-bar class="bar-footer-wide">
-    <button id="basic-test-evaluate" class="button button-block button-positive"
+  <ion-footer-bar class="bar-footer-wide" ng-if="basicTestCtrl.testStarted">
+    <button id="basic-test-evaluate" class="button button-block button-positive no-margin"
             ng-if="basicTestCtrl.testStarted && !basicTestCtrl.showResults"
             ng-click="basicTestCtrl.evaluateTest()">Evaluate Test!
-    <button id="basic-test-play-again" class="button button-block button-energized"
-              ng-if="basicTestCtrl.showResults"
-              ng-click="basicTestCtrl.playAgain()">Play Again!
+    </button>
+    <button id="basic-test-play-again" class="button button-block button-positive no-margin"
+            ng-if="basicTestCtrl.showResults"
+            ng-click="basicTestCtrl.playAgain()">Play Again!
     </button>
   </ion-footer-bar>
-</ion-view>
+</ion-content>
 

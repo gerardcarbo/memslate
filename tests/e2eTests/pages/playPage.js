@@ -1,6 +1,4 @@
-/**
- * Created by gerard on 02/09/2015.
- */
+"use strict";
 var MemslatePlayPage = function() {
     this.basicTestButton = element(by.id('basic-test-button'));
 

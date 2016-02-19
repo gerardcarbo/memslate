@@ -1,4 +1,4 @@
-var app = angular.module('memslate.chrome_ext', ['memslate.controllers', 'memslate.directives', 'memslate.services', 'memslate.services.ui', 'memslate.services.translate']);
+var app = angular.module('memslate.chrome_ext', ['memslate.controllers', 'memslate.directives', 'memslate.services']);
 
 var MemslateExtOptions =
 {

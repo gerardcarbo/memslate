@@ -139,6 +139,8 @@ gulp.task('scripts', function() {
 		//memslate app
 		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.min.js')
 			.pipe(gulp.dest('chrome_ext/build/www/lib/ionic/js')),
+		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.js')
+			.pipe(gulp.dest('chrome_ext/build/www/lib/ionic/js')),
 		gulp.src('ionic/www/lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.min.js')
 			.pipe(gulp.dest('chrome_ext/build/www/lib/ui-bootstrap')),
 		gulp.src('ionic/www/lib/api-check/dist/api-check.min.js')

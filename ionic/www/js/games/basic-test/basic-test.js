@@ -22,27 +22,34 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
         this.allResponsesGiven = false;
         this.gameLangs = [];
         this.useAnonymousLangs = false;
+        self.useAnonymousLangsDisabled=false;
+        this.levels=[{name:'Easy',value:'0-.3'},{name:'Medium',value:'.3-.55'},{name:'High',value:'.55-1'},{name:'Any',value:'0-1'}];
         this.getLanguages();
       };
 
-      this.getLanguages = function()
-      {
+      this.getLanguages = function() {
         LanguagesService.getLanguages().then(function () {
           $log.log("basic-test:getLanguages gotten");
           GamesService.getGame('basic-test', 'languages?anonymous='+self.useAnonymousLangs).success(function (gameLangs) {
             $log.log("basic-test:getGame languages  gotten: ", gameLangs);
             self.gameLangs = [];
             gameLangs.forEach(function (langs) {
-              if (langs.count > 60) {
+              if (langs.count > 20) {
                 self.gameLangs.push({
-                  name: "" + LanguagesService.getLanguage(langs.fromLang).name + " > " + LanguagesService.getLanguage(langs.toLang).name + "",
+                  name: LanguagesService.getLanguage(langs.fromLang).name + " > " + LanguagesService.getLanguage(langs.toLang).name + "",
                   value: langs.fromLang + '-' + langs.toLang
                 })
               }
             });
 
-            if(self.gameLangs.length)
-            {
+            if(SessionService.get('basicTestSelectedLevel')) {
+              self.selectedLevel = SessionService.get('basicTestSelectedLevel');
+            }
+            else {
+              self.selectedLevel = self.levels[1].value;
+            }
+
+            if(self.gameLangs.length) {
               var selectedLangs = SessionService.get('basicTestSelectedLangs');
               if (selectedLangs) {
                 self.selectedLangs = selectedLangs;
@@ -53,31 +60,46 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
                 }
               }
             }
-            else
-            {
-              UI.showOkCancelModal('Basic Test', "You do not have enough translations to play the game(60). Do you want to use anonymous translations from other users to perform the test?")
-                .then(function (res) {
-                  if (res === true) {
+            else {
+              self.useAnonymousLangsDisabled=true;
+              UI.showAlert('Basic Test', "You do not have enough translations to play the game (20). We will use anonymous translations from other users to perform the test.",3000)
+                .then(function () {
                     self.useAnonymousLangs = true;
                     self.getLanguages();
-                  }
                 });
             }
           });
         });
       };
 
+      this.showAnonymosuTranslationsHelp = function(){
+        UI.showAlert("Use Anonymous Translations","Anonymous translations will be used to construct the test's queries.<br/> Your translations will be used also, but if they are not enough, it will be completed with anonymous ones.");
+      };
+
       this.startTest = function () {
         var self = this;
         SessionService.put('basicTestSelectedLangs', this.selectedLangs);
+        SessionService.put('basicTestSelectedLevel', this.selectedLevel.value);
         this.testStarted = true;
         this.retrying = false;
         var langs = this.selectedLangs.split('-');
 
-        GamesService.getGame('basic-test', 'questions?fromLang=' + langs[0] + '&toLang=' + langs[1] + '&questions=' + this.numQuestions + '&answers=' + this.numAnswers + '&anonymous='+self.useAnonymousLangs).success(function (gameQuestions) {
-          $log.log("Questions: ", gameQuestions);
-          $timeout(function(){self.gameQuestions = gameQuestions;},0); //simulate wait
-        });
+        GamesService.getGame('basic-test', 'questions?difficulty='+self.selectedLevel+'&fromLang=' + langs[0] +
+          '&toLang=' + langs[1] + '&questions=' + self.numQuestions + '&answers=' + self.numAnswers +
+          '&anonymous='+self.useAnonymousLangs)
+          .success(function (gameQuestions) {
+            $log.log("Questions: ", gameQuestions);
+            $timeout(function(){self.gameQuestions = gameQuestions;},0); //simulate wait
+          })
+          .error(function(err,status){
+            self.testStarted = false;
+            if (status == 406) {
+              UI.toast("You don't have enough translations of this type to perform this kind of test. Anonymous translations selected.",3000);
+              self.useAnonymousLangs=true;
+            } else {
+              UI.toast("There has been an error while getting test questions: " + err + "("+status+")");
+            }
+          });
       };
 
       this.answerSelected = function (idQuestion, idResponse) {
@@ -207,7 +229,8 @@ appGame.directive('basicTestGame', function ($log, $location, $ionicScrollDelega
       $scope.reviewResults = function () {
         $scope.modal.hide();
         self.showResults = true;
-        self.showFirstWrongAnswer();
+        self.showAnswer(0);
+        //self.showFirstWrongAnswer();
       };
 
       $scope.playAgain = function () {

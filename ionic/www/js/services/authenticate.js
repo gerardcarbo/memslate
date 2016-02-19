@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var servicesMod = angular.module('memslate.services.authenticate', ['memslate.services']);
+  var servicesMod = angular.module('memslate.services');
 
   servicesMod.config(function ($httpProvider) {
     // Register middleware to ensure our auth token is passed to the server
@@ -71,7 +71,8 @@
           SessionService.put('isAuthenticated', val);
         }
         else {
-          return JSON.parse(SessionService.get('isAuthenticated'));
+          var autenticated=SessionService.get('isAuthenticated')
+          return JSON.parse(autenticated);
         }
       },
       isAdmin: function (val) {

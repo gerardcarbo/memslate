@@ -1,4 +1,14 @@
 var Schema = {
+    MostUsedWords: {
+      fields: {
+          id: {type: 'increments', primary:true},
+          position: {type:'integer',nullable:false},
+          word: {type:'string',nullable:false}
+      },
+      constrains: {
+          uniques: [['word']]
+      }
+    },
     Translations: {
         fields: {
             id: {type: 'increments',  primary: true},
@@ -9,7 +19,8 @@ var Schema = {
             mainResult: {type: 'string', nullable: false },
             rawResult: {type: 'text', nullable: false },
             provider: {type: 'string', maxlength: 4, nullable: false },
-            insertTime: {type: 'timestamp', defaultToRaw: 'now()'}
+            insertTime: {type: 'timestamp', defaultToRaw: 'now()'},
+            difficulty: {type: 'real', defaultTo:.5}
         },
         constrains: {
             uniques: [['fromLang','toLang','translate']]

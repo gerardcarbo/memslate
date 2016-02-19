@@ -83,7 +83,8 @@ var Translate;
                     withCredentials: false
                 }).success(function (data) {
                     yandexGet.resolve(data);
-                }).error(function (data, status) {
+                })
+                    .error(function (data, status) {
                     yandexGet.reject(status);
                 });
                 return promiseYandex;
@@ -110,7 +111,8 @@ var Translate;
                         langs[item.lang_code] = item.name;
                     });
                     hablaaGet.resolve(langs);
-                }).error(function (data, status) {
+                })
+                    .error(function (data, status) {
                     hablaaGet.reject(status);
                 });
                 return promiseHablaa;
@@ -255,7 +257,8 @@ var Translate;
                     withCredentials: false
                 }).success(function (data) {
                     deferred.resolve(data);
-                }).error(function (data, status) {
+                })
+                    .error(function (data, status) {
                     deferred.reject({ status: status, data: data });
                 });
                 return promise;
@@ -307,7 +310,8 @@ var Translate;
                             else {
                                 deferred.reject("Translation not found");
                             }
-                        }).error(function (data, status) {
+                        })
+                            .error(function (data, status) {
                             deferred.reject({ status: status, data: data });
                         });
                     }
@@ -346,7 +350,8 @@ var Translate;
                     withCredentials: false
                 }).success(function (data) {
                     deferred.resolve(data);
-                }).error(function (data, status) {
+                })
+                    .error(function (data, status) {
                     deferred.reject({ status: status, data: data });
                 });
                 return promise;
@@ -437,9 +442,12 @@ var Translate;
                 var deferred = this.$q.defer();
                 var promise = deferred.promise;
                 msUtils.decoratePromise(promise);
+                text = text.toLowerCase();
                 if (this.currentTranslationsProvider) {
                     var _this = this;
-                    this.currentTranslationsProvider.translate(fromLang, toLang, text).success(function (translation) {
+                    this.currentTranslationsProvider.translate(fromLang, toLang, text)
+                        .success(function (translation) {
+                        translation.mainResult = translation.mainResult.toLowerCase();
                         _this.LanguagesService.fromLang(fromLang);
                         _this.LanguagesService.toLang(toLang);
                         _this.LanguagesService.addPrefered(fromLang);
@@ -450,7 +458,8 @@ var Translate;
                             translation.id = translationRes.id;
                             deferred.resolve(translation);
                         });
-                    }).error(function (err) {
+                    })
+                        .error(function (err) {
                         deferred.reject(err);
                     });
                 }
@@ -470,7 +479,7 @@ var Translate;
     /**
      * Translate services
      */
-    var servicesMod = angular.module('memslate.services.translate', ['memslate.services', 'ngResource']);
+    var servicesMod = angular.module('memslate.services');
     servicesMod.run(function ($rootScope, SessionService, TranslateService, TranslationRes) {
         //Configure current translations provider
         var provider = SessionService.get('TranslateServiceProvider') || 'Yandex';

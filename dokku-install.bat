@@ -1,0 +1,1 @@
+gulp dokku_install

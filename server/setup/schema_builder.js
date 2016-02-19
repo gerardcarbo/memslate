@@ -120,7 +120,6 @@ function createSchema(Schema) {
         }, {})
             .then(function (tablesDefs) {
                 //check fields existence for each table in definitions
-                console.log("createSchema: ",tablesDefs);
                 var tablesTasks = [];
                 _.forIn(tablesDefs, function (tableDef, tableName) {
                     tablesTasks.push(

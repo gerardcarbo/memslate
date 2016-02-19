@@ -122,7 +122,6 @@ module.exports = function (models) {
                     if (match) {
                         console.log("login succeeded: ", user.email);
                         var newToken = uuid.v4();
-                        sendUser(res, userModel.attributes, newToken);
 
                         new models.UserSessions({
                             userId: userModel.get("id"),
@@ -130,9 +129,11 @@ module.exports = function (models) {
                             accessedAt: new Date(),
                             updatedAt: new Date()
                         }).save().then(function (userSessionModel) {
-                                usersCache[newToken] = {user: userModel, session: userSessionModel};
-                                updateAccessedAt(usersCache[newToken], next);
-                            });
+                            console.log("login token "+newToken+" saved and in cache");
+                            usersCache[newToken] = {user: userModel, session: userSessionModel};
+                            console.log("login sending user...");
+                            sendUser(res, userModel.attributes, newToken);
+                        });
                     } else {
                         // Passwords don't match
                         console.log("login failed: Passwords don't match");
@@ -176,22 +177,24 @@ module.exports = function (models) {
             delete req.query.token;
         }
 
-        console.log("authenticate: ", token);
+        console.log("authenticate: path: "+req.url+" token: "+token);
 
         if (!token) { // use anonymous user
             if (usersCache['anonymous']) {
+                console.log("authenticate: return cached anonymous");
                 req.user = usersCache['anonymous'].user;
-                return next();
+                next();
             }
             else {
+                console.log("authenticate: fetching anonymous...");
                 new models.User({
                     email: 'anonymous@memslate.com'
                 }).fetch().then(function (model) {
                         if (model) {
-                            console.log("authenticate: anonymous fetched");
+                            console.log("authenticate: anonymous fetched from db and returned");
                             usersCache['anonymous'] = {user: model, session: null};
                             req.user = model;
-                            return next();
+                            next();
                         }
                     });
             }
@@ -207,6 +210,7 @@ module.exports = function (models) {
                 next();
             }
             else { //try to recover session from db
+                console.log("authenticate: fetching "+token+" token ...");
                 new models.UserSessions({
                     token: token
                 }).fetch().then(function (sessionModel) {
@@ -219,18 +223,18 @@ module.exports = function (models) {
                                     updateAccessedAt(usersCache[token]);
                                     updateToken(usersCache[token], res, next);
 
-                                    return next();
+                                    next();
                                 }
                                 else {
                                     console.log("authenticate: Invalid user '" + sessionModel.get('userId') + "' , returning 401");
                                     console.log('authenticate: userCache: \n', _.keys(usersCache));
-                                    return res.status(401).send("Invalid token");
+                                    res.status(401).send("Invalid token");
                                 }
                             });
                         } else {
                             console.log("authenticate: Invalid token, returning 401");
                             console.log('authenticate: userCache: \n', _.keys(usersCache));
-                            return res.status(401).send("Invalid token");
+                            res.status(401).send("Invalid token");
                         }
                     });
             }
@@ -239,7 +243,7 @@ module.exports = function (models) {
 
     function updateAccessedAt(userCache, next) {
         userCache.session.set('accessedAt', new Date());
-        userCache.session.save().then(function (savedSessionModel) {
+        return userCache.session.save().then(function (savedSessionModel) {
             //debugging...
         }).catch(next);
     }
@@ -250,14 +254,14 @@ module.exports = function (models) {
             //debugging...
         }).catch(next);
         userCache.session.set('updatedAt', new Date());
-        userCache.session.save().then(function (savedSessionModel) {
+        return userCache.session.save().then(function (savedSessionModel) {
             //debugging...
         }).catch(next);
     }
 
     function updateToken(userCache, response, next) {
         var numDaysTokenExpiration = 0;
-        var numHoursTokenExpiration = 0;
+        var numHoursTokenExpiration = 1;
         var numMinutesTokenExpiration = 1;
         var updatedAt = userCache.session.get('updatedAt');
         var accessedAt = userCache.session.get('accessedAt');
@@ -359,7 +363,11 @@ module.exports = function (models) {
         var user = req.user; //comes from authenticate call
         var data = req.body;
 
-        console.log("changePwd: ", user);
+        console.log("changePwd: ", user.get('name'));
+
+        if (user.id==config.ANONIMOUS_USER_ID) {
+            return res.status(400).send("Invalid User");
+        }
 
         if (!validator.isLength(data.newPwd, 6)) {
             return res.status(400).send("Password must be at least 6 characters");

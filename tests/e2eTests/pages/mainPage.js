@@ -16,6 +16,8 @@ var MainPage = function()
     this.backMenu = element(by.xpath('//*[@nav-bar="active"]//button[contains(concat(" ",normalize-space(@class)," ")," back-button ")]'));
     this.toast = element(by.id('toasts'));
 
+    var self = this;
+
     this.click = function()
     {
         this.mainMenu.click();
@@ -37,15 +39,16 @@ var MainPage = function()
     {
         this.mainMenu.waitAndClick();
         browser.sleep(1000);
-        this.logoutMenu.waitAndClick();
+        return this.logoutMenu.isDisplayed().then(function(isLoggedIn) {
+            if(isLoggedIn)
+                self.logoutMenu.waitAndClick();
+            else
+                self.mainMenu.waitAndClick();
+
+            return isLoggedIn;
+        });
     };
 
-    this.toastExpect = function(text)
-    {
-        //browser.sleep(1000);
-        this.toast.waitVisible();
-        expect(this.toast.getText()).toContain(text);
-    };
 };
 
 module.exports = MainPage;

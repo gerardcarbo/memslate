@@ -8,9 +8,8 @@ var config = require('./config');
 var _ = require('lodash');
 var locale = require('locale');
 
-var log = config;
-
-module.exports = function (models) {
+module.exports = function (models, knex) {
+    var difficulty = require('./difficulty')(models);
 
     var addPrefered = function (prefered, languages) {
         _.forEach(languages, function (language) {
@@ -63,18 +62,36 @@ module.exports = function (models) {
 
     function saveUserTranslation(req, res, translation) {
         if (translation) {
-            log.debug('saveUserTranslation: translationId:' + translation.id + ' : ' + translation.translate);
+            console.log('saveUserTranslation: translationId:' + translation.id + ' : ' + translation.attributes.translate);
 
             var userTranslation = {};
             userTranslation.translationId = translation.id;
             userTranslation.userId = req.user.id;
 
+            //save user translation
             models.UserTranslations.forge(userTranslation).fetch().then(function (model) {
                 if (!model) {
                     models.UserTranslations.forge(userTranslation).save().then(function (item) {
-                        log.debug('saveUserTranslation: saved Id:' + item.id);
+                        console.log('saveUserTranslation: saved Id:' + item.id);
                     });
                 }
+            });
+
+            //compute difficulty
+            var wordEn, wordOther;
+            if(translation.attributes.fromLang=='en')
+            {
+                wordEn = translation.attributes.translate;
+                wordOther = translation.attributes.mainResult;
+            }
+            else if(translation.attributes.toLang=='en')
+            {
+                wordOther = translation.attributes.translate;
+                wordEn = translation.attributes.mainResult;
+            }
+
+            if(wordEn) difficulty.compute(wordEn, wordOther).then(function(difficulty){
+                translation.set('difficulty', difficulty).save().then(function(){console.log('saveUserTranslation: difficulty for '+wordEn+' - '+wordOther+' : '+difficulty);});
             });
         }
     }
@@ -82,7 +99,7 @@ module.exports = function (models) {
     function checkIfTranslationExists(req, res, doSave) {
         req.translation = req.body;
 
-        log.debug('checkTranslation: ' + req.translation.translate);
+        console.log('checkTranslation: ' + req.translation.translate);
 
         new models.Translations({
             fromLang: req.translation.fromLang,
@@ -90,10 +107,10 @@ module.exports = function (models) {
             translate: req.translation.translate
         }).fetch().then(function (model) {
                 if (model) {
-                    log.debug('translation found for:' + req.translation.translate);
+                    console.log('translation found for:' + req.translation.translate);
                     req.translation.id = model.get("id");
                     res.status(200).send(req.translation);
-                    saveUserTranslation(req, res, req.translation);
+                    saveUserTranslation(req, res, model);
                 }
                 else {
                     doSave(req.translation);
@@ -124,16 +141,26 @@ module.exports = function (models) {
         {
            getAll: function (req, res) {
                 var offset = req.query.offset || 0;
-                var limit = req.query.limit || 10;
+                var limit = req.query.limit || 20;
                 var orderWay = req.query.orderWay || 'asc';
-                var orderBy = req.query.orderBy || 'Translations.translate';
+                var orderBy = req.query.orderBy;
                 var userId = req.user.id || config.ANONIMOUS_USER_ID;
                 var columns = req.query.columns || 'userTranslationInsertTime,Translations.*';
+                var distinct = req.query.distinct;
 
                 models.UserTranslations.query(function (qb) {
                     columns.split(',').forEach(function (column) {
-                        qb.column(column.trim());
+                        if(distinct){
+                            qb.distinct(knex.raw(column.trim()))
+                        } else {
+                            if(column.trim()=='UserTranslations.id')
+                            {
+                                qb.column(column.trim()+' as userTranslationId');
+                            }
+                            qb.column(column.trim());
+                        }
                     });
+
                     qb.innerJoin("Translations", "Translations.id", "UserTranslations.translationId");
                     qb.where("UserTranslations.userId", userId);
                     if (req.query.filterByString && req.query.filterByString === "true") {
@@ -150,18 +177,22 @@ module.exports = function (models) {
                             qb.andWhereRaw("\"Translations\".\"toLang\" = '" + req.query.filterToLanguage + "'");
                         }
                     }
-                    qb.limit(limit);
-                    qb.offset(offset);
-                    if (orderBy.split(',').length > 1) {
-                        var orderByRaw = createOrderRaw(orderBy, orderWay);
-                        qb.orderByRaw(orderByRaw);
-                    }
-                    else {
-                        qb.orderBy(orderBy, orderWay);
+                    if(limit) qb.limit(limit);
+                    if(offset) qb.offset(offset);
+                    if(orderBy) {
+                        if (orderBy.split(',').length > 1) {
+                            var orderByRaw = createOrderRaw(orderBy, orderWay);
+                            console.log('translations:getAll: orderBy:'+orderBy+' orderWay:'+orderWay+' orderByRaw:'+orderByRaw)
+                            qb.orderByRaw(orderByRaw);
+                        }
+                        else {
+                            qb.orderBy(orderBy, orderWay);
+                        }
                     }
 
+                    console.log('translations:getAll: sql:\n\t',qb.toString());
                     qb.debug();
-                }).fetchAll({columns: ['UserTranslations.id as userTranslationId']}).then(function (collection) {
+                }).fetchAll().then(function (collection) {
                     if (collection) {
                         res.json(collection);
                     }
@@ -258,7 +289,7 @@ module.exports = function (models) {
                 req.translationSample = req.body;
                 req.translationSample.userId = req.user.id;
 
-                log.debug('translationsSamples: preSave ' + req.translationSample.sample);
+                console.log('translationsSamples: preSave ' + req.translationSample.sample);
 
                 new models.UserTranslationsSamples({
                     userId: req.translationSample.userId,
@@ -266,7 +297,7 @@ module.exports = function (models) {
                     sample: req.translationSample.sample
                 }).fetch().then(function (model) {
                         if (model) {
-                            log.debug('translationSample found for:' + req.translationSample.sample);
+                            console.log('translationSample found for:' + req.translationSample.sample);
                             req.translationSample.id = model.get("id");
                             res.status(200).send(req.translationSample);
                         }

@@ -1,7 +1,9 @@
+var MsSelect = require('../widgets/ms-select');
+
 var MemslateTranslatePage = function()
 {
-	this.fromLangSelect = element(by.id('fromLang'));
-	this.toLangSelect = element(by.id('toLang'));
+	this.fromLangElement = element(by.id('fromLang'));
+	this.toLangElement = element(by.id('toLang'));
 	this.swapLangs = element(by.id('swapLangsButton'));
 	this.textToTranslate = element(by.id('textToTranslate'));
 	this.errorTranslationDiv = element(by.cssClass('error_translation_div'));
@@ -13,6 +15,9 @@ var MemslateTranslatePage = function()
 	this.btnAddSample = element(by.id('btnAddSample'));
 	this.sampleValue = element(by.id('sampleValue'));
     this.deleteTranslationButton = element(by.id('btnDelTranslation'));
+
+    this.fromLangSelect = new MsSelect(this.fromLangElement);
+    this.toLangSelect = new MsSelect(this.toLangElement);
 
 	this.get=function()
 	{
@@ -30,13 +35,6 @@ var MemslateTranslatePage = function()
 		}, 5000);
 		expect(this.translationDiv.isPresent()).toBeTruthy();
 	};
-
-	this.selectLanguage = function(lang)
-	{
-		var langItem=element(by.xpath("//div[contains(concat(' ',normalize-space(@class),' '),' active ')]//label[input[@value='"+lang+"']]"));
-		browser.executeScript(function () { arguments[0].scrollIntoView(); }, langItem.getWebElement());
-		langItem.click();
-	};
 	
 	this.addSample = function(sample)
 	{
@@ -53,13 +51,10 @@ var MemslateTranslatePage = function()
 
     this.setLanguages=function(fromLang, toLang)
     {
-		this.toLangSelect.click();
-		this.selectLanguage('bs');  //make sure toLang does not colides with fromLang
+		this.toLangSelect.selectItem('bs');  //make sure toLang does not colides with fromLang
 
-		this.fromLangSelect.click();
-		this.selectLanguage(fromLang);
-		this.toLangSelect.click();
-		this.selectLanguage(toLang);
+		this.fromLangSelect.selectItem(fromLang);
+		this.toLangSelect.selectItem(toLang);
     };
 };
 

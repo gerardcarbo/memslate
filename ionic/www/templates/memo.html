@@ -42,7 +42,7 @@
     <ion-list id="memoList">
       <div ng-repeat="(i, translation) in memoCtrl.translations track by $index"
            id="memo_translation_div_{{translation.id}}">
-        <div class="item item-stable"
+        <div class="item item-stable no-border-bottom"
              ng-click="memoCtrl.toggleTranslation(i, translation)"
              ng-class="{active: memoCtrl.isTranslationShown(translation)}">
           <div class="row no-padding">

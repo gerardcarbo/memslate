@@ -14,10 +14,25 @@ exports.serve = function ()
     var bookshelf = require('bookshelf')(knex);
     var models = require('./models')(bookshelf);
     var auth = require('./auth')(models);
-    var routes = require('./routes')(models);
+    var routes = require('./routes')(models,knex);
     var games = require('./games')(bookshelf,models);
     var user = require('./user')(knex,models);
     var tasks = require('./tasks')(knex,models);
+    var nodemailer = require('nodemailer');
+
+    process.on('uncaughtException', function (err) {
+        console.log('Memslate Server: uncaughtException: ', err);
+        console.log('Memslate Server: uncaughtException:  stack: ', err.stack);
+        //throw err;
+
+        var transporter = nodemailer.createTransport();
+        transporter.sendMail({
+            from: 'Memslate Team ✔ <info@memslate.com>',
+            to: 'gcarbo@miraiblau.com',
+            subject: 'Memslate Exception!',
+            text: 'Exception Caught,\r\nexc: ' + err + '\r\n\r\nstack: '+err.stack
+        });
+    });
 
     var app = express();
 
@@ -27,25 +42,23 @@ exports.serve = function ()
     app.set('bookshelf', bookshelf);
     app.set('models', models);
 
-    app.use(bodyParser());      // pull information from html in POST
+    app.use(bodyParser.urlencoded({
+        extended: true
+    }));
+    app.use(bodyParser.json()); // pull information from html in POST
     app.use(methodOverride());  // simulate DELETE and PUT
 
-    // Logging
-    var log = {
-        debug: config.debug,
-        warn: config.warn,
-        error: config.error
-    };
+    var staticContentPath = __dirname + '/../ionic/www';
+    console.log('Memslate Server: Serving Static content from: ' + staticContentPath);
+    app.use(express.static(staticContentPath));
 
-    var staticContent = __dirname + '/../ionic/www';
-    log.debug('Serving Static content from: ' + staticContent);
-    app.use(express.static(staticContent));
-
+    //log request
     app.use(function (req, res, next) {
-        log.debug(req.method, req.url);
+        console.log('Memslate Server: '+req.method+':'+req.url);
         next();
     });
 
+    //log error
     app.use(function (err, req, res, next) {
         log.error(err.stack);
         res.status(500).send(err.message);
@@ -58,7 +71,6 @@ exports.serve = function ()
     app.all('/user/unregister', auth.authenticate);
     app.all('/user/changePwd', auth.authenticate);
     app.all('/user/logout', auth.authenticate);
-    app.all('/user/changePwd', auth.authenticate);
     app.all('/user/statistics', auth.authenticate);
 
     app.use('/connect', function(req, res){res.send('ok')});
@@ -78,7 +90,7 @@ exports.serve = function ()
     app.use('/resources/games/get/:name_id/:op', games.get);
 
     app.listen(app.get('port'), function () {
-        log.debug('Express server listening on port ' + app.get('port'));
+        console.log('Memslate Server: Express server listening on port ' + app.get('port'));
     });
 
     //start maintenance tasks

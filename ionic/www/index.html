@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html >
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src *; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5000 http://localhost:35729 http://localhost:35730 http://192.168.1.40:35730 http://192.168.1.40:35729">
+        content="default-src *; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com code.ionicframework.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' code.ionicframework.com http://localhost:5000 http://localhost:35729 http://localhost:35730 http://192.168.1.40:35730 http://192.168.1.40:35729">
   <meta name="google-site-verification" content="PnqzCZg33yEBZIjVM2vTgTh-VvSXghVHEWvR-Mx3VUI"/>
 
   <title>Memslate</title>
@@ -12,15 +12,21 @@
   <!-- fonts
   <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500,700' rel='stylesheet' type='text/css'>-->
 
-  <!-- css stylesheets -->
+  <!-- css stylesheets-->
   <link href="css/ionic.app.css" rel="stylesheet">
+  <!-- <link href="//code.ionicframework.com/nightly/css/ionic.css" rel="stylesheet">-->
   <link href="css/style.css" rel="stylesheet">
   <link href="css/memslate.bootstrap.css" rel="stylesheet">
 
-  <!-- ionic/angularjs/libs js -->
+  <!-- ionic/angularjs/libs js-->
+<!--
   <script src="lib/ionic/js/ionic.bundle.min.js"></script>
+-->
+  <script src="lib/ionic/js/ionic.bundle.js"></script>
+  <!--<script src="//code.ionicframework.com/nightly/js/ionic.bundle.js"></script>-->
   <script src="lib/angular-resource/angular-resource.min.js"></script>
   <script src="lib/angular-cookies/angular-cookies.min.js"></script>
+  <script src="lib/angular-component/dist/angular-component.min.js"></script>
   <script src="lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.min.js"></script>
   <script src="lib/api-check/dist/api-check.min.js"></script>
   <script src="lib/angular-formly/dist/formly.min.js"></script>

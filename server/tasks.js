@@ -5,10 +5,9 @@ module.exports = function (knex, models) {
     var CronJob = require('cron').CronJob;
     var setup = require('./setup/setup_lib')(knex, models);
 
-    function cleanSessionsTask(sessionExpiration)
-    {
-        console.log('cleanSessionsTask: scheduled with ',sessionExpiration);
-        var job = new CronJob('00 00 00 * * *', function() {
+    function cleanSessionsTask(sessionExpiration) {
+        console.log('cleanSessionsTask: scheduled with ', sessionExpiration);
+        var job = new CronJob('00 00 00 * * *', function () {
                 /*
                  * Runs every day
                  * at 00:00:00 AM.
@@ -23,23 +22,19 @@ module.exports = function (knex, models) {
         );
     }
 
-    function refreshAnonymousTranslationsTask(userId)
-    {
-        console.log('cleanAnonymousTranslations: scheduled for user '+userId);
+    function refreshAnonymousTranslationsTask(userId) {
+        console.log('cleanAnonymousTranslations: scheduled for user ' + userId);
 
-        function refreshAnonymousTranslations()
-        {
-            setup.cleanTranslations(userId).then(function() {
-                return setup.refreshAnonymousUserTranslations(userId).then(function(total){
-                    console.log(total[0]+' Translations added!!!');
-                    console.log(total[1]+' User Translations created!!!');
-                });
+        function refreshAnonymousTranslations() {
+            setup.refreshAnonymousUserTranslations(userId).then(function (total) {
+                console.log(total[0] + ' Translations added!!!');
+                console.log(total[1] + ' User Translations created!!!');
             });
         }
 
-        refreshAnonymousTranslations();
+        //refreshAnonymousTranslations();
 
-        var job = new CronJob('00 00 01 * * *', function() {
+        var job = new CronJob('00 00 01 * * *', function () {
                 /*
                  * Runs every day
                  * at 00:00:00 AM.

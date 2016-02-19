@@ -7208,8 +7208,8 @@ ionic.scroll = {
         self.el.style.overflowY = oldOverflowY;
       }, 500);
 
-      self.el.style.overflowY = 'hidden';
-      self.el.style.overflowX = 'hidden';
+      //self.el.style.overflowY = 'hidden';
+      //self.el.style.overflowX = 'hidden';
 
       animateScroll(top, left);
 

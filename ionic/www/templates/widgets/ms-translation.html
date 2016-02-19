@@ -1,6 +1,6 @@
-<div id="translation_{{::translation.id}}">
+<div id="translation_{{::translation.id}}" class="full-width">
   <div class="null_translation_div center-text" ng-if="translation==null">
-    <p class="text-muted"><br>...</p>
+    <p class="text-muted"><br></p>
   </div>
   <div class="translating_translation_div center-text" ng-if="parent.translating==true">
     <ion-spinner></ion-spinner>
@@ -8,11 +8,12 @@
 
   <div class="translation_div" ng-if="translation && !parent.translating">
     <div ng-if="!translation.error">
-      <div class="translation_def translation_yt" ng-if="translation.provider=='yt'">
-        <span class='bold response_main'>{{::translation.translate}}</span>
-        <button class="button button-clear button-positive button-medium ion-volume-medium"
-                ng-click="msTranslationCtrl.playText(translation.translate, translation.fromLang)"></button>
-        &nbsp;>&nbsp;
+      <div class="translation_def translation_yt  wrap-text" ng-if="translation.provider=='yt'">
+        <p>
+          <span class='bold response_main'>{{::translation.translate}}</span>
+          <button class="button button-clear button-positive button-medium ion-volume-medium"
+                  ng-click="msTranslationCtrl.playText(translation.translate, translation.fromLang)"></button>
+          &nbsp;>&nbsp;
             <span>
                 <span class='bold response_main' ng-repeat="text in translation.rawResult.text">{{::text}}
                     <button class="button button-clear button-positive button-medium ion-volume-medium"
@@ -20,9 +21,10 @@
                     <span ng-show="!$last">, </span>
                 </span>
             </span>
+        </p>
       </div>
 
-      <div class="translation_def translation_yd" ng-if="translation.provider == 'yd'"
+      <div class="translation_def translation_yd wrap-text" ng-if="translation.provider == 'yd'"
            ng-repeat="def in translation.rawResult.def">
         <p>
           <b>
@@ -37,7 +39,7 @@
           </b>
         </p>
 
-        <p ng-repeat="tr in def.tr">
+        <p ng-repeat="tr in def.tr" >
           <span class='response_type'>{{::tr.pos}}:</span>
           <span class='response_def'>{{::tr.text}}<span ng-repeat="syn in tr.syn">, {{::syn.text}}</span></span>
           <span class='response_mean' ng-show="tr.mean[0].text">({{::tr.mean[0].text}})</span>
@@ -48,10 +50,10 @@
         <a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a><span>Powered by&nbsp;</span>
       </div>
 
-      <div ng_if="translation" class="translation_samples">
+      <div ng_if="translation && showExtended" class="translation_samples">
         <div>
           <p>
-            <b>samples &gt;</b>
+            <b>samples: </b>
           </p>
 
           <div class="padding-5 padding-bottom-min" style="clear: both;" ng-repeat="sample in translation.samples">
@@ -59,9 +61,9 @@
             </span>
             <button class="button button-clear button-positive button-medium ion-volume-medium"
                     ng-click="msTranslationCtrl.playText(sample.sample, translation.fromLang)"></button>
-            <button class="button button-assertive icon ion-minus-round float-right" id="btnDelSample{{::$index}}"
+            <button class="button button-assertive icon ion-minus-round float-right btnDelSample" id="btnDelSample{{::$index}}"
                     ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);">
-              Delete
+              Remove
             </button>
           </div>
           <div class="row">
@@ -80,11 +82,10 @@
         </div>
       </div>
 
-      <div class="delete_translation_div" style="display:flex;flex-flow: row">
-
+      <div ng-if="showExtended" class="delete_translation_div" style="display:flex;flex-flow: row">
         <div style="flex:1">
           <button class="button icon ion-trash-b" id="btnDelTranslation"
-                  ng-click="msTranslationCtrl.deleteTranslation(translation.id);">&nbsp;Delete
+                  ng-click="msTranslationCtrl.deleteTranslation(translation.id);">&nbsp;Delete Translation
           </button>
         </div>
       </div>

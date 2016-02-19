@@ -21,47 +21,38 @@ describe("Memslate Translate Page", function () {
         utils.LogConsoleAndTakeSnapshots(browser, jasmine);
     });
 	
-	it('should allow language selection and swap', function()
-    {
-        translatePage.fromLangSelect.click();
-        translatePage.selectLanguage('fr');
-        expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('fr');
-        translatePage.toLangSelect.waitAndClick();
-        translatePage.selectLanguage('en');
-        expect(translatePage.toLangSelect.getAttribute('selected-value')).toBe('en');
-        translatePage.fromLangSelect.click();
-        translatePage.selectLanguage('en');
+	it('should allow language selection and swap', function() {
+        translatePage.fromLangSelect.selectItem('fr');
+        expect(translatePage.fromLangSelect.getSelected()).toBe('fr');
+        translatePage.toLangSelect.selectItem('en');
+        expect(translatePage.toLangSelect.getSelected()).toBe('en');
+        translatePage.fromLangSelect.selectItem('en');
         mainPage.toast.expectText('From and to languages must be distinct');
-        translatePage.toLangSelect.waitAndClick();
-        translatePage.selectLanguage('fr');
+        translatePage.toLangSelect.selectItem('fr');
         mainPage.toast.expectText('From and to languages must be distinct');
 
         translatePage.swapLanguages();
-        expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('en');
-        expect(translatePage.toLangSelect.getAttribute('selected-value')).toBe('fr');
+        expect(translatePage.fromLangSelect.getSelected()).toBe('en');
+        expect(translatePage.toLangSelect.getSelected()).toBe('fr');
         translatePage.swapLanguages();
-        expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('fr');
-        expect(translatePage.toLangSelect.getAttribute('selected-value')).toBe('en');
+        expect(translatePage.fromLangSelect.getSelected()).toBe('fr');
+        expect(translatePage.toLangSelect.getSelected()).toBe('en');
 
-        translatePage.fromLangSelect.click();
-        translatePage.selectLanguage('es');
-        expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('es');
+        translatePage.fromLangSelect.selectItem('es');
+        expect(translatePage.fromLangSelect.getSelected()).toBe('es');
     });
 
-    it('should be able to translate', function()
-    {
+    it('should be able to translate', function() {
         browser.waitForAngular();
 
         translatePage.btnTranslate.click();
         mainPage.toast.expectText('Please, specify a text to translate.');
 
-        translatePage.fromLangSelect.click();
-        translatePage.selectLanguage('es');
-        expect(translatePage.fromLangSelect.getAttribute('selected-value')).toBe('es');
+        translatePage.fromLangSelect.selectItem('es');
+        expect(translatePage.fromLangSelect.getSelected()).toBe('es');
 
-        translatePage.toLangSelect.click();
-        translatePage.selectLanguage('en');
-        expect(translatePage.toLangSelect.getAttribute('selected-value')).toBe('en');
+        translatePage.toLangSelect.selectItem('en');
+        expect(translatePage.toLangSelect.getSelected()).toBe('en');
 
         //spanish to english with provider yt (yandex translate)
         translatePage.translate('catarsis');
@@ -109,15 +100,14 @@ describe("Memslate Translate Page", function () {
                     });
 
                 //delete sample
-                element.all(by.repeater('sample in translation.samples')).last().element(by.tagName('button')).click();
+                element.all(by.repeater('sample in translation.samples')).last().element(by.css('.btnDelSample')).click();
                 browser.sleep(1000);
                 expect(element.all(by.repeater('sample in translation.samples')).count()).toBe(samplesCount);
             });
     });
 
     it('should be able to login and translate', function () {
-
-        loginPage.login('gcarbo@miraiblau.com', 'gcarbo');
+        loginPage.login('gcarbo@grupfe.com', 'gcarbo');
         translatePage.setLanguages('es', 'en');
         translatePage.translate('transportador');
         translatePage.translationYd.waitVisible();
@@ -125,15 +115,14 @@ describe("Memslate Translate Page", function () {
         loginPage.logout();
     });
 
-    it('should be able to delete translation, only if logged in', function ()
-    {
+    it('should be able to delete translation, if logged in and if not', function () {
         //can not delete if not logged in
         translatePage.setLanguages('es', 'en');
         translatePage.translate('transportador');
-        expect(translatePage.deleteTranslationButton.isPresent()).toBe(false);
+        expect(translatePage.deleteTranslationButton.isPresent()).toBe(true);
 
         //log in and delete
-        loginPage.login('gcarbo@miraiblau.com', 'gcarbo');
+        loginPage.login('gcarbo@grupfe.com', 'gcarbo');
         translatePage.setLanguages('es', 'en');
         translatePage.translate('transportador');
         expect(translatePage.translationYd.getText()).toContain('transporter');

@@ -5,9 +5,15 @@
 
     .filter('searchfilter', function () {
       return function (input, query) {
-        var r = RegExp('(' + query + ')', 'g');
+        var r = RegExp('(' + query + ')', 'gi');
         return input.replace(r, '<span class="selected-class">$1</span>');
       }
+    })
+
+    .filter('unsafe', function ($sce) {
+      return function (val) {
+        return $sce.trustAsHtml(val);
+      };
     })
 
     .run(function ($ionicPlatform) {
@@ -27,8 +33,7 @@
       //watch and retrieve last state (ui-router)
       $rootScope.$on('$stateChangeSuccess', function (e, toState, toParams, fromState, fromParams) {
         var location = msUtils.getService('$location');
-        if(location)
-        {
+        if (location) {
           var newLocation = msUtils.getService('$location').path();
           SessionService.put('lastLocation', newLocation);
           $log.log('State: ' + newLocation);
@@ -56,7 +61,9 @@
 
       formlyConfigProvider.setType({
         name: 'memslateSelect',
-        template: "<ms-select id='{{options.templateOptions.id}}' name='{{options.templateOptions.name}}' title='{{options.templateOptions.label}}' items='options.templateOptions.options' prefered-items='options.templateOptions.prefered' selected-item='model[options.key]' selector-class='{{options.templateOptions.selectorClass}}'></ms-select>"
+        template: "<ms-select id='{{options.templateOptions.id}}' name='{{options.templateOptions.name}}' title='{{options.templateOptions.label}}' items='options.templateOptions.options' " +
+                  "prefered-items='options.templateOptions.prefered' selected-item='model[options.key]' " +
+                  "selector-class='{{options.templateOptions.selectorClass}}' unselected-text='{{options.templateOptions.unselectedText}}'></ms-select>"
       });
     })
 
@@ -111,6 +118,11 @@
               templateUrl: "templates/memoFilter.html",
               controller: 'MemoFilterCtrl as memoFilterCtrl'
             }
+          },
+          resolve: {
+            memoSettings: function (MemoSettingsService) {
+              return MemoSettingsService.get();
+            }
           }
         })
 
@@ -143,7 +155,7 @@
                 return false;
               }
 
-              //load css and js
+              //load game's css and js
               $ocLazyLoad.load("css/games/" + $stateParams.gameName + "/" + $stateParams.gameName + ".css");
               return $ocLazyLoad.load("js/games/" + $stateParams.gameName + "/" + $stateParams.gameName + ".js").then(function () {
                 $log.log('game "' + $stateParams.gameName + '" resolved');
@@ -170,7 +182,7 @@
         if (lastState === "/app/games/:gameName") {
           lastState = "/app/play";
         }
-        $injector.get('$log').log('Otherwise: '+lastState);
+        $injector.get('$log').log('Otherwise: ' + lastState);
         return lastState;
       });
     });

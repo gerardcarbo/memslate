@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var app = angular.module('memslate.directives', ['memslate.services', 'ionic']);
+  var app = angular.module('memslate.directives', ['memslate.services', 'memslate.services.ui']);
 
   /*
    * This directive allows us to pass a function in on an enter key to do what
@@ -66,7 +66,7 @@
         });
 
         $scope.getName = function (value) {
-          if(!value) return $scope.unselectedText || '(unselected)';
+          if(!value) return $scope.unselectedText || null;
           var item = msUtils.objectFindByKey($scope.items, "value", value);
           if(item) return item.name;
           return undefined;
@@ -86,13 +86,17 @@
       replace: true,
       scope: {
         translation: '=',
-        parent: '='
+        parent: '=',
+        showExtended: '=?'
       },
       controller: function ($scope, TranslationSampleRes, UI, UserStatusService) {
+        // check if it was defined.  If not - set a default
+        $scope.showExtended = angular.isDefined($scope.showExtended) ? $scope.showExtended : true;
+
         this.isAuthenticated = function () {
           $log.log('isAuthenticated', UserStatusService.isAuthenticated())
           return UserStatusService.isAuthenticated();
-        }
+        };
 
         this.saveTranslationSample = function () {
           if ($scope.translation.translate !== undefined &&
@@ -140,14 +144,19 @@
 
         this.playText = function (txt, lang) {
           var msg = new SpeechSynthesisUtterance();
-          msg.lang = lang + "-" + lang.toUpperCase();
           msg.text = txt;
+
+          lang = lang + "-" + lang.toUpperCase();
 
           msg.onerror = function (error) {
             $log.log('playingSound: error ' + error)
           };
 
-          window.speechSynthesis.speak(msg);
+          var voices = speechSynthesis.getVoices();
+
+          msg.voice = voices.filter(function(voice) { return voice.lang == lang; })[0];
+
+          speechSynthesis.speak(msg);
 
           $log.log('playingSound: ' + txt);
         };

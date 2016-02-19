@@ -1,51 +1,53 @@
 <ion-side-menus enable-menu-with-back-views="false">
-    <ion-side-menu-content>
-        <ion-nav-bar class="bar-dark">
-            <ion-nav-back-button>
-            </ion-nav-back-button>
+  <ion-side-menu-content>
+    <ion-nav-bar class="bar-dark">
+      <ion-nav-back-button>
+      </ion-nav-back-button>
 
-            <ion-nav-buttons side="left">
+      <ion-nav-buttons side="left">
 
-                <button id="mainMenu" class="button button-icon button-clear ion-navicon" menu-toggle="left" >
+        <button id="mainMenu" class="button button-icon button-clear ion-navicon" menu-toggle="left" >
 
-                </button>
+        </button>
 
-            </ion-nav-buttons>
+      </ion-nav-buttons>
 
-            <ion-nav-buttons side="right">
-                <button id="memoOrderWayMenu" class="button button-icon button-clear" ng-class="getOrderClass()" ng-if="stateIs('app.memo')" ng-click="changeOrderWay($event)">
-                </button>
-                <button id="memoFilterMenu" class="button button-icon button-clear ion-more animate-rotate ms-rotate-90" ui-sref="app.memoFilter" ng-if="stateIs('app.memo')">
-                </button>
-                <button id="userMenu" class="button button-icon button-clear ion-person" ui-sref="app.user" ng-if="userLoggedin()">
-                </button>
-            </ion-nav-buttons>
-        </ion-nav-bar>
-        <ion-nav-view name="menuContent"></ion-nav-view>
-    </ion-side-menu-content>
+      <ion-nav-buttons side="right">
+        <button id="memoOrderWayMenu" class="button button-icon button-clear" ng-class="getOrderClass()" ng-if="stateIs('app.memo')" ng-click="changeOrderWay($event)">
+        </button>
+        <button id="memoFilterMenu" class="button button-icon button-clear ion-more animate-rotate ms-rotate-90" ui-sref="app.memoFilter" ng-if="stateIs('app.memo')">
+        </button>
+        <button id="userMenu" class="button button-icon button-clear" ui-sref="app.user" ng-if="userLoggedin()">
+          <img src="img/icon_siluete.svg" class="logo_user">
+        </button>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+    <ion-nav-view name="menuContent"></ion-nav-view>
+  </ion-side-menu-content>
+  <ion-side-menu side="left" style="background-color: #F2F2F2;">
 
-    <ion-side-menu side="left">
-        <ion-content>
-            <ion-list class="center-text">
-                <ion-item id="loginMenu" class="ion-person item-dark bar-dark"  menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
-                    Login
-                </ion-item>
-                <ion-item id="logoutMenu" class="ion-person assertive item-dark bar-dark" menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
-                    Logout {{userName()}}
-                </ion-item>
-                <ion-item id="homeMenu" class="item-positive" nav-clear menu-close ui-sref="app.home" >
-                    <i class="icon ion-home"></i> Home
-                </ion-item>
-                <ion-item id="translateMenu" class="item-positive"  menu-close ui-sref="app.translate">
-                    <i class="icon ion-search"></i> Translate
-                </ion-item>
-                <ion-item id="memoMenu" class="item-positive" menu-close ui-sref="app.memo">
-                    <i class="icon ion-clipboard"></i> Memo
-                </ion-item>
-                <ion-item id="playMenu" class="item-positive" menu-close ui-sref="app.play">
-                    <i class="icon ion-play"></i> Play
-                </ion-item>
-            </ion-list>
-        </ion-content>
-    </ion-side-menu>
+    <ion-content>
+      <ion-list class="center-text">
+        <ion-item id="loginMenu" class="item-dark bar-dark"  menu-close ng-click="openLogin()" ng-show="!isAuthenticated()">
+          <img src="img/icon_siluete.svg" class="logo_login">Login
+        </ion-item>
+        <ion-item id="logoutMenu" class="assertive item-dark bar-dark" menu-close ng-click="doLogout()" ng-show="isAuthenticated()">
+          <img src="img/icon_siluete_void.svg" class="logo_login">Logout {{userName()}}
+        </ion-item>
+        <ion-item id="homeMenu" class="item-positive" nav-clear menu-close ui-sref="app.home" >
+          <i class="icon ion-home"></i> Home
+        </ion-item>
+        <ion-item id="translateMenu" class="item-calm"  menu-close ui-sref="app.translate">
+          <i class="icon ion-search"></i> Translate
+        </ion-item>
+        <ion-item id="memoMenu" class="item-calm" menu-close ui-sref="app.memo">
+          <i class="icon ion-clipboard"></i> Memo
+        </ion-item>
+        <ion-item id="playMenu" class="item-calm" menu-close ui-sref="app.play">
+          <i class="icon ion-play"></i> Play
+        </ion-item>
+
+      </ion-list>
+    </ion-content>
+  </ion-side-menu>
 </ion-side-menus>

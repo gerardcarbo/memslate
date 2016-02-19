@@ -26,6 +26,8 @@ var MemslateLogin = function (mainMenu)
     this.loginMsgs.validEmail = 'Please enter a valid email';
     this.loginMsgs.invalidAccount = 'Invalid Account';
 
+    var self=this;
+
     this.login = function (email, password)
     {
         var self = this;
@@ -65,8 +67,10 @@ var MemslateLogin = function (mainMenu)
 
     this.logout = function()
     {
-        this.mainMenu.clickLogout();
-        this.okCancelDlg.clickOk();
+        this.mainMenu.clickLogout().then(function(wasLoggedIn){
+            if(wasLoggedIn)
+                self.okCancelDlg.clickOk();
+        });
     };
 };
 

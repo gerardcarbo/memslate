@@ -71,6 +71,8 @@
   &.button-block, &.button-full {
     margin-top: $button-block-margin;
     margin-bottom: $button-block-margin;
+    padding-top: $button-block-padding;
+    padding-bottom: $button-block-padding;
   }
 
   &.button-light {

@@ -106,6 +106,7 @@ describe("Memslate Memo Page", function () {
             browser.sleep(1000);
 
             memoFilterPage.orderBySelect.selectItem('Translations.translate,Translations.mainResult'); //alphabetically
+            memoFilterPage.orderWaySelect.selectItem('asc'); //ascendent
             memoFilterPage.filterByStringCheck.click();
             memoFilterPage.filterString.clear();
             memoFilterPage.filterString.sendKeys('and');
@@ -114,19 +115,19 @@ describe("Memslate Memo Page", function () {
 
             element.all(by.repeater('(i, translation) in memoCtrl.translations track by $index'))
                 .then(function (elements) {
-                    expect(elements.length).toBe(2);
+                    expect(elements.length).toBeGreaterThan(2);
 
-                    expect(elements[0].getInnerHtml()).toContain('and &gt; et');
-                    expect(elements[1].getInnerHtml()).toContain('and &gt; y');
+                    expect(elements[0].getInnerHtml()).toContain('andale &gt; andale');
+                    expect(elements[1].getInnerHtml()).toContain('andale &gt; andale');
 
                     memoPage.memoOrderWayMenu.click();
                     browser.sleep(2000);
 
                     element.all(by.repeater('(i, translation) in memoCtrl.translations track by $index'))
                         .then(function (elements) {
-                            expect(elements.length).toBe(2);
-                            expect(elements[0].getInnerHtml()).toContain('and &gt; y');
-                            expect(elements[1].getInnerHtml()).toContain('and &gt; et');
+                            expect(elements.length).toBeGreaterThan(2);
+                            expect(elements[0].getInnerHtml()).toContain('andy &gt; Andy');
+                            expect(elements[1].getInnerHtml()).toContain('andy &gt; andy');
                         });
 
                 });

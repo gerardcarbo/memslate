@@ -1,8 +1,8 @@
 <a class="button {{selectorClass}}" ng-click="openSelectModal()" selected-value="{{selectedItem}}">
   <span>{{name}}</span>
   <ion-spinner icon="android"  class="spinner-vertical-aligned" ng-if="!getSelected()"></ion-spinner>
-  <b style="margin-left: 0px">{{getSelected()}}</b>
-  <span class="ion-arrow-down-b active" style="margin-left: 5px"></span>
+  <b style="margin-left: 0px"><span ng-bind-html="getSelected() | unsafe"></span></b>
+  <span class="ion-arrow-down-b active" style="margin-left: 2px"></span>
   <script id="select-modal.html" type="text/ng-template">
     <ion-modal-view>
       <ion-header-bar class="bar-dark">
@@ -12,13 +12,13 @@
         <ion-list>
           <ion-radio ng-repeat="prefered in preferedItems track by $index" ng-click="onSelected(prefered)"
                      ng-model="selectedItem" ng-value="prefered" name="prefered">
-            <i class="icon ion-star energized"></i>&nbsp;{{::getName(prefered)}}
+            <i class="icon ion-star energized"></i>&nbsp;{{getName(prefered)}}
           </ion-radio>
           <ion-item class="item-divider" ng-if="preferedItems"></ion-item>
           <ion-radio ng-repeat="item in items track by $index" ng-if="notPrefered(item)"
                      ng-click="onSelected(item.value)"
                      ng-model="selectedItem" ng-value="item.value" name="std">
-            {{::item.name}}
+            {{item.name}}
           </ion-radio>
         </ion-list>
       </ion-content>

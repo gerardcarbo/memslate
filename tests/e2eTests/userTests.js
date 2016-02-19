@@ -26,7 +26,6 @@ describe("Memslate User Tests", function ()
         browser.waitForAngular();
         loginPage.login('test@test.com', 'testtest');
         mainPage.userMenu.isPresent().then(function (present) {
-            console.log('present: ', present)
             if (present == true) {
                 mainPage.userMenu.click();
                 userPage.deleteAccountButton.click();
@@ -157,7 +156,7 @@ describe("Memslate User Tests", function ()
         userPage.newPwd.clear().sendKeys('testtest');
         userPage.newPwd2.clear().sendKeys('testtest');
         userPage.changePwdButton.click();
-        mainPage.toast.expectText('Password Changed');
+        mainPage.toast.expectText('Password Changed',false,true);
 
         //invalid pwd
         userPage.showChangePwdButton.click();
@@ -167,14 +166,14 @@ describe("Memslate User Tests", function ()
         userPage.newPwd.clear().sendKeys('testtest');
         userPage.newPwd2.clear().sendKeys('testtest');
         userPage.changePwdButton.click();
-        mainPage.toast.expectToContain('Invalid Credentials');
+        mainPage.toast.expectToContain('Invalid Credentials',false,true);
 
         //valid pwd again
         userPage.oldPwd.clear().sendKeys('testtest');
         userPage.newPwd.clear().sendKeys('testtest');
         userPage.newPwd2.clear().sendKeys('testtest');
         userPage.changePwdButton.click();
-        mainPage.toast.expectText('Password Changed');
+        mainPage.toast.expectText('Password Changed',false,true);
 
         //logout and login again
         mainPage.backMenu.click();
@@ -202,7 +201,7 @@ describe("Memslate User Tests", function ()
 
         //try to login again, should fail
         loginPage.login('test@test.com', 'testtest');
-        mainPage.toast.expectToContain('Login Failed:');
+        mainPage.toast.expectToContain('Login Failed:',false,true);
         //loginPage.loginFailedPopupOkButton.click();
-    },70000);
+    },180000);
 });

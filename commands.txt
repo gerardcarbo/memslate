@@ -1,3 +1,53 @@
+#Digital Ocean
+
+Install dokku:
+    install dokku
+    cat digocmemslate.pub | ssh root@memslate.com "cat >> ~/.ssh/authorized_keys"                           : automatic root login
+
+    git remote add dokku dokku@memslate.com:memslate
+
+Update SO:
+    apt-get dist-upgrade
+    sudo shutdown -r now
+
+#DOKKU
+docker ps -> view all containers
+
+Create and link DB:
+    dokku postgres:create memslate
+    dokku postgres:link memslate memslate
+
+View logs:
+    dokku logs memslate -t
+
+Redirect subdomain:
+    dokku domains:add memslate www.memslate.com
+
+Redirect top domain:
+     vi /etc/nginx/conf.d/dokku.conf
+     add:
+         server {
+           server_name memslate.com;
+           rewrite ^ http://www.memslate.com$request_uri? permanent;
+         }
+      /etc/init.d/nginx restart
+
+dokku postgres:restart
+dokku postgres:info memslate memslate : get db info (password)
+dokku postgres:console:admin :  admin postgresql console
+dokku ps:scale memslate setup=1 : start setup task
+dokku postgres:list : list dbs, apps and exposes.
+dokku postgres:expose memslate 5444: expose postgress at the specified port
+
+Add storage pesistence (logs app folder persisted in /home/apps/memslate/logs):
+	dokku docker-options:add memslate deploy "-v /home/apps/memslate/logs:/logs"
+	dokku docker-options:add memslate run "-v /home/apps/memslate/logs:/logs"
+	dokku docker-options:add memslate build "-v /home/apps/memslate/logs:/logs"
+
+Check nginx (502 Bad Gateway):
+	nginx -t (test config files)
+	dokku nginx:error-logs memslate
+
 #CORDOVA
 
 npm update -g cordoba
@@ -23,6 +73,7 @@ git branch -D <branch_name>: force delete branch
 git branch --no-merged: list unmerged branches
 git push [-f] remote local_branch[:remote_branch] : push local_branch to remote (into remote_branch) (-f with force push)
     ex: git push -f dokku UserPasswordRecovery:master
+    	git push dokku-test master (upload to test.memslate.com)
 
 git rebase:
     git checkout experiment
@@ -44,51 +95,6 @@ git remove file 'chrome_ext/dist/Memslate v0.1.7.zip' from history:
     git reflog expire --expire=now --all
     git gc --prune=now
     git gc --aggressive --prune=now
-
-#Digital Ocean
-
-
-Install dokku:
-    install dokku
-    cat digocmemslate.pub | ssh root@memslate.com "cat >> ~/.ssh/authorized_keys"                           : automatic root login
-    
-    git remote add dokku dokku@memslate.com:memslate
-
-Update SO:
-    apt-get dist-upgrade
-    sudo shutdown -r now
-
-#DOKKU
-
-Create and link DB:
-    dokku postgres:create memslate
-    dokku postgres:link memslate memslate
-
-View logs:
-    dokku logs memslate -t
-
-Redirect subdomain:
-    dokku domains:add memslate www.memslate.com
-
-Redirect top domain:
-     vi /etc/nginx/conf.d/dokku.conf
-     add:
-         server {
-           server_name memslate.com;
-           rewrite ^ http://www.memslate.com$request_uri? permanent;
-         }
-      /etc/init.d/nginx restart
-
-dokku postgres:restart
-dokku postgres:info memslate memslate : get db info (dokku postgresql:info memslate memslate)
-dokku postgres:console:admin :  admin postgresql console
-dokku ps:scale memslate setup=1 : start setup task
-dokku postgres:expose memslate 5444: expose postgress at the specified port
-
-Add storage pesistence (logs app folder persisted in /home/apps/memslate/logs):
-	dokku docker-options:add memslate deploy "-v /home/apps/memslate/logs:/logs"
-	dokku docker-options:add memslate run "-v /home/apps/memslate/logs:/logs"
-	dokku docker-options:add memslate build "-v /home/apps/memslate/logs:/logs"
 
 #HEROKU
 
@@ -146,6 +152,9 @@ sudo apt-get install landscape-client :  conical landscape (NOT TO DO IT!!! brea
 rm -r mydir : delete folder recursive
 cd ~ : cd F6
 chmod 777 setup/ : give full access to everybody to folder
+tail setup.log -f : show the last lines of file (-f : with follow)
+df -h : disk usage
+sudo dpkg-reconfigure tzdata : set server timezone
 
 #TYPESCRIPT
 Download and install d.ts for angular:

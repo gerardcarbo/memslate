@@ -1,6 +1,6 @@
 <ion-modal-view>
   <ion-header-bar class="bar-dark">
-    <h1 class="title"><img src="img/icon_bn.svg" class="logo">Recover Password</h1>
+    <h1 class="title"><img src="img/icon_siluete.svg" class="logo_user">Recover Password</h1>
 
     <div class="buttons">
       <button id="closeButton" class="button button-clear ion-close" ng-click="closeRecover()"> Close</button>
@@ -10,7 +10,7 @@
     <div class="list">
       <form id="recoverForm" name="recoverForm" ng-submit="doRecover(recoverForm)" novalidate>
         <label class="item item-input">
-          <input name="email" type="email" placeholder="Email" ng-model="recoverData.email"
+          <input name="email" type="email" placeholder="Enter Registered Email" ng-model="recoverData.email"
                  ng-model-options="{ updateOn: 'blur' }" required>
 
           <div ng-show="(recoverForm.$submitted || recoverForm.email.$touched)">

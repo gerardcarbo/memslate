@@ -12,11 +12,15 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
+            '../ionic/www/js/utils.js',
+            '../ionic/www/js/config.debug.js',
             '../ionic/www/lib/ionic/js/ionic.bundle.min.js',
             '../ionic/www/lib/angular-resource/angular-resource.min.js',
             '../ionic/www/lib/angular-cookies/angular-cookies.min.js',
-            '../ionic/www/js/services/*.js',
-            '../ionic/www/js/*.js',
+            '../ionic/www/js/controllers.js',
+            '../ionic/www/js/directives.js',
+            '../ionic/www/js/services/base.js',
+            '../ionic/www/js/services/translate.js',
             '../ionic/www/lib/angular-mocks/angular-mocks.js',
             'lib/testingData.js',
             'unitTests/*Tests.js'

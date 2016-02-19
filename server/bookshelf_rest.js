@@ -1,7 +1,6 @@
 "use strict";
 
 var express = require('express');
-var log     = require('./config');
 var _       = require('lodash');
 
 module.exports = function (Model, resource, options)
@@ -38,7 +37,7 @@ module.exports = function (Model, resource, options)
     function saveItem(item, res)
     {
         return new Model(item).save().then(function (row) {
-            log.debug('post ' + resource + ' id:' + row.get('id'));
+            console.log('post ' + resource + ' id:' + row.get('id'));
             return row;
         }).catch(function (err) {
             console.log('post ' + resource + ' error:',err);
@@ -68,7 +67,7 @@ module.exports = function (Model, resource, options)
                     {
                         if(itemSaved)
                         {
-                            options.postSave(req, res, itemSaved.attributes);
+                            options.postSave(req, res, itemSaved);
                         }
                         else
                         {
@@ -91,17 +90,17 @@ module.exports = function (Model, resource, options)
             .then(function (modelItem) {
                 return modelItem.destroy()
                     .then(function () {
-                        log.debug('deleteItem ' + resource + ' id:' + item.id);
+                        console.log('deleteItem ' + resource + ' id:' + item.id);
                         return item;
                     })
                     .otherwise(function (err) {
-                        log.debug('deleteItem destroy error:', err);
+                        console.log('deleteItem destroy error:', err);
                         res.status(500).json({error: true, data: {message: err.message}});
                         return false;
                     });
             })
             .otherwise(function (err) {
-                log.debug('deleteItem fetch error:', err);
+                console.log('deleteItem fetch error:', err);
                 res.status(500).json({error: true, data: {message: err.message}});
                 return false;
             });

@@ -23,12 +23,21 @@ module.exports = function (config) {
             "lib/oclazyload/dist/ocLazyLoad.js",
             "lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.js",
             "lib/ngCordova/dist/ng-cordova.js",
-            'js/*.js',
-            'js/services/*.js',
+            'js/utils.js',
+            'js/config.debug.js',
+            'js/services/base.js',
+            'js/services/translate.js',
+            'js/services/memo.js',
+            'js/services/play.js',
+            'js/services/authenticate.js',
+            'js/services/ui.js',
+            'js/directives.js',
+            'js/controllers.js',
+            'js/app.js',
             '../../tests/lib/ngMidwayTester.js',
             '../../tests/lib/testingData.js',
-            '../../tests/midwayTests/servicesTests.js'
-            //'../../tests/midwayTests/*Tests.js'
+            /*'../../tests/midwayTests/servicesTests.js',*/
+            '../../tests/midwayTests/*Tests.js'
         ],
 
         // list of files to exclude

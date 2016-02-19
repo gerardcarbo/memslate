@@ -485,10 +485,13 @@ module Translate {
       var promise = deferred.promise;
       msUtils.decoratePromise(promise);
 
+      text = text.toLowerCase();
+
       if (this.currentTranslationsProvider) {
         var _this = this;
         this.currentTranslationsProvider.translate(fromLang, toLang, text)
           .success((translation) => {
+            translation.mainResult = translation.mainResult.toLowerCase();
             _this.LanguagesService.fromLang(fromLang);
             _this.LanguagesService.toLang(toLang);
             _this.LanguagesService.addPrefered(fromLang);
@@ -521,7 +524,7 @@ module Translate {
   /**
    * Translate services
    */
-  var servicesMod = angular.module('memslate.services.translate', ['memslate.services', 'ngResource']);
+  var servicesMod = angular.module('memslate.services');
 
   servicesMod.run(function ($rootScope, SessionService, TranslateService, TranslationRes) {
     //Configure current translations provider

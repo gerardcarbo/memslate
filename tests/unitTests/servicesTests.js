@@ -9,7 +9,6 @@ describe("Unit: Services Tests", function ()
     var baseUrl='';
 
     beforeEach(module('memslate.services'));
-    beforeEach(module('memslate.services.translate'));
 
     beforeEach(function () {
         module(function ($provide) {
@@ -227,52 +226,5 @@ describe("Unit: Services Tests", function ()
             expect(translationDoMore.rawResult).toBeDefined();
             expect(translationDoMore.rawResult).toEqual(testingData.responseGetDoLessTransl);
         });
-    });
-
-    describe('BaseUrl Service tests', function () {
-        var BaseUrlService//, $rootScope;
-
-        beforeEach(inject(function (_BaseUrlService_, _$rootScope_) {
-            BaseUrlService = _BaseUrlService_;
-            //$rootScope = _$rootScope_;
-        }));
-
-        it("Base URL service should return http://localhost:5000/.", function () {
-            expect(BaseUrlService).not.toBeNull();
-            httpBackend.expectGET('http://www.memslate.com/connect').respond(500,'');
-            httpBackend.expectGET('http://localhost:5000/connect').respond('Ok');
-
-            var baseUrl2='';
-            console.log('Trying to connect...');
-            BaseUrlService.connect().then(function() {
-                console.log(BaseUrlService.get());
-
-                baseUrl2 = BaseUrlService.get();
-            });
-
-            httpBackend.flush();
-
-            expect(baseUrl2).toBe('http://localhost:5000/');
-
-        }, 5000); //*/
-
-        it("Base URL service should return https://memslate.herokuapp.com/.", function () {
-            expect(BaseUrlService).not.toBeNull();
-            httpBackend.expectGET('http://www.memslate.com/connect').respond('Ok');
-            httpBackend.expectGET('http://localhost:5000/connect').respond(500,'');
-
-            var baseUrl2='';
-            console.log('Trying to connect...');
-            BaseUrlService.connect().then(function() {
-                console.log(BaseUrlService.get());
-
-                baseUrl2 = BaseUrlService.get();
-            });
-
-            httpBackend.flush();
-
-            expect(baseUrl2).toBe('http://www.memslate.com/');
-
-        }, 5000); //*/
     });
 });

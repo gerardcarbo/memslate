@@ -2,7 +2,6 @@
 
 var uuid = require('node-uuid');
 var utils = require('./utils');
-var log = require('./config');
 
 module.exports = function (bookshelf)
 {
@@ -18,7 +17,7 @@ module.exports = function (bookshelf)
             var self = this;
             return bookshelf.knex('Users').count().then(function (result) {
                 if (result[0] && result[0].count === 0) {
-                    log.debug("Marking first user " + self.get("email") + " as admin");
+                    console.log("Marking first user " + self.get("email") + " as admin");
                     self.set('isAdmin', true);
                 }
             });
@@ -26,19 +25,19 @@ module.exports = function (bookshelf)
     },
     {
         createUser: function (user) {
-            log.debug('createUser: creating "' + user.name + '"...');
+            console.log('createUser: creating "' + user.name + '"...');
 
             var p = bookshelf.knex('Users').where({
                 email: user.email
             }).count().then(function (result) {
                 if (result[0] && result[0].count > 0) {
-                    log.debug('createUser: user "' + user.name + '" already exists.');
+                    console.log('createUser: user "' + user.name + '" already exists.');
                     return true;
                 } else {
                     user.cryptedPassword = utils.encryptPassword(user.password);
                     delete user.password;
                     return bookshelf.knex('Users').insert(user).then(function () {
-                        log.debug('createUser: user "' + user.name + '" created');
+                        console.log('createUser: user "' + user.name + '" created');
                         return true; //important! must return something -> new promise created
                     });
                 }
@@ -46,6 +45,10 @@ module.exports = function (bookshelf)
 
             return p;
         }
+    });
+
+    var MostUsedWords = bookshelf.Model.extend({
+        tableName: 'MostUsedWords'
     });
 
     var Translations = bookshelf.Model.extend({
@@ -104,6 +107,7 @@ module.exports = function (bookshelf)
         UserTranslations: UserTranslations,
         UserTranslationsSamples: UserTranslationsSamples,
         UserLanguages: UserLanguages,
-        Games: Games
+        Games: Games,
+        MostUsedWords: MostUsedWords
     };
 };

@@ -1,4 +1,4 @@
-var app = angular.module('BackgroundApp', ['memslate.services.translate', 'memslate.services.authenticate']);
+var app = angular.module('BackgroundApp', ['memslate.services']);
 
 app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
     "use strict";

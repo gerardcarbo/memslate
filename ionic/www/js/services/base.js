@@ -4,7 +4,7 @@
   /**
    * Base services
    */
-  var servicesMod = angular.module('memslate.services', ['ngCookies']);
+  var servicesMod = angular.module('memslate.services', ['ngCookies', 'ngResource']);
 
   servicesMod.config(function ($httpProvider) {
     //Enable cross domain calls

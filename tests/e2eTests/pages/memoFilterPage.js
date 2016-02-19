@@ -19,6 +19,7 @@ var MemslateFilterMemoPage = function()
     this.filterMemoDoneButton = element(by.id('filterMemoDone'));
     this.filterMemoCancelButton = element(by.id('filterMemoCancel'));
     this.orderBySelect = element(by.id('orderBySelect'));
+    this.orderWaySelect = element(by.id('orderWaySelect'));
 
     this.get = function()
     {

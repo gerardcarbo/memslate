@@ -8,3 +8,9 @@ ionic/www/lib
 ionic/hooks
 chrome_ext
 logs
+ionic/www/js/typings
+ionic/.editorconfig
+server/setup/difficulty.ods
+sql/anonymousTranslations.backup
+sql/anonymousTranslations2.backup
+tests/report/
