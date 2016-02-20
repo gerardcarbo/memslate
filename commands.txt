@@ -10,6 +10,15 @@ Update SO:
     apt-get dist-upgrade
     sudo shutdown -r now
 
+#BOWER
+
+bower info <package> :  view published package's versions
+
+#NPM
+
+npm list <package> : currently installed package version
+npm show <package> : published package's versions
+
 #DOKKU
 docker ps -> view all containers
 
@@ -50,7 +59,7 @@ Check nginx (502 Bad Gateway):
 
 #CORDOVA
 
-npm update -g cordoba
+npm install -g cordova@latest
 
 ionic platform android -> adds android
 
@@ -95,6 +104,8 @@ git remove file 'chrome_ext/dist/Memslate v0.1.7.zip' from history:
     git reflog expire --expire=now --all
     git gc --prune=now
     git gc --aggressive --prune=now
+
+git config --global core.safecrlf false : turn off git “LF will be replaced by CRLF” warning
 
 #HEROKU
 

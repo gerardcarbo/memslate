@@ -7,6 +7,10 @@ var restful = require('./bookshelf_rest');
 var config = require('./config');
 var _ = require('lodash');
 var locale = require('locale');
+var moment = require('moment');
+
+//patch Date toJSON
+Date.prototype.toJSON = function(){ return moment(this).format(); }
 
 module.exports = function (models, knex) {
     var difficulty = require('./difficulty')(models);
@@ -79,19 +83,19 @@ module.exports = function (models, knex) {
 
             //compute difficulty
             var wordEn, wordOther;
-            if(translation.attributes.fromLang=='en')
-            {
+            if (translation.attributes.fromLang == 'en') {
                 wordEn = translation.attributes.translate;
                 wordOther = translation.attributes.mainResult;
             }
-            else if(translation.attributes.toLang=='en')
-            {
+            else if (translation.attributes.toLang == 'en') {
                 wordOther = translation.attributes.translate;
                 wordEn = translation.attributes.mainResult;
             }
 
-            if(wordEn) difficulty.compute(wordEn, wordOther).then(function(difficulty){
-                translation.set('difficulty', difficulty).save().then(function(){console.log('saveUserTranslation: difficulty for '+wordEn+' - '+wordOther+' : '+difficulty);});
+            if (wordEn) difficulty.compute(wordEn, wordOther).then(function (difficulty) {
+                translation.set('difficulty', difficulty).save().then(function () {
+                    console.log('saveUserTranslation: difficulty for ' + wordEn + ' - ' + wordOther + ' : ' + difficulty);
+                });
             });
         }
     }
@@ -106,16 +110,16 @@ module.exports = function (models, knex) {
             toLang: req.translation.toLang,
             translate: req.translation.translate
         }).fetch().then(function (model) {
-                if (model) {
-                    console.log('translation found for:' + req.translation.translate);
-                    req.translation.id = model.get("id");
-                    res.status(200).send(req.translation);
-                    saveUserTranslation(req, res, model);
-                }
-                else {
-                    doSave(req.translation);
-                }
-            });
+            if (model) {
+                console.log('translation found for:' + req.translation.translate);
+                req.translation.id = model.get("id");
+                res.status(200).send(req.translation);
+                saveUserTranslation(req, res, model);
+            }
+            else {
+                doSave(req.translation);
+            }
+        });
 
         addToUserLanguages(req);
     }
@@ -133,29 +137,67 @@ module.exports = function (models, knex) {
         return orderByRaw;
     }
 
+    function getOrderBy(orderBy, distinct) {
+        if (!distinct) {
+            switch (orderBy) {
+                case 'Alpha':
+                    return 'Translations.translate,Translations.mainResult';
+                case 'Date':
+                    return 'UserTranslations.userTranslationInsertTime';
+                case 'Langs':
+                    return 'Translations.fromLang,Translations.toLang';
+            }
+        } else {
+            switch (orderBy) {
+                case 'Alpha':
+                    return 'Alpha';
+                case 'Date':
+                    return 'Date';
+                case 'Langs':
+                    return 'Langs';
+            }
+        }
+    };
+
+    function getDistinctColumn(orderBy) {
+        switch (orderBy) {
+            case 'Alpha':
+                return 'LOWER(LEFT(translate,1)) as "Alpha"';
+            case 'Date':
+                return 'DATE("userTranslationInsertTime") as "Date"';
+            case 'Langs':
+                return '("fromLang","toLang") as "Langs"';
+        }
+    }
+
 
     /**
      * User Translations routes
      */
     var translations = restful(models.Translations, 'translations',
         {
-           getAll: function (req, res) {
-                var offset = req.query.offset || 0;
-                var limit = req.query.limit || 20;
-                var orderWay = req.query.orderWay || 'asc';
-                var orderBy = req.query.orderBy;
-                var userId = req.user.id || config.ANONIMOUS_USER_ID;
+            getAll: function (req, res) {
                 var columns = req.query.columns || 'userTranslationInsertTime,Translations.*';
                 var distinct = req.query.distinct;
+                var userId = req.user.id || config.ANONIMOUS_USER_ID;
+                var offset = req.query.offset || 0;
+                var limit = req.query.limit || 20;
+                var filterByString = req.query.filterByString || false;
+                var filterByDates = req.query.filterByDates || false;
+                var filterByLanguages = req.query.filterByLanguages || false;
+                var orderWay = req.query.orderWay || 'asc';
+                var orderBy = req.query.orderBy;
+                var groupData = req.query.groupData || false;
+
 
                 models.UserTranslations.query(function (qb) {
                     columns.split(',').forEach(function (column) {
-                        if(distinct){
-                            qb.distinct(knex.raw(column.trim()))
+                        if (distinct) {
+                            qb.distinct(knex.raw(getDistinctColumn(column.trim())));
+                            orderBy = column.trim();
                         } else {
-                            if(column.trim()=='UserTranslations.id')
-                            {
-                                qb.column(column.trim()+' as userTranslationId');
+                            if (column.trim() == 'UserTranslations.id') {
+                                qb.column(column.trim() + ' as userTranslationId');
                             }
                             qb.column(column.trim());
                         }
@@ -163,13 +205,13 @@ module.exports = function (models, knex) {
 
                     qb.innerJoin("Translations", "Translations.id", "UserTranslations.translationId");
                     qb.where("UserTranslations.userId", userId);
-                    if (req.query.filterByString && req.query.filterByString === "true") {
+                    if (filterByString && filterByString === "true") {
                         qb.andWhereRaw("\"Translations\".translate like '" + escape(req.query.filterString) + "%'");
                     }
-                    if (req.query.filterByDates && req.query.filterByDates === "true") {
+                    if (filterByDates && filterByDates === "true") {
                         qb.andWhereRaw("\"UserTranslations\".\"userTranslationInsertTime\" >= '" + req.query.filterDateFrom + "'  and \"UserTranslations\".\"userTranslationInsertTime\" <= '" + req.query.filterDateTo + "'");
                     }
-                    if (req.query.filterByLanguages && req.query.filterByLanguages === "true") {
+                    if (filterByLanguages && filterByLanguages === "true") {
                         if (req.query.filterFromLanguage && req.query.filterFromLanguage != "") {
                             qb.andWhereRaw("\"Translations\".\"fromLang\" = '" + req.query.filterFromLanguage + "'");
                         }
@@ -177,23 +219,56 @@ module.exports = function (models, knex) {
                             qb.andWhereRaw("\"Translations\".\"toLang\" = '" + req.query.filterToLanguage + "'");
                         }
                     }
-                    if(limit) qb.limit(limit);
-                    if(offset) qb.offset(offset);
-                    if(orderBy) {
+
+                    //groupData
+                    if (groupData) {
+                        switch (groupData) {
+                            case "Alpha":
+                                qb.andWhereRaw("LOWER(LEFT(translate,1)) like '" +
+                                                    req.query.groupFilter + "%'");
+                                req.query.groupOrderBy.split(',').forEach(function(orderBy){
+                                    qb.orderBy(orderBy,orderWay)
+                                });
+                                break;
+                            case "Date":
+                                qb.andWhereRaw("DATE(\"userTranslationInsertTime\") = '" +
+                                    moment(req.query.groupFilter).format('YYYY-MM-DD') +"'");
+                                req.query.groupOrderBy.split(',').forEach(function(orderBy){
+                                    qb.orderBy(orderBy,orderWay)
+                                });
+                                break;
+                            case "Langs":
+                                console.log('translations:getAll: orderBy: Langs: '+req.query.groupFilter);
+                                var filter = req.query.groupFilter.trimChars('()');
+                                var langs = filter.split(',');
+                                qb.andWhere({fromLang:langs[0], toLang:langs[1]});
+                                req.query.groupOrderBy.split(',').forEach(function(orderBy){
+                                    qb.orderBy(orderBy,orderWay)
+                                });
+                                break;
+                        }
+                    }
+
+                    if (limit) qb.limit(limit);
+                    if (offset) qb.offset(offset);
+                    if (orderBy) {
+                        orderBy = getOrderBy(orderBy, distinct);
                         if (orderBy.split(',').length > 1) {
                             var orderByRaw = createOrderRaw(orderBy, orderWay);
-                            console.log('translations:getAll: orderBy:'+orderBy+' orderWay:'+orderWay+' orderByRaw:'+orderByRaw)
+                            console.log('translations:getAll: orderBy:' + orderBy + ' orderWay:' + orderWay + ' orderByRaw:' + orderByRaw)
                             qb.orderByRaw(orderByRaw);
                         }
                         else {
+                            console.log('translations:getAll: orderBy:'+orderBy+" "+orderWay);
                             qb.orderBy(orderBy, orderWay);
                         }
                     }
 
-                    console.log('translations:getAll: sql:\n\t',qb.toString());
+                    console.log('translations:getAll: sql:\n\t', qb.toString());
                     qb.debug();
                 }).fetchAll().then(function (collection) {
                     if (collection) {
+                        console.log('translations:getAll:fetchAll: ',collection.models);
                         res.json(collection);
                     }
                     else {
@@ -296,15 +371,15 @@ module.exports = function (models, knex) {
                     translationId: req.translationSample.translationId,
                     sample: req.translationSample.sample
                 }).fetch().then(function (model) {
-                        if (model) {
-                            console.log('translationSample found for:' + req.translationSample.sample);
-                            req.translationSample.id = model.get("id");
-                            res.status(200).send(req.translationSample);
-                        }
-                        else {
-                            doSave(req.translationSample);
-                        }
-                    });
+                    if (model) {
+                        console.log('translationSample found for:' + req.translationSample.sample);
+                        req.translationSample.id = model.get("id");
+                        res.status(200).send(req.translationSample);
+                    }
+                    else {
+                        doSave(req.translationSample);
+                    }
+                });
             },
             preDelete: function (req, res, doDelete) {
                 //check translation sample user.

@@ -54,6 +54,7 @@ module.exports = function (knex, models) {
                                 console.log('refreshAnonymousUserTranslations: translations copied from anonymousTranslations. Creating '+translations.translations.length+' UserTranslations...');
                                 var total2 = [translations.count, 0]; //reduce value!
                                 return Promise.reduce(translations.translations, function (total, tr) {
+                                    if(tr.get('translate') == tr.get('mainResult')) return total; //do not copy idem translations
                                     return models.UserTranslations.forge({
                                         userId: userId,
                                         translationId: tr.id
@@ -61,7 +62,8 @@ module.exports = function (knex, models) {
                                         if (!userTranslation) {
                                             return new models.UserTranslations({
                                                 userId: userId,
-                                                translationId: tr.id
+                                                translationId: tr.id,
+                                                userTranslationInsertTime: tr.get('insertTime')
                                             }).save().then(function (saverTranslation) {
                                                 if (saverTranslation) {
                                                     total[1]++;
@@ -326,6 +328,9 @@ module.exports = function (knex, models) {
         mainResult = mainResult.replace('the ','');
         mainResult = mainResult.replace('le ','');
         mainResult = mainResult.replace('les ','');
+        mainResult = mainResult.trimChars('\'');
+        mainResult = mainResult.trimChars('(');
+        mainResult = mainResult.trimChars(')');
         if(mainResult == "" || mainResult == " " || mainResult == "  " || mainResult == "?") {
             console.log("onTranslated: ERROR no translation for '"+word+"' -> mainResult: '"+mainResult+"'");
             return Promise.resolve(false);

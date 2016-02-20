@@ -308,6 +308,14 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         {
           return;
         }
+        if (e.target.parentElement.tagName === 'A' ||
+            e.target.parentElement.tagName === 'BUTTON' ||
+            e.target.parentElement.tagName === 'INPUT' ||
+            e.target.parentElement.tagName === 'IMG' ||
+            e.target.parentElement.innerText === '')
+        {
+          return;
+        }
         //process de event
         process(e);
       });

@@ -11,9 +11,10 @@ body, table {
 
 .options
 {
-  width: 800px;
+  width: 900px;
   margin: auto;
   padding: 10px;
+  margin-top: 20px;
 }
 
 input, button {
@@ -96,4 +97,21 @@ input[type="number"]
 .options-select{
   font-size: 18px;
   margin-top:-5px;
+}
+
+ion-view {
+  background: linear-gradient(#E6E6E6, #a2a2a2);
+}
+
+ion-view::after {
+  content: "";
+  background-image: url("../img/waves.jpg");
+  background-size: 190px;
+  opacity: 0.03;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
 }

@@ -14,7 +14,7 @@ var MemslateHomePage = function ()
     this.playButton = element(by.id('playButton'));
 
     this.get = function () {
-        browser.get('http://localhost:5000');
+        browser.get('http://localhost:5000/#/app/home');
     };
 
     this.getTitle = function () {

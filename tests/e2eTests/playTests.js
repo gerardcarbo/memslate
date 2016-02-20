@@ -7,20 +7,25 @@ var utils = require('../lib/testUtils.js');
 var MemslatePlayPage = require('./pages/playPage.js');
 var MemslateBasicTestPage = require('./pages/games/basicTestPage');
 var MainPage = require('./pages/mainPage.js');
+var HomePage = require('./pages/homePage.js');
 var MemslateLoginPage = require('./pages/loginPage.js');
 var Alert = require('./dialogs/alertDlg');
+var MemslateRegisterPage = require('./pages/registerPage');
+var UserService = require('./services/user');
 
 describe("Memslate Play Page and Basic Test Game", function () {
     var mainPage = new MainPage();
     var playPage = new MemslatePlayPage();
     var basicTestPage = new MemslateBasicTestPage();
     var loginPage = new MemslateLoginPage(mainPage);
+    var registerPage = new MemslateRegisterPage();
+    var homePage = new HomePage();
     var alert = new Alert();
+    var userService = new UserService();
 
     beforeEach(function () {
         playPage.get();
         browser.waitForAngular();
-        loginPage.logout();
     });
 
     afterEach(function () {
@@ -51,8 +56,6 @@ describe("Memslate Play Page and Basic Test Game", function () {
 
         expect(basicTestPage.basicTestEvaluateButton.isDisplayed()).toBeTruthy();
     });
-
-
 
     it('should, once started the game, only to be able to be evaluated when all the questions are fulfilled', function () {
         playPage.basicTestButton.waitAndClick();
@@ -92,7 +95,6 @@ describe("Memslate Play Page and Basic Test Game", function () {
 
     });
 
-
     it('should evaluate properly', function () {
 
         playPage.basicTestButton.waitAndClick();
@@ -107,40 +109,44 @@ describe("Memslate Play Page and Basic Test Game", function () {
         ]
 
         var numGames = 6;
-        for(var i=0; i < numGames; i++)
-        {
-            basicTestPage.playAndEvaluate(mainPage,options[i].langs, options[i].level);
+        for (var i = 0; i < numGames; i++) {
+            basicTestPage.playAndEvaluate(mainPage, options[i].langs, options[i].level);
 
             basicTestPage.playAgainButton.click();
 
             browser.sleep(1000);
         }
-    },180000);
+    }, 180000);
 
     it('should be able to play a user without translations', function () {
+        userService.register({name: 'test', email: 'test@test.com', password: 'testtest'}).then(function(){
+            userService.login('test@test.com', 'testtest').then(function(){
+                playPage.basicTestButton.waitAndClick();
 
-        loginPage.login('test@test.com', 'testte');
+                expect(alert.text()).toContain('You do not have enough translations to play the game (20)');
+                alert.close();
 
-        playPage.basicTestButton.waitAndClick();
+                basicTestPage.playAndEvaluate(mainPage, 'en-es', 'Medium');
 
-        expect(alert.text()).toContain('You do not have enough translations to play the game (20)');
-        alert.close();
-
-        basicTestPage.playAndEvaluate(mainPage, 'en-es', 'Medium');
+                userService.unregister();
+            });
+        });
     });
 
 
     it('should be able to play a user with some translations', function () {
+        userService.login('gcarbo@grupfe.com', 'gcarbo').then(function () {
 
-        loginPage.login('gcarbo@grupfe.com', 'gcarbo');
+            playPage.basicTestButton.waitAndClick();
 
-        playPage.basicTestButton.waitAndClick();
+            basicTestPage.basicTestStartGameButton.waitAndClick();
 
-        basicTestPage.basicTestStartGameButton.waitAndClick();
+            mainPage.toast.expectToContain("You don't have enough translations");
+            browser.sleep(1000);
 
-        mainPage.toast.expectToContain("You don't have enough translations");
-        browser.sleep(1000);
+            basicTestPage.playAndEvaluate(mainPage, 'en-es', 'Medium');
 
-        basicTestPage.playAndEvaluate(mainPage, 'en-es', 'Medium');
+            userService.logout();
+        });
     });
 });

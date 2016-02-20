@@ -20,7 +20,6 @@ ElementFinder.prototype.waitVisible = function(timeout, waitPresent, waitNotEmpt
     if (waitPresent) browser.wait(function () {
         return self.isPresent().then(function(isPresent)
         {
-            console.log('isPresent: ',isPresent);
             return isPresent;
         });
     },timeout);
@@ -28,7 +27,6 @@ ElementFinder.prototype.waitVisible = function(timeout, waitPresent, waitNotEmpt
     browser.wait(function () {
         return self.isDisplayed().then(function(isDisplayed)
         {
-            console.log('isDisplayed: ',isDisplayed);
             return isDisplayed;
         });
     },timeout);
@@ -154,7 +152,7 @@ module.exports = {
                         fs.mkdirSync(consoleLogsDir);
                     }
                     // Write the browser logs to file
-                    console.log('Writing file (' + logFileName + ')');
+                    console.log('Writing file (' + logFileName + ':0:0)');
                     var len = logsEntries.length;
                     for (var i = 0; i < len; ++i) {
 

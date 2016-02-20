@@ -38,8 +38,8 @@ var MainPage = function()
     this.clickLogout = function()
     {
         this.mainMenu.waitAndClick();
-        browser.sleep(1000);
         return this.logoutMenu.isDisplayed().then(function(isLoggedIn) {
+            console.log('MainPage: clickLogout: logoutMenu.isDisplayed:'+isLoggedIn);
             if(isLoggedIn)
                 self.logoutMenu.waitAndClick();
             else

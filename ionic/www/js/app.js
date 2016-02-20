@@ -3,19 +3,6 @@
 
   angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'oc.lazyLoad', 'ui.bootstrap', 'memslate.controllers', 'memslate.services', 'memslate.directives'])
 
-    .filter('searchfilter', function () {
-      return function (input, query) {
-        var r = RegExp('(' + query + ')', 'gi');
-        return input.replace(r, '<span class="selected-class">$1</span>');
-      }
-    })
-
-    .filter('unsafe', function ($sce) {
-      return function (val) {
-        return $sce.trustAsHtml(val);
-      };
-    })
-
     .run(function ($ionicPlatform) {
       $ionicPlatform.ready(function () {
         // Hide the accessory bar by default
@@ -108,6 +95,11 @@
               templateUrl: "templates/memo.html",
               controller: 'MemoCtrl as memoCtrl'
             }
+          },
+          resolve: {
+            memoFilterSettings: function (MemoFilterSettingsService) {
+              return MemoFilterSettingsService.get();
+            }
           }
         })
 
@@ -120,8 +112,8 @@
             }
           },
           resolve: {
-            memoSettings: function (MemoSettingsService) {
-              return MemoSettingsService.get();
+            memoFilterSettings: function (MemoFilterSettingsService) {
+              return MemoFilterSettingsService.get();
             }
           }
         })
@@ -161,6 +153,16 @@
                 $log.log('game "' + $stateParams.gameName + '" resolved');
                 return true;
               });
+            }
+          }
+        })
+
+        .state('app.privacyPol', {
+          cache: false,
+          url: "/privacyPol",
+          views: {
+            'menuContent': {
+              templateUrl: "templates/privacyPolicy.html",
             }
           }
         })

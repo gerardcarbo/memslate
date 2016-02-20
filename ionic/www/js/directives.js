@@ -21,6 +21,22 @@
     };
   });
 
+  app.directive('msVisible', function () {
+    return {
+      scope: {
+        onVisible: '@'
+      },
+      link: function (scope, element, attrs) {
+        scope.$watch(function () {
+            return element[0].is(':visible')
+          },
+          function () {
+            scope.onVisible();
+          });
+      }
+    }
+  });
+
   /*
    * modal dialog based select
    */
@@ -66,9 +82,9 @@
         });
 
         $scope.getName = function (value) {
-          if(!value) return $scope.unselectedText || null;
+          if (!value) return $scope.unselectedText || null;
           var item = msUtils.objectFindByKey($scope.items, "value", value);
-          if(item) return item.name;
+          if (item) return item.name;
           return undefined;
         };
 
@@ -145,16 +161,20 @@
         this.playText = function (txt, lang) {
           var msg = new SpeechSynthesisUtterance();
           msg.text = txt;
-
-          lang = lang + "-" + lang.toUpperCase();
+          msg.lang = lang + "-" + lang.toUpperCase();
 
           msg.onerror = function (error) {
             $log.log('playingSound: error ' + error)
           };
 
           var voices = speechSynthesis.getVoices();
-
-          msg.voice = voices.filter(function(voice) { return voice.lang == lang; })[0];
+          if(Array.isArray(voices))
+          {
+            var voicesFiltered = voices.filter(function (voice) {
+              return voice.lang == msg.lang;
+            });
+            msg.voice = voicesFiltered[0];
+          }
 
           speechSynthesis.speak(msg);
 
@@ -197,4 +217,5 @@
       }
     };
   }]);
-})();
+})
+();

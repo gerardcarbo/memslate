@@ -1,7 +1,7 @@
 "use strict";
 var MemslateUserPage = function()
 {
-    this.userName = element(by.id('userName'));
+	this.userName = element(by.id('userName'));
 	this.userEmail = element(by.id('userEmail'));
 	this.deleteAccountPopupOkButton = element(by.css('.deleteAccountPopup .button-positive'));
 	this.deleteAccountPopupCancelButton = element(by.css('.deleteAccountPopup .button-default'));

@@ -4,6 +4,38 @@ body
   min-height: 600px;
 }
 
+ion-view {
+  background: linear-gradient(#E6E6E6, #a2a2a2);
+}
+
+ion-view::after {
+  content: "";
+  background-image: url("/img/waves.jpg");
+  background-size: 190px;
+  opacity: 0.03;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+ion-content {
+  max-width:1024px;
+  margin:auto;
+  background-color: #fff !important;
+}
+
+.modal ion-content {
+  max-width:none;
+}
+
+#memoFixed{
+  max-width:1024px;
+  margin:auto;
+}
+
 .full-width {
   width: 100%;
 }
@@ -24,6 +56,10 @@ body
   text-align: right;
 }
 
+.left-text {
+  text-align: left;
+}
+
 .no-margin, .button.no-margin
 {
   margin:0px;
@@ -32,6 +68,11 @@ body
 .no-border-bottom
 {
   border-bottom-width: 0px;
+}
+
+.border_bottom
+{
+  border-bottom-width: 1px;
 }
 
 .margin-5 {
@@ -121,10 +162,10 @@ body
 
 .logo
 {
-  height: 40px;
+  height: 35px;
   vertical-align: middle;
   padding-right: 8px;
-  margin-top: -4px;
+  margin-top: 0px;
 }
 
 .logo_bn {
@@ -225,11 +266,10 @@ body
  * Accordion in memo
  */
 .item-accordion {
-  padding-top: 0;
-  padding-bottom: 0;
   transition: .8s max-height ease;
   overflow: hidden;
-  max-height: 500px;
+  max-height: 1000px;
+  box-shadow: inset 0px 2px 8px -1px #364a4f;
 }
 
 .item-accordion.ng-hide {
@@ -397,7 +437,13 @@ body
   background-color: rgb(56, 56, 56);
   color: #E7E7E7;
   font-weight: 200;
+}
 
+.memslate-footer
+{
+  background-color: rgb(44, 44, 44);
+  color: #E7E7E7;
+  font-weight: 200;
 }
 
 .memslate-tools h1
@@ -458,7 +504,7 @@ body
 }
 
 #memslate-games-list {
-  padding: 10px 10px;
+  padding: 0 10px;
 }
 
 .bar .button {
@@ -536,13 +582,13 @@ body
   top: 7px;
 }
 
-::-webkit-scrollbar {width: 5px;}
+::-webkit-scrollbar {width: 3px;}
 
 ::-webkit-scrollbar-track { border-radius: 5px;}
 
 ::-webkit-scrollbar-thumb { border-radius: 5px; background: #3c7f94; }
 
-::-webkit-scrollbar-thumb:window-inactive {background: #213845; }
+::-webkit-scrollbar-thumb:window-inactive {background: #2f6f87; }
 
 .strikethrough {
   position: relative;
@@ -578,6 +624,7 @@ body
 {
 }
 
+
 @media screen and (min-width: 400px) {
   .answers
   {
@@ -591,24 +638,33 @@ body
     font-size: 19px;
   }
 
-  .answers
-  {
+  .answers  {
     font-size: 21px;
     margin: 0 40%;
   }
 
-  .bar-header
-  {
+  .modal .bar-header, ion-modal-view .bar-header {
+    max-width: inherit;
+  }
+
+  .bar-header  {
     height: 50px;
+    max-width: 1024px;
+    margin: auto;
   }
 
   .has-header {
     top: 50px;
   }
 
+  .stick-tab {
+    top: 50px;
+  }
+
   .bar .title {
     font-size: 24px;
-    line-height: 50px;
+    line-height: 53px !important;
+    height: 53px;
   }
 
   .translate-lang
@@ -652,7 +708,7 @@ body
 
   .question
   {
-    margin: 5p;
+    margin: 5px;
     font-size: 20px;
     line-height: 20px;
   }
@@ -678,4 +734,113 @@ body
 {
   width: 36px;
   margin-top: 3px;
+}
+
+.memoGroupContainer {
+  background-color: #E5E5E5;
+  padding-top: 1px;
+  background: linear-gradient(#E6E6E6, #a2a2a2);
+  border-color: #9F9F9F;
+  border-style: solid;
+  border-top: #C5C5C5 1px solid;
+}
+
+.memoTabContainer {
+  position: relative;
+  border-style: solid;
+  z-index: 100;
+  min-height:56px;
+  overflow: hidden;
+}
+
+.memoTab{
+  display:inline-block;;
+  padding-left: 50px;
+  padding-right: 50px;
+  -webkit-border-top-left-radius: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -moz-border-radius-topright: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  margin:0;
+  margin-left: 25px;
+  margin-right: 25px;
+  border-bottom-width: 0px;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px -1px #364a4f;
+}
+
+.memoTab:last-child {
+  border-bottom-width: 0px;
+}
+
+.memoTab.stick-tab {
+  position: relative;
+  top: 40px;
+  left: 0;
+  border-radius: 0 0 0.5em 0.5em !important;
+  border-bottom-width: 1px;
+}
+
+
+.memoList {
+  padding-right: 0;
+  border-top-width: 0px;
+  padding-top: 0;
+  margin:0;
+  z-index: 100;
+}
+
+.ms_spinner.ng-hide-add, .my-element.ng-hide-remove {
+  /* break  ms_spinner animation on show/hide animation */
+  animation: 0 0s linear all;
+}
+
+.ms_spinner {
+  display: inline-flex;
+  width: 25px;
+  height: 25px;
+  padding: 5px;
+  background-color: #112f36;
+  border-radius: 100%;
+  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+  animation: sk-scaleout 1.0s infinite ease-in-out;
+  margin: 0 5px;
+}
+
+@-webkit-keyframes sk-scaleout {
+  0% { -webkit-transform: scale(0) }
+  100% {
+    -webkit-transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+@keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 100% {
+      -webkit-transform: scale(1.0);
+      transform: scale(1.0);
+      opacity: 0;
+    }
+}
+
+#memo-padding{
+  height : 1200px;
+  background: linear-gradient(#E6E6E6, #a2a2a2);
+}
+
+.innerText
+{
+  margin: 2px 35px;
+  text-align: left;
+}
+
+.grayText
+{
+  margin: 2px 25px;
+  text-align: left;
 }

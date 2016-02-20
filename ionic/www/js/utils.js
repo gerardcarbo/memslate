@@ -25,6 +25,49 @@ String.prototype.toDash = function () {
   return this.replace(/\s+/g, '-').toLowerCase();
 };
 
+String.prototype.trimChars = (function () {
+  "use strict";
+
+  function escapeRegex(string) {
+    return string.replace(/[\[\](){}?*+\^$\\.|\-]/g, "\\$&");
+  }
+
+  return function trim(characters, flags) {
+    flags = flags || "g";
+    if (typeof this !== "string" || typeof characters !== "string" || typeof flags !== "string") {
+      throw new TypeError("argument must be string");
+    }
+
+    if (!/^[gi]*$/.test(flags)) {
+      throw new TypeError("Invalid flags supplied '" + flags.match(new RegExp("[^gi]*")) + "'");
+    }
+
+    characters = escapeRegex(characters);
+
+    return this.replace(new RegExp("^[" + characters + "]+|[" + characters + "]+$", flags), '');
+  };
+}());
+
+try {
+  Element.prototype.getTop = function()
+  {
+    var element = this;
+    var yPosition = 0;
+    while(element) {
+      yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+      element = element.offsetParent;
+    }
+    return yPosition;
+  };
+
+
+  Element.prototype.isHidden = function() {
+    return (this.offsetParent === null)
+  }
+}catch(err){};
+
+
+
 var msUtils = {};
 
 msUtils.getService = function (serviceName) {

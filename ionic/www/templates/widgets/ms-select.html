@@ -1,7 +1,7 @@
 <a class="button {{selectorClass}}" ng-click="openSelectModal()" selected-value="{{selectedItem}}">
   <span>{{name}}</span>
-  <ion-spinner icon="android"  class="spinner-vertical-aligned" ng-if="!getSelected()"></ion-spinner>
-  <b style="margin-left: 0px"><span ng-bind-html="getSelected() | unsafe"></span></b>
+  <b style="margin-left: 0px"><span class="animate-hide" ng-hide="!items || !getSelected()"  ng-bind-html="getSelected() | unsafe"></span></b>
+  <div class="ms_spinner" ng-show="!items || !getSelected()"></div>
   <span class="ion-arrow-down-b active" style="margin-left: 2px"></span>
   <script id="select-modal.html" type="text/ng-template">
     <ion-modal-view>

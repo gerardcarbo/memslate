@@ -6,11 +6,11 @@ $light:                           #fff !default;
 $stable:                          #f8f8f8 !default;
 $positive:                        #3c7f94 !default;
 $calm: #4a97ab !default;
-$balanced: #3b6848 !default;
+$balanced: #3d6856 !default;
 $energized: #cc8100 !default;
-$assertive: #d94943 !default;
-$royal:                           #656FA3 !default;
-$dark: #214c43 !default;
+$assertive: #d73f39 !default;
+$royal:  #656FA3 !default;
+$dark: #304E54 !default;
 
 $darker: darken($dark, 10%);
 
@@ -39,6 +39,7 @@ $headings-line-height:            1.2 !default;
 $base-background-color:           #fff !default;
 $base-color:                      #5A5A5A !default;
 
+$panel-background-color: rgba(154, 174, 179, 0.99) !default;
 
 $link-color:                      $positive !default;
 $link-hover-color:                darken($link-color, 15%) !default;
@@ -109,7 +110,7 @@ $button-light-active-border:      #ccc !default;
 $button-stable-bg:                $stable !default;
 $button-stable-text:              #444 !default;
 $button-stable-border:            #b2b2b2 !default;
-$button-stable-active-bg:         #e5e5e5 !default;
+$button-stable-active-bg: #dbdbdb !default;
 $button-stable-active-border:     #a2a2a2 !default;
 
 $button-positive-bg:              $positive !default;

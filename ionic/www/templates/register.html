@@ -9,10 +9,10 @@
   <ion-content>
     <div class="list list-inset">
       <form name="registerForm" ng-submit="doRegister(registerForm)" novalidate>
-         <p class="center-text no-padding">Register a Free account and Do not loose your translations:</p>
+         <p class="center-text no-padding">Register a Free account and do not lose your translations:</p>
 
         <label class="item item-input">
-        <input type="text" name="nameRegister" placeholder="Full Name" ng-model="registerData.name" ng-required="true">
+        <input type="text" name="nameRegister" placeholder="User Alias" ng-model="registerData.name" ng-required="true">
 
         <div ng-show="(registerForm.$submitted || registerForm.password.$touched)">
           <span id="nameRequired" class="validation-item" ng-show="registerForm.name.$error.required">(required)</span>

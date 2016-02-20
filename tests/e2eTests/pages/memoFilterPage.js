@@ -28,8 +28,8 @@ var MemslateFilterMemoPage = function()
 
     this.reset = function() {
         return browser.executeAsyncScript(function(callback) {
-            var MemoSettingsService = angular.element(document.body).injector().get('MemoSettingsService');
-            MemoSettingsService.reset();
+            var MemoFilterSettingsService = angular.element(document.body).injector().get('MemoFilterSettingsService');
+            MemoFilterSettingsService.reset();
             callback();
         });
     };

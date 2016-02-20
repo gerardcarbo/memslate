@@ -3,7 +3,7 @@
     <img src="img/icon.svg" class="logo">Play
   </ion-nav-title>
   <ion-content class="has-header center-text">
-    <ion-spinner icon="android"  ng-if="!playCtrl.games" style="position:relative;top:10px;"></ion-spinner>
+    <div class="ms_spinner" ng-show="!playCtrl.games"></div>
     <div id="memslate-games-list">
       <button id="{{game.name_id}}-button" class="button button-block button-positive"
               ng-repeat="game in playCtrl.games" ng-click="playCtrl.playGame($index)">

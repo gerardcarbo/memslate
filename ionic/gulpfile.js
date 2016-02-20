@@ -12,6 +12,7 @@ var shell = require('gulp-shell');
 var ngmin = require("gulp-ngmin"); // NEW
 var uglify = require("gulp-uglify");
 var eslint = require('gulp-eslint');
+var runSequence = require('run-sequence');
 
 var paths = {
   sass: ['./scss/scss/**/*.scss']
@@ -26,11 +27,6 @@ gulp.task('serve-ionic',shell.task([
 
 gulp.task('serve-ionic lab',shell.task([
     'ionic serve --lab'
-]));
-
-//Ionic Serve Task
-gulp.task('run-ionic',shell.task([
-    'ionic run --livereload'
 ]));
 
 gulp.task('sass', function(done) {

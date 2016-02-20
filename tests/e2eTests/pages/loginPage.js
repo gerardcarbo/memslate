@@ -11,6 +11,7 @@ var MemslateLogin = function (mainMenu)
     this.emailInput = element(by.name('email'));
     this.passwordInput = element(by.name('password'));
     this.loginButton = element(by.id('loginButton'));
+    this.logoutMenu = element(by.id('logoutMenu'));
     this.registerButton = element(by.id('registerButton'));
     this.emailRequired = element(by.id('emailRequired'));
     this.emailInvalid = element(by.id('emailInvalid'));
@@ -34,19 +35,25 @@ var MemslateLogin = function (mainMenu)
 
         self.formLogin.isPresent().then(function(present){
             console.log('login present:',present);
-            if(!present)
-            {
-                self.mainMenu.clickLogin();
+            if(!present) {
+                self.logoutMenu.isDisplayed().then(function(isLoggedIn) {
+                    if (isLoggedIn) {
+                        self.logout();
+                    }
+                    self.mainMenu.clickLogin();
+                });
             }
             else
             {
-                self.formLogin.isDisplayed().then(function(displayed)
-                {
+                self.formLogin.isDisplayed().then(function(displayed) {
                     console.log('login displayed:',displayed);
-
-                    if(!displayed)
-                    {
-                        self.mainMenu.clickLogin();
+                    if(!displayed) {
+                        self.logoutMenu.isDisplayed().then(function(isLoggedIn) {
+                            if (isLoggedIn) {
+                                self.logout();
+                            }
+                            self.mainMenu.clickLogin();
+                        });
                     }
                 });
             }

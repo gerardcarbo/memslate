@@ -14,6 +14,7 @@
   padding: $item-padding;
 
   border-width: $item-border-width;
+  border-bottom-width: 0;
   border-style: solid;
   font-size: $item-font-size;
 
@@ -99,6 +100,10 @@
     cursor: pointer;
   }
 
+}
+
+.item:last-child {
+  border-bottom-width: 1px;
 }
 
 .list-borderless .item,

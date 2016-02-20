@@ -22,9 +22,8 @@
     <div id="testDiv" ng-if="basicTestCtrl.testStarted">
       <div class="padding-10 center-text">Select the correct translation for the following words:</div>
       <ion-list id="basic-page-test-list">
-        <div class="center-text">
-          <ion-spinner icon="android" class="spinner-vertical-aligned"
-                       ng-if="!basicTestCtrl.gameQuestions"></ion-spinner>
+        <div class="center-text" ng-show="!basicTestCtrl.gameQuestions" style="min-height:1200px;margin-top:10px;">
+          <div class="ms_spinner" ></div>
         </div>
         <div ng-repeat="(i, question) in basicTestCtrl.gameQuestions track by $index" id="test_div_{{i}}">
           <div class="item item-stable" id="question_{{i}}" data-answer="{{::question.answer}}">

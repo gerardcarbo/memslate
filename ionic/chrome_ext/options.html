@@ -37,83 +37,86 @@
 </head>
 <body ng-app="memslate.chrome_ext">
 <ion-nav-view>
-  <div class="content">
-    <div class="bar bar-dark bar-header "><img src="img/icon_bn.svg" class="logo">Memslate Chrome Extension Options
-    </div>
-
-    <div class="options" ng-controller="AppCtrl">
-      <div ng-if="!userLoggedin()">
-        <label>In order to keep track of your translations, and be able to play with them, you
-          need to create a free user account:</label>
-        <button class="button button-calm button-block" id="register_user" ng-click="openRegister()">Register User
-        </button>
+  <ion-view>
+    <ion-content>
+      <div class="bar bar-dark bar-header "><img src="img/icon_siluete.svg"  class="logo">Memslate Chrome Extension
+        Options
       </div>
-    </div>
 
-    <div class="options" ng-controller="MemslateExtApp as extApp">
-      <form id="optionsForm" name="optionsForm" ng-submit="extApp.saveOptions(true)" novalidate>
-        <div class="option">
-          <label for="translate_by">When I&nbsp;</label>
-          <ms-select id="translate_by" name="" title="Translate when ..."
-                     items="extApp.translate_by_opts"
-                     selected-item="extApp.translate_by"
-                     class="button-small button-positive options-select"></ms-select>
-
-          <div style="display:inline" ng-show="extApp.translate_by=='point'">
-            <label for="delay"> wait before trying to translate for
-              <input type="number" id="delay" name="delay" ng-model="extApp.delay"/> ms and </label>
-          </div>
-        </div>
-        <div class="option">
-          <label for="from_lang">Translate from&nbsp;</label>
-          <ms-select id="from_lang" name="" title="From Language"
-                     items="extApp.languagesFrom.items" prefered-items="extApp.languagesFrom.user.prefered"
-                     selected-item="extApp.from_lang"
-                     class="button-small button-positive options-select"></ms-select>
-          <label for="target_lang"> to&nbsp;</label>
-          <ms-select id="target_lang" name="" title="To Language"
-                     items="extApp.languagesTo.items" prefered-items="extApp.languagesTo.user.prefered"
-                     selected-item="extApp.to_lang"
-                     class="button-small button-positive options-select"></ms-select>
-        </div>
-        <div class="option">
-          <label for="not_langs">Do not translate from the following languages: </label>
-          <label class="bold" ng-repeat="lang in extApp.not_langs track by $index">{{extApp.getLanguage(lang)}}<label ng-if="!$last">,&nbsp;</label></label>
-          <ms-select id="not_langs" name="" title="Languages Not Translated"
-                     items="extApp.languagesTo.items" prefered-items="extApp.not_langs"
-                     selected_item="extApp.not_lang"
-                     unselected_text="(select)"
-                     class="button-small button-positive options-select" style="margin-left: 5px"></ms-select>
-        </div>
-        <div class="option">
-          <input type="checkbox" id="save_translation_sample" ng-model="extApp.save_translation_sample"/>
-          <label for="save_translation_sample">Save samples: save the phrase where the translated word is on</label>
-        </div>
-        <div class="option" style="display:none">
-          <input type="checkbox" id="word_key_only" name="word_key_only" ng-model="extApp.word_key_only"/>
-          <label for="word_key_only">Only show word translation when</label>
-          <label for="word_key_only_key"> I hold the
-            <select name="word_key_only_key" id="word_key_only_key" ng-model="extApp.word_key_only_key"></select>
-            key</label>
-        </div>
-
-        <div class="option">
-          <label for="dismiss_on"> Hide translation tooltip&nbsp;</label>
-          <ms-select id="dismiss_on" name="" title="Dimiss on..."
-                                         items="extApp.dismiss_on_opts"
-                                         selected-item="extApp.dismiss_on"
-                                         class="button-small button-positive options-select"></ms-select>
-        </div>
-
-        <div class="button_group">
-          <button type="submit" class="button button-positive button-block bold" id="save_button">
-            Apply
+      <div class="options" ng-controller="AppCtrl">
+        <div ng-if="!userLoggedin()">
+          <label>In order to keep track of your translations, and be able to play with them, you
+            need to create a free user account:</label>
+          <button class="button button-calm button-block" id="register_user" ng-click="openRegister()">Register User
           </button>
         </div>
-      </form>
-    </div>
-  </div>
+      </div>
 
+      <div class="options" ng-controller="MemslateExtApp as extApp">
+        <form id="optionsForm" name="optionsForm" ng-submit="extApp.saveOptions(true)" novalidate>
+          <div class="option">
+            <label for="translate_by">When I&nbsp;</label>
+            <ms-select id="translate_by" name="" title="Translate when ..."
+                       items="extApp.translate_by_opts"
+                       selected-item="extApp.translate_by"
+                       class="button-small button-positive options-select"></ms-select>
+
+            <div style="display:inline" ng-show="extApp.translate_by=='point'">
+              <label for="delay"> wait before trying to translate for
+                <input type="number" id="delay" name="delay" ng-model="extApp.delay"/> ms and </label>
+            </div>
+          </div>
+          <div class="option">
+            <label>Translate from&nbsp;</label>
+            <ms-select id="from_lang" name="" title="From Language"
+                       items="extApp.languagesFrom.items" prefered-items="extApp.languagesFrom.user.prefered"
+                       selected-item="extApp.from_lang"
+                       class="button-small button-positive options-select"></ms-select>
+            <label> to&nbsp;</label>
+            <ms-select id="target_lang" name="" title="To Language"
+                       items="extApp.languagesTo.items" prefered-items="extApp.languagesTo.user.prefered"
+                       selected-item="extApp.to_lang"
+                       class="button-small button-positive options-select"></ms-select>
+          </div>
+          <div class="option">
+            <label>Do not translate from the following languages: </label>
+            <label class="bold" ng-repeat="lang in extApp.not_langs track by $index">{{extApp.getLanguage(lang)}}<label
+              ng-if="!$last">,&nbsp;</label></label>
+            <ms-select id="not_langs" name="" title="Languages Not Translated"
+                       items="extApp.languagesTo.items" prefered-items="extApp.not_langs"
+                       selected_item="extApp.not_lang"
+                       unselected_text="(select)"
+                       class="button-small button-positive options-select" style="margin-left: 5px"></ms-select>
+          </div>
+          <div class="option">
+            <input type="checkbox" id="save_translation_sample" ng-model="extApp.save_translation_sample"/>
+            <label for="save_translation_sample">Save samples: save the phrase where the translated word is on.</label>
+          </div>
+          <div class="option" style="display:none">
+            <input type="checkbox" id="word_key_only" name="word_key_only" ng-model="extApp.word_key_only"/>
+            <label for="word_key_only">Only show word translation when</label>
+            <label for="word_key_only_key"> I hold the
+              <select name="word_key_only_key" id="word_key_only_key" ng-model="extApp.word_key_only_key"></select>
+              key</label>
+          </div>
+
+          <div class="option">
+            <label> Hide translation tooltip&nbsp;</label>
+            <ms-select id="dismiss_on" name="" title="Dimiss on..."
+                       items="extApp.dismiss_on_opts"
+                       selected-item="extApp.dismiss_on"
+                       class="button-small button-positive options-select"></ms-select>
+          </div>
+
+          <div class="button_group">
+            <button type="submit" class="button button-positive button-block bold" id="save_button">
+              Apply
+            </button>
+          </div>
+        </form>
+      </div>
+    </ion-content>
+  </ion-view>
 </ion-nav-view>
 </body>
 </html>

@@ -403,6 +403,10 @@ var Translate;
                     this.currentTranslationsProvider = this.$injector.get(transProviderInfo.translate);
                 }
             };
+            this.getTranslationsGroups = function (options) {
+                options.distinct = 1;
+                return this.TranslationRes.query(options).$promise;
+            };
             this.getTranslations = function (options) {
                 return this.TranslationRes.query(options).$promise;
             };
@@ -448,6 +452,9 @@ var Translate;
                     this.currentTranslationsProvider.translate(fromLang, toLang, text)
                         .success(function (translation) {
                         translation.mainResult = translation.mainResult.toLowerCase();
+                        translation.mainResult = translation.mainResult.trimChars('\'');
+                        translation.mainResult = translation.mainResult.trimChars('(');
+                        translation.mainResult = translation.mainResult.trimChars(')');
                         _this.LanguagesService.fromLang(fromLang);
                         _this.LanguagesService.toLang(toLang);
                         _this.LanguagesService.addPrefered(fromLang);

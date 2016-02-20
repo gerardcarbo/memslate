@@ -89,10 +89,27 @@ gulp.task('config_test', function() {
         .pipe(gulp.dest('ionic/www/js/'));
 });
 
-gulp.task('git_amend_config', shell.task('git commit --amend --all --no-edit',{verbose:true}));
+gulp.task('ionic_run', shell.task('git commit --amend --all --no-edit',{verbose:true}));
 
-gulp.task('git_dokku_master',shell.task('git push -f dokku master',{verbose:true}));
+gulp.task('git_amend', shell.task('git commit --amend --all --no-edit',{verbose:true}));
+
+gulp.task('~git_push_master',shell.task('git push -f dokku master',{verbose:true}));
+gulp.task('~git_push_test',shell.task('git push -f dokku-test HEAD:master',{verbose:true}));
 
 gulp.task('dokku_install',function(){
-    runSequence('config_release', 'git_amend_config', 'git_dokku_master');
+    runSequence('config_release', 'git_amend', '~git_push_master','config_debug');
+});
+
+gulp.task('dokku_test_install',function(){
+    runSequence('config_test', 'git_amend','~git_push_test','config_debug');
+});
+
+gulp.task('android_install_live',shell.task([
+    'ionic run --livereload'
+]));
+
+gulp.task('~ionic_run', shell.task('ionic run',{verbose:true,cwd:'ionic'}));
+
+gulp.task('android_install',function(){
+    runSequence('config_release', '~ionic_run');
 });

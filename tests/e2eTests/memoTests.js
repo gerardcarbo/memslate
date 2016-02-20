@@ -11,6 +11,8 @@ describe("Memslate Memo Page", function () {
     var memoPage = new MemslateMemoPage();
     var memoFilterPage = new MemslateMemoFilterPage();
     var loginPage = new MemslateLoginPage();
+    var memoFilterSettingsService={};
+
 
     beforeEach(function () {
         memoPage.get();
@@ -23,7 +25,15 @@ describe("Memslate Memo Page", function () {
 
     it('should contain 20 translations by default', function () {
         memoFilterPage.reset().then(function () {
-            element.all(by.repeater('(i, translation) in memoCtrl.translations track by $index'))
+
+            memoPage.memoFilterMenu.waitAndClick();
+            browser.sleep(1000);
+
+            memoFilterPage.orderBySelect.selectItem('Alpha'); //alphabetically
+            memoFilterPage.orderWaySelect.selectItem('asc'); //ascendent
+            memoFilterPage.filterMemoDoneButton.click();
+
+            element.all(by.repeater('(i, translation) in group.translations track by $index'))
                 .then(function (elements) {
                     expect(elements.length).toBe(20); //2 pages
                 });
@@ -54,8 +64,10 @@ describe("Memslate Memo Page", function () {
     it('should the cancel button of the filter page resets to previous values and done button saves changes', function () {
         memoFilterPage.reset().then(function () {
             memoPage.memoFilterMenu.waitAndClick();
+            browser.sleep(1000);
 
-            browser.sleep(2000);
+            memoFilterPage.orderBySelect.selectItem('Alpha'); //alphabetically
+            memoFilterPage.orderWaySelect.selectItem('asc'); //ascendent
 
             expect(memoFilterPage.filterByStringCheckInput.isSelected()).toBeFalsy();
 
@@ -102,32 +114,31 @@ describe("Memslate Memo Page", function () {
         memoFilterPage.reset().then(function () {
             expect(memoPage.memoFilterMenu.isDisplayed()).toBeTruthy();
             memoPage.memoFilterMenu.waitAndClick();
-
             browser.sleep(1000);
 
-            memoFilterPage.orderBySelect.selectItem('Translations.translate,Translations.mainResult'); //alphabetically
+            memoFilterPage.orderBySelect.selectItem('Alpha'); //alphabetically
             memoFilterPage.orderWaySelect.selectItem('asc'); //ascendent
             memoFilterPage.filterByStringCheck.click();
             memoFilterPage.filterString.clear();
             memoFilterPage.filterString.sendKeys('and');
 
             memoFilterPage.filterMemoDoneButton.click();
+            browser.sleep(1000);
 
-            element.all(by.repeater('(i, translation) in memoCtrl.translations track by $index'))
+            element.all(by.repeater('(i, translation) in group.translations track by $index'))
                 .then(function (elements) {
                     expect(elements.length).toBeGreaterThan(2);
 
-                    expect(elements[0].getInnerHtml()).toContain('andale &gt; andale');
-                    expect(elements[1].getInnerHtml()).toContain('andale &gt; andale');
+                    expect(elements[0].getInnerHtml()).toContain('anderson &gt;');
+                    expect(elements[1].getInnerHtml()).toContain('andorra &gt;');
 
                     memoPage.memoOrderWayMenu.click();
-                    browser.sleep(2000);
 
-                    element.all(by.repeater('(i, translation) in memoCtrl.translations track by $index'))
+                    element.all(by.repeater('(i, translation) in group.translations track by $index'))
                         .then(function (elements) {
                             expect(elements.length).toBeGreaterThan(2);
-                            expect(elements[0].getInnerHtml()).toContain('andy &gt; Andy');
-                            expect(elements[1].getInnerHtml()).toContain('andy &gt; andy');
+                            expect(elements[0].getInnerHtml()).toContain('andy &gt;');
+                            expect(elements[1].getInnerHtml()).toContain('andrews &gt;');
                         });
 
                 });

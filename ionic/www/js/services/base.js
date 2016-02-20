@@ -1,10 +1,23 @@
-(function() {
+(function () {
   "use strict";
 
   /**
    * Base services
    */
   var servicesMod = angular.module('memslate.services', ['ngCookies', 'ngResource']);
+
+  servicesMod.filter('searchfilter', function () {
+    return function (input, query) {
+      var r = RegExp('(' + query + ')', 'gi');
+      return input.replace(r, '<span class="selected-class">$1</span>');
+    }
+  });
+
+  servicesMod.filter('unsafe', function ($sce) {
+    return function (val) {
+      return $sce.trustAsHtml(val);
+    };
+  });
 
   servicesMod.config(function ($httpProvider) {
     //Enable cross domain calls
@@ -26,21 +39,17 @@
       if (this._useLocalStorage) {
         value = localStorage.getItem(key);
       }
-      else
-      {
+      else {
         value = $cookies[key];
       }
-      if(value === null || value === 'undefined')
-      {
+      if (value === null || value === 'undefined') {
         value = undefined;
       }
       return value;
     };
 
-    this._buildObject = function(data)
-    {
-      if(data == "null" || data == "undefined" || data == null || data == undefined)
-      {
+    this._buildObject = function (data) {
+      if (data == "null" || data == "undefined" || data == null || data == undefined) {
         return undefined;
       }
       return angular.fromJson(data);

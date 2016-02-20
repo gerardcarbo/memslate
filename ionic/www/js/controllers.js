@@ -1,12 +1,13 @@
 (function () {
   "use strict";
 
-  var controllersMod = angular.module('memslate.controllers', ['ionic', 'ngCordova', 'formly', 'oc.lazyLoad',
-                                                                'memslate.services','memslate.services.ui']);
+  var controllersMod = angular.module('memslate.controllers',
+    ['ionic', 'ngCordova', 'formly', 'oc.lazyLoad',
+      'memslate.services', 'memslate.services.ui']);
 
   controllersMod.controller('AppCtrl', function ($scope, $rootScope, $timeout, $state, $ionicModal, $ionicPopup,
                                                  $cordovaSplashscreen,
-                                                 UserService, UserStatusService, SessionService, UI, MemoSettingsService) {
+                                                 UserService, UserStatusService, SessionService, UI, MemoFilterSettingsService) {
     // Form data for the login modal
     this.init = function () {
       $scope.loginData = {};
@@ -155,7 +156,7 @@
       UserService.register($scope.registerData).then(function (register) {
         if (register.done) {
           $scope.registerModal.hide();
-          $scope.registerData= {};
+          $scope.registerData = {};
           registerForm.$setUntouched();
           registerForm.$setPristine();
 
@@ -171,8 +172,7 @@
       });
     };
 
-    $scope.doRecover = function(recoverForm)
-    {
+    $scope.doRecover = function (recoverForm) {
       if (!recoverForm.$valid) {
         UI.toast("Some data is not correct. Please, check it.");
         return false;
@@ -182,17 +182,17 @@
       UserService.recoverPwd($scope.recoverData).then(function (error) {
         if (!error) {
           $scope.registerModal.hide();
-          $scope.recoverData= {};
+          $scope.recoverData = {};
           recoverForm.$setUntouched();
           recoverForm.$setPristine();
-          UI.toast('Password recovery mail send! please check your email... and change it, please',4000);
+          UI.toast('Password recovery mail send! please check your email... and change it, please', 4000);
           //$state.go('app.user', { param: 'changePwd' });
           console.log('recoverPwd done!');
           $scope.closeRecover();
         }
         else {
-            console.log('recover failed',error)
-          var content = error.data && error.data.errors ?  error.data.errors[0].response : JSON.stringify(error.data);
+          console.log('recover failed', error)
+          var content = error.data && error.data.errors ? error.data.errors[0].response : JSON.stringify(error.data);
           $ionicPopup.alert({
             title: 'Password Recovery Failed',
             content: content,
@@ -202,17 +202,21 @@
       });
     };
 
+    $scope.getAlignTitle = function() {
+      if(window.innerWidth>360) return "center";
+      return "left";
+    };
+
     $scope.getOrderClass = function () {
-      var memoSettings = MemoSettingsService.get();
+      var memoSettings = MemoFilterSettingsService.get();
       if (!memoSettings || !memoSettings.orderWay) {
         memoSettings.orderWay = 'asc';
       }
       return (memoSettings.orderWay === 'asc' ? 'ion-arrow-down-b' : 'ion-arrow-up-b');
     };
 
-
     $scope.changeOrderWay = function ($event) {
-      var memoSettings = MemoSettingsService.get();
+      var memoSettings = MemoFilterSettingsService.get();
       if (memoSettings.orderWay == 'asc') {
         memoSettings.orderWay = 'desc';
         angular.element($event.target).removeClass('ion-arrow-down-b');
@@ -224,7 +228,7 @@
         angular.element($event.target).removeClass('ion-arrow-up-b');
       }
 
-      MemoSettingsService.set(memoSettings);
+      MemoFilterSettingsService.set(memoSettings);
 
       $rootScope.$broadcast('ms:changeOrderWay');
     };
@@ -243,12 +247,10 @@
 
     var splashscreenHidden = false;
     $scope.$on('$stateChangeSuccess', function () {
-      $timeout(function () {
         if (!splashscreenHidden) {
           splashscreenHidden = true;
           $cordovaSplashscreen.hide();
         }
-      }, 500);
     });
   });
 
@@ -261,7 +263,7 @@
 
     this.init = function () {
       LanguagesService.getLanguages().then(function (languages) {
-        console.log(languages);
+        console.log("TranslateCtrl: languages gotten...")
         translateCtrl.languages = languages;
       });
     };
@@ -308,20 +310,20 @@
         LanguagesService.languages.user.toLang,
         this.textToTranslate)
         .then(function (data) //success
-        {
-          //$timeout(function(){ //simulate long search
-          translateCtrl.translation = data;
-          //},3000)
-        },
-        function (error) //error
-        {
-          translateCtrl.translation.error = error ? (error.data && error.data.message ? error.data.message : error) : "Unknown Error";
+          {
+            //$timeout(function(){ //simulate long search
+            translateCtrl.translation = data;
+            //},3000)
+          },
+          function (error) //error
+          {
+            translateCtrl.translation.error = error ? (error.data && error.data.message ? error.data.message : error) : "Unknown Error";
 
-          UI.toast(translateCtrl.translation.error);
+            UI.toast(translateCtrl.translation.error);
 
-          // log the error to the console
-          console.error("Translate: The following error happened: " + error);
-        })
+            // log the error to the console
+            console.error("Translate: The following error happened: " + error);
+          })
         .finally(function ()	//finally
         {
           //$timeout(function(){
@@ -330,7 +332,7 @@
         });
     };
 
-    this.reset = function () {
+    this.reload = function () {
       translateCtrl.textToTranslate = undefined;
       translateCtrl.translation = undefined;
 
@@ -370,11 +372,11 @@
   });
 
   controllersMod.controller('MemoFilterCtrl', function ($scope, $rootScope, $state, $timeout, LanguagesService,
-                                                        MemoSettingsService, memoSettings) {
+                                                        MemoFilterSettingsService, memoFilterSettings) {
     var self = this;
 
-    console.log('MemoFilterCtrl: setting: ', memoSettings);
-    this.formData = memoSettings;
+    console.log('MemoFilterCtrl: setting: ', memoFilterSettings);
+    this.formData = memoFilterSettings;
     this.formFields = [
       {
         key: 'orderBy',
@@ -385,9 +387,9 @@
           label: 'Order Memo',
           selectorClass: 'margin-vertical-5 col',
           options: [
-            {value: 'Translations.translate,Translations.mainResult', name: 'Alphabetically'},
-            {value: 'UserTranslations.userTranslationInsertTime', name: 'by Date'},
-            {value: 'Translations.fromLang,Translations.toLang', name: 'by Language'}
+            {value: 'Alpha', name: 'Alphabetically'},
+            {value: 'Date', name: 'by Date'},
+            {value: 'Langs', name: 'by Languages'}
           ]
         }
       },
@@ -493,117 +495,332 @@
       self.formData.filterDateTo.setMinutes(59);
       self.formData.filterDateTo.setSeconds(59);
 
-      MemoSettingsService.set(self.formData);
+      MemoFilterSettingsService.set(self.formData);
       $state.go('app.memo', null, {location: 'replace'});
     };
 
     self.onCancel = function () {
       $state.go('app.memo', null, {location: 'replace'});
-      self.formData = MemoSettingsService.get();
+      self.formData = MemoFilterSettingsService.get();
     };
   });
 
-  controllersMod.controller('MemoCtrl', function ($scope, $timeout, UI, UserStatusService, SessionService, TranslateService, MemoSettingsService) {
+  controllersMod.controller('MemoCtrl', function ($scope, $timeout, $filter, $window, $document,
+                                                  $location, $ionicScrollDelegate, $q,
+                                                  UI, UserStatusService, TranslateService, MemoGroupsSettingsService,
+                                                  MemoFilterSettingsService) {
     var self = this;
 
-    self.defLimit = 20;
-
     self.init = function () {
-      self.settings = SessionService.getObject('memoSettings');
-      if (!self.settings) {
-        self.settings = {};
-        self.settings.orderWay = 'asc';
-      }
-      self.settings.offset = 0;
-      self.settings.limit = self.defLimit;
+      self.groupsSettings = MemoGroupsSettingsService.get();
+      self.filterSettings = MemoFilterSettingsService.get();
 
-      SessionService.putObject('memoSettings', self.settings);
-
-      self.settings.columns = "Translations.id, fromLang, toLang, userTranslationInsertTime as insertTime, translate, mainResult";
-
-      self.filterSettings = MemoSettingsService.get();
-
-      self.translations = [];
+      self.translationsGroups = {};
       self.moreDataAvailable = true;
       self.adding = false;
     };
 
-    self.init();
+    //self.init(); //called in $ionicView.beforeEnter
 
-    self.moreDataCanBeLoaded = function () {
-      return self.moreDataAvailable;
+    self.reload = function () {
+      console.log('MemoControler: reload');
+      self.init();
+      self.unstickTabs();
+      $ionicScrollDelegate.scrollTop(false);
+      self.addGroups().then($timeout(self.checkToLoadGroups,500));
     };
 
-    self.doRefresh = function ()
-    {
-      self.settings.offset = 0;
-      self.settings.limit = self.defLimit;
-      self.addItems();
+    self.translationGroup = function (groupName, groupData) {
+      return {
+        name: groupName,
+        shown: true,
+        translations: [],
+        moreDataAvailable: true,
+        groupData: groupData,
+        loading: false,
+        settings: {
+          columns: "Translations.id, fromLang, toLang, userTranslationInsertTime as insertTime, translate, mainResult",
+          offset: self.filterSettings.offset,
+          limit: self.filterSettings.limit
+        },
+        filterOptions: function () {
+          switch (self.filterSettings.orderBy) {
+            case 'Alpha':
+              return {
+                groupData: self.filterSettings.orderBy,
+                groupFilter: groupData.Alpha,
+                groupOrderBy: 'translate, mainResult, insertTime'
+              };
+            case 'Date':
+              return {
+                groupData: self.filterSettings.orderBy,
+                groupFilter: new Date(groupData.Date),
+                groupOrderBy: 'translate, mainResult'
+              };
+            case 'Langs':
+              return {
+                groupData: self.filterSettings.orderBy,
+                groupFilter: groupData.Langs,
+                groupOrderBy: 'translate, mainResult'
+              };
+          }
+        }
+      };
     };
 
-    self.addItems = function () {
-      if (self.adding) {
-        console.log('addItems: already adding');
-        return;
+    self.getTranslationGroupName = function (translation) {
+      switch (self.filterSettings.orderBy) {
+        case 'Alpha':
+          return translation.translate[0];
+        case 'Date':
+          return $filter('date')(translation.insertTime);
+        case 'Langs':
+          return '(' + translation.fromLang + ',' + translation.toLang + ')';
+      }
+    };
+
+    self.insertTranslationsInGroups = function (translations) {
+      angular.forEach(translations, function (translation) {
+        var group = self.translationsGroups[self.getTranslationGroupName(translation)];
+        if (!group) {
+          console.log('insertTranslationsInGroups: group not found for: ', self.getTranslationGroupName(translation));
+          return;
+        }
+        group.translations.push(translation);
+      });
+    };
+
+    self.getGroupName = function (data) {
+      switch (self.filterSettings.orderBy) {
+        case 'Alpha':
+          return data.Alpha;
+        case 'Date':
+          return $filter('date')(new Date(data.Date));
+        case 'Langs':
+          var langs = data.Langs.trimChars('()').split(',');
+          return langs[0] + '&nbsp&nbsp<i class="icon ion-arrow-right-b smaller-font"></i>&nbsp&nbsp' + langs[1];
+      }
+    };
+
+    self.getGroupKey = function (data) {
+      switch (self.filterSettings.orderBy) {
+        case 'Alpha':
+          return data.Alpha;
+        case 'Date':
+          return $filter('date')(new Date(data.Date));
+        case 'Langs':
+          return data.Langs;
+      }
+    };
+
+    self.checkToLoadGroups = function () {
+      var elem = document.getElementById('tab-ending-group-container');
+      var tab_ending_top = elem.getTop();
+      console.log('checkToLoadGroups:  tab_ending_group_top: ' + tab_ending_top + " windowHeight: " + window.innerHeight);
+      if (tab_ending_top < window.innerHeight) {
+        return self.addGroups()
+          .then(function(){
+            $timeout(self.checkToLoadGroups,500); //if add groups succeeded, check to load groups again after a timeout to give time to rendering
+          },function(err){
+            console.log('checkToLoadGroups: error while addGroups: ',err);
+          });
+      }
+      return $q.resolve('adding groups done');
+    };
+
+    self.addGroups = function () {
+      if (!self.moreDataAvailable){
+          console.log('addGroups: moreDataAvailable:'+self.moreDataAvailable);
+          return $q.reject('already adding or no data available');
       }
 
-      self.adding = true;
-
-      var options = angular.extend({}, self.settings, self.filterSettings)
-
-      console.log('addItems: getting items ', options);
-
-      TranslateService.getTranslations(
-        options).then(function (translations) {
-          var newTranslations = translations.map(function (item) {
-            item.insertTime = new Date(item.insertTime);
-            return item;
-          });
-          self.translations.push.apply(self.translations, newTranslations);
-          console.log("Translations: ", self.translations);
-
-          if (translations.length === 0) {
-            self.moreDataAvailable = false;
-          }
-
-          $scope.$broadcast('scroll.infiniteScrollComplete');
-          $scope.$broadcast('scroll.refreshComplete');
-
-          self.settings.offset += self.settings.limit;
-          self.adding = false;
-
-          console.log('addItems: adding items done');
+      var options = angular.extend({
+          columns: self.filterSettings.orderBy,
+          orderWay: self.filterSettings.orderWay,
+          offset: self.groupsSettings.offset,
+          limit: self.groupsSettings.limit
         },
-        function (err) {
-          UI.toast("error while getting translations: " + JSON.toString(err))
-        });
+        MemoFilterSettingsService.getFilters());
+
+      console.log('addGroups: getting items ', options);
+
+      return TranslateService.getTranslationsGroups(options).then(function (groups) {
+        if (groups && groups.length) {
+          var addTranslationsPr=[];
+          console.log('addGroups: '+groups.length+ ' gotten');
+
+          angular.forEach(groups, function (group) {
+            var groupName = self.getGroupName(group);
+            if (self.translationsGroups[groupName] === undefined) {
+              var newGroup = new self.translationGroup(groupName, group);
+              self.translationsGroups[self.getGroupKey(group)] = newGroup;
+              addTranslationsPr.push(self.addTranslations(newGroup));
+            }
+          });
+
+          self.groupsSettings.offset += self.groupsSettings.limit;
+          self.loading = false;
+
+          return addTranslationsPr;
+        }
+
+        self.loading = false;
+        self.moreDataAvailable = false;
+        return $q.reject('no more groups available');
+      }, function(err){
+         return $q.reject(err);
+      });
     };
 
-    self.reset = function () {
-      console.log('reset');
-      self.init();
-      self.addItems();
+    self.checkToLoadTranslations = function () {
+      for (var groupKey in self.translationsGroups) {
+        //check tab-ending's visibility
+        var elem = document.getElementById('tab-ending-' + groupKey);
+        if (elem.isHidden()) continue;
+        if (self.translationsGroups[groupKey].loading) continue;
+        if (!self.translationsGroups[groupKey].moreDataAvailable) continue;
+        var tab_ending_top = elem.getTop();
+        //console.log('checkToLoadTranslations: ' + groupKey + ' tab_ending_top: ' + tab_ending_top + " windowHeight: " + window.innerHeight);
+        if (tab_ending_top < window.innerHeight) {
+          return self.addTranslations(self.translationsGroups[groupKey]);
+        }
+      }
+      return $q.resolve('adding translations done');
     };
 
-    /*
-     * if given group is the selected group, deselect it
-     * else, select the given group
-     */
+    self.addTranslations = function (group) {
+      if (!group || group.loading) return $q.reject('already translations adding');
+      if (!group.moreDataAvailable) return $q.resolve('no more data available');
+      group.loading = true;
+
+      var options = angular.extend({}, group.filterOptions(), group.settings, MemoFilterSettingsService.getFiltered());
+
+      console.log('addTranslations: getting items ', options);
+
+      return TranslateService.getTranslations(options)
+        .then(function (translations) {
+            translations.forEach(function (item) {
+              item.insertTime = new Date(item.insertTime);
+            });
+
+            self.insertTranslationsInGroups(translations);
+            group.settings.offset += group.settings.limit;
+            group.loading = false;
+
+            console.log('addTranslations: adding items done group: ' + group.name + ' length: ' + translations.length);
+
+            if (translations.length < group.settings.limit) {
+              group.moreDataAvailable = false;
+              console.log('addTranslations: no more data available');
+              return $q.resolve('no more data available');
+            }
+            else {
+              $timeout(self.checkToLoadTranslations,500);
+              console.log('addTranslations: more data available');
+              return $q.reject('more data available');
+            }
+          },
+          function (err) {
+            group.loading = false;
+            UI.toast("error while getting translations: " + JSON.toString(err));
+            return $q.reject('error while getting translations');
+          });
+    };
+
     self.isTranslationComplete = function (translation) {
-      if(!translation) return false;
+      if (!translation) return false;
       return translation.rawResult === undefined ? false : true;
     };
 
-    self.toggleTranslation = function (i, translation) {
+    self.onScroll = function () {
+      self.stickTabs();
+      self.checkToLoadTranslations()
+        .then(self.checkToLoadGroups);
+    };
+
+    self.unstickTabs = function() {
+      var memoFixed = document.getElementById("memoFixed");
+      while (memoFixed.firstChild) {
+        memoFixed.removeChild(memoFixed.firstChild);
+      }
+    };
+
+    self.stickTabs = function () {
+      if (self.disableStick) return;
+      var scrollTop_top = angular.element(document.getElementById('memoScroll')).prop('scrollTop') -
+          angular.element(document.getElementById('memoFilterNotification'))[0].offsetHeight -
+          angular.element(document.getElementById('memoRegisterNotification'))[0].offsetHeight
+        ;
+      //console.log('onScroll: scrollTop_top: ', scrollTop_top);
+      for (var groupKey in self.translationsGroups) {
+        var div_fixed = document.getElementById("memoFixed");
+        var div_elem = document.getElementById('tab-' + groupKey);
+        var div_top = angular.element(document.getElementById('sticky-anchor-' + groupKey)).prop('offsetTop');
+        //console.log('onScroll: groupKey: ' + groupKey + ' div_top : ', div_top);
+        if (scrollTop_top > div_top - 2) {
+          var group = self.translationsGroups[groupKey];
+          //stick tab to the top
+          if (div_elem.parentElement == div_fixed) continue; //already sticked
+          if (div_top == 0) continue;//tab div not shown
+          //unstick old elements
+          angular.forEach(div_fixed.children, function (elem) {
+            var groupKey = elem.id.split('tab-')[1];
+            self.restoreParent(groupKey, elem);
+          });
+          if (!group.shown) continue;//do not stick hidden groups
+          //stick new one
+          //console.log('onScroll: groupKey: ********* sticking '+ groupKey);
+          group.oldParent = div_elem.parentElement;
+          div_fixed.appendChild(div_elem);
+          angular.element(document.getElementById('tab-' + groupKey)).addClass('stick-tab');
+        } else {
+          self.unstickTab(groupKey, div_elem);
+        }
+      }
+    };
+
+    self.unstickTab = function (groupKey, div_elem) {
+      self.restoreParent(groupKey, div_elem);
+      angular.element(document.getElementById('tab-' + groupKey)).removeClass('stick-tab');
+    };
+
+    self.restoreParent = function (groupKey, div_elem) {
+      var group = self.translationsGroups[groupKey];
+      if (!group || !group.oldParent) return;
+      group.oldParent.appendChild(div_elem);
+      group.oldParent = null;
+    };
+
+    self.toggleGroup = function (key, group) {
+      console.log('toggleGroup: enter '+key+' to '+!group.shown);
+      group.shown = !group.shown;
+      if (!group.shown) {
+        //check if groups needed (last tab)
+        $timeout(self.checkToLoadGroups,500);
+        //unstick tab and scroll to the top of the tab
+        var div_elem = document.getElementById('tab-' + key);
+        if (!angular.element(div_elem).hasClass('stick-tab')) return; //do not scroll not sticked tabs
+        self.disableStick = true;
+        self.unstickTab(key, div_elem);
+        $location.hash('group-' + key);
+        $ionicScrollDelegate.anchorScroll(false);
+        $timeout(function () {
+          self.disableStick = false;
+          console.log('toggleGroup: done');
+        }, 1000);
+      }
+    };
+
+    self.toggleTranslation = function (group, i, translation) {
       if (self.isTranslationComplete(translation)) {
         self.toggleTranslation_(translation);
       }
       else {
         TranslateService.getTranslation(translation.id).then(function (result) {
-          self.translations[i] = result;
-          $timeout(function(){  //otherwise animation not triggered
+          group.translations[i] = result;
+          $timeout(function () {  //otherwise animation not triggered
             self.toggleTranslation_(translation);
-          },0)
+          }, 0)
         });
       }
     };
@@ -617,63 +834,81 @@
     };
 
     self.isTranslationShown = function (translation) {
-      if(!translation) return false;
+      if (!translation) return false;
       return self.shownTranslation && self.shownTranslation.id === translation.id;
     };
 
-    self.isFiltered = function() {
+    self.isFiltered = function () {
       return self.filterSettings.filterByString ||
-              self.filterSettings.filterByDates ||
-              self.filterSettings.filterByLanguages;
+        self.filterSettings.filterByDates ||
+        self.filterSettings.filterByLanguages;
     };
 
-    self.isAuthenticated = function() {
+    self.isAuthenticated = function () {
       return UserStatusService.isAuthenticated();
     };
 
-    self.unfilter = function() {
-      self.filterSettings.filterByString=false;
-      self.filterSettings.filterByDates=false;
-      self.filterSettings.filterByLanguages=false;
+    self.unfilter = function () {
+      self.filterSettings.filterByString = false;
+      self.filterSettings.filterByDates = false;
+      self.filterSettings.filterByLanguages = false;
 
-      MemoSettingsService.set(self.filterSettings);
+      MemoFilterSettingsService.set(self.filterSettings);
 
-      self.reset();
+      self.reload();
+    };
+
+    self.getTabMargin = function (index) {
+      var tabPadding = 40;
+      var tabSize = 150;
+      if (self.filterSettings.orderBy == "Date") tabSize = 220;
+      if (self.filterSettings.orderBy == "Langs") tabSize = 170;
+      var numSlots = Math.floor((Math.min(1024, document.body.clientWidth) - tabSize) / tabPadding);
+      var margin = 25 + ((index % numSlots) * tabPadding );
+      return margin;
     };
 
     $scope.$on('ms:translationDeleted', function (event, data) {
       console.log('translationDeleted:' + data);
-      msUtils.objectDeleteByKey(self.translations, 'id', data);
-      console.log(self.translations);
+      Object.keys(self.translationsGroups).forEach(function (key, index) {
+        var group = self.translationsGroups[key];
+        msUtils.objectDeleteByKey(group.translations, 'id', data);
+      })
     });
 
     $scope.$on('ms:login', function () {
-      self.reset();
+      self.reload();
     });
 
     $scope.$on('ms:logout', function () {
-      self.reset();
+      self.reload();
     });
 
     $scope.$on('ms:changeOrderWay', function () {
-      self.reset();
+      self.reload();
     });
 
     $scope.$on('$ionicView.beforeEnter', function () {
-      self.reset();
+      self.reload();
     });
+
+    self.refresh = function() {
+      self.reload();
+      $scope.$broadcast('scroll.refreshComplete');
+    }
   });
 
-  controllersMod.controller('UserCtrl', function ($scope, $rootScope, $state, $animate, $ionicHistory, $ionicPopup, UserStatusService, UserService, UI) {
+  controllersMod.controller('UserCtrl', function ($scope, $rootScope, $state, $animate,
+                                                  $ionicHistory, $ionicPopup,
+                                                  UserStatusService, UserService, UI) {
     var self = this;
 
     this.User = UserStatusService;
     this.UserStatistics = {};
     this.showingChangePwd = false;
 
-    this.RefreshStatistics = function()
-    {
-      UserService.getStatistics().success(function(stats){
+    this.RefreshStatistics = function () {
+      UserService.getStatistics().success(function (stats) {
         self.UserStatistics = stats;
       });
     };
@@ -681,9 +916,8 @@
     this.RefreshStatistics();
 
     console.log('UserCtrl: enter: ', $state);
-    if($state.params.param === 'changePwd')
-    {
-      this.showingChangePwd=true;
+    if ($state.params.param === 'changePwd') {
+      this.showingChangePwd = true;
     };
 
     this.deleteAccount = function () {
@@ -696,7 +930,10 @@
           UserService.unregister().then(function (res) {
             if (res.done) {
               UI.toast("Account Deleted");
-              $state.go('app.home', null, {location: 'replace'});
+              $ionicHistory.nextViewOptions({
+                disableBack: true
+              });
+              $state.go('app.home');
             }
             else {
               UI.toast("Failed do delete account: " + res.err.data);
@@ -739,16 +976,18 @@
     self.games = undefined;
 
     GamesService.getGames().success(function (games) {
-      self.games = games;
-    })
-    .error(function(err){ //404 error -> try again
-      GamesService.getGames().success(function (games) {
         self.games = games;
       })
-    });
+      .error(function (err) { //404 error -> try again
+        GamesService.getGames().success(function (games) {
+          self.games = games;
+        })
+      });
 
     self.playGame = function (gameIndex) {
       console.log("playGame:", self.games[gameIndex]);
+
+      $ionicHistory.nextViewOptions({disableBack: true});
 
       $state.go('app.games', {gameName: self.games[gameIndex].name_id}).then(function () {
         console.log('playGame ' + self.games[gameIndex].name_id + ' loaded')

@@ -21,9 +21,9 @@ module Translate {
   }
 
   export class UserLanguages {
-    fromLang: string  = "";
-    toLang: string  = "";
-    prefered: string[]  = [];
+    fromLang:string = "";
+    toLang:string = "";
+    prefered:string[] = [];
   }
 
   export class Languages {
@@ -48,6 +48,7 @@ module Translate {
   export class TranslationsProviders {
     static $inject = ['$log', 'SessionService'];
     _providers = {};
+
     constructor(public $log, public SessionService) {
       this._providers['Yandex'] = {
         name: 'Yandex',
@@ -127,7 +128,7 @@ module Translate {
       ).success(function (data) {
           var langs;
           data.forEach((item) => {
-            langs[item.lang_code]=item.name;
+            langs[item.lang_code] = item.name;
           })
           hablaaGet.resolve(langs);
         })
@@ -262,102 +263,102 @@ module Translate {
   }
 
   export class YandexTranslateService implements ITranslationsProvider {
-  static $inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
+    static $inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
 
-  constructor(public $log, public $rootScope, public $http, public $resource, public $q, public $injector, public $timeout, public TranslationRes, public YandexTranslateApiKey, public YandexDictionaryApiKey) {
-    $log.log('YandexTranslateService:constructor');
+    constructor(public $log, public $rootScope, public $http, public $resource, public $q, public $injector, public $timeout, public TranslationRes, public YandexTranslateApiKey, public YandexDictionaryApiKey) {
+      $log.log('YandexTranslateService:constructor');
+    }
+
+    public detect = function (text) {
+      var deferred = this.$q.defer();
+      var promise = deferred.promise;
+      msUtils.decoratePromise(promise);
+
+      this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/detect',
+        {
+          params: {
+            key: this.YandexTranslateApiKey,
+            text: [text]
+          },
+          withCredentials: false
+        }
+      ).success(function (data) {
+          deferred.resolve(data);
+        })
+        .error(function (data, status) {
+          deferred.reject({status: status, data: data});
+        });
+
+      return promise;
+    };
+
+    public translate = function (fromLang, toLang, text) {
+      var deferred = this.$q.defer();
+      var promise = deferred.promise;
+      msUtils.decoratePromise(promise);
+
+      /*
+       * CORS not working when user logged in -> delete Authorization token with withCredentials=false
+       */
+      this.$http.get('https://dictionary.yandex.net/api/v1/dicservice.json/lookup',
+        {
+          params: {
+            key: this.YandexDictionaryApiKey,
+            lang: fromLang + "-" + toLang,
+            text: text,
+            ui: 'en'
+          },
+          withCredentials: false
+        }
+      ).success((data) => {
+          var translation = new Translate.Translation();
+          translation.fromLang = fromLang;
+          translation.toLang = toLang;
+          translation.translate = text;
+
+          if (data && data.def && data.def.length > 0) {
+            translation.provider = 'yd';
+            translation.mainResult = data.def[0].tr[0].text;
+            translation.rawResult = data;
+            translation.transcription = data.def[0].ts;
+
+            deferred.resolve(translation);
+          }
+          else {
+            this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate',
+              {
+                params: {
+                  key: this.YandexTranslateApiKey,
+                  lang: fromLang + "-" + toLang,
+                  text: text,
+                  ui: 'en'
+                },
+                withCredentials: false
+              }
+            ).success((dataTranslate) => {
+                if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
+                  translation.provider = 'yt';
+                  translation.mainResult = dataTranslate.text[0];
+                  translation.rawResult = dataTranslate;
+
+                  deferred.resolve(translation);
+                }
+                else {
+                  deferred.reject("Translation not found");
+                }
+              })
+              .error((data, status) => {
+                deferred.reject({status: status, data: data});
+              });
+          }
+        }
+      ).error(function (data, status) {
+        deferred.reject({status: status, data: data});
+      });
+
+      return promise;
+    };
   }
-
-  public detect = function (text) {
-    var deferred = this.$q.defer();
-    var promise = deferred.promise;
-    msUtils.decoratePromise(promise);
-
-    this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/detect',
-      {
-        params: {
-          key: this.YandexTranslateApiKey,
-          text: [text]
-        },
-        withCredentials: false
-      }
-    ).success(function (data) {
-        deferred.resolve(data);
-      })
-      .error(function (data, status) {
-        deferred.reject({status: status, data: data});
-      });
-
-    return promise;
-  };
-
-  public translate = function (fromLang, toLang, text) {
-    var deferred = this.$q.defer();
-    var promise = deferred.promise;
-    msUtils.decoratePromise(promise);
-
-    /*
-     * CORS not working when user logged in -> delete Authorization token with withCredentials=false
-     */
-    this.$http.get('https://dictionary.yandex.net/api/v1/dicservice.json/lookup',
-      {
-        params: {
-          key: this.YandexDictionaryApiKey,
-          lang: fromLang + "-" + toLang,
-          text: text,
-          ui: 'en'
-        },
-        withCredentials: false
-      }
-    ).success((data) => {
-        var translation = new Translate.Translation();
-        translation.fromLang = fromLang;
-        translation.toLang = toLang;
-        translation.translate = text;
-
-        if (data && data.def && data.def.length > 0) {
-          translation.provider = 'yd';
-          translation.mainResult = data.def[0].tr[0].text;
-          translation.rawResult = data;
-          translation.transcription = data.def[0].ts;
-
-          deferred.resolve(translation);
-        }
-        else {
-          this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate',
-            {
-              params: {
-                key: this.YandexTranslateApiKey,
-                lang: fromLang + "-" + toLang,
-                text: text,
-                ui: 'en'
-              },
-              withCredentials: false
-            }
-          ).success((dataTranslate) => {
-              if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
-                translation.provider = 'yt';
-                translation.mainResult = dataTranslate.text[0];
-                translation.rawResult = dataTranslate;
-
-                deferred.resolve(translation);
-              }
-              else {
-                deferred.reject("Translation not found");
-              }
-            })
-            .error((data, status) => {
-              deferred.reject({status: status, data: data});
-            });
-        }
-      }
-    ).error(function (data, status) {
-        deferred.reject({status: status, data: data});
-      });
-
-    return promise;
-  };
-}
 
   export class HablaaTranslateService implements ITranslationsProvider {
     static $inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
@@ -397,7 +398,7 @@ module Translate {
       /*
        * CORS not working when user logged in -> delete Authorization token with withCredentials=false
        */
-      this.$http.get('http://hablaa.com/hs/translation/'+text+'/' + fromLang + "-" + toLang + '/',
+      this.$http.get('http://hablaa.com/hs/translation/' + text + '/' + fromLang + "-" + toLang + '/',
         {
           withCredentials: false
         }
@@ -414,8 +415,8 @@ module Translate {
           deferred.resolve(translation);
         }
       ).error(function (data, status) {
-          deferred.reject({status: status, data: data});
-        });
+        deferred.reject({status: status, data: data});
+      });
 
       return promise;
     };
@@ -437,6 +438,11 @@ module Translate {
         this.currentTranslationsProvider = this.$injector.get(transProviderInfo.translate);
       }
 
+    };
+
+    public getTranslationsGroups = function (options) {
+      options.distinct=1;
+      return this.TranslationRes.query(options).$promise;
     };
 
     public getTranslations = function (options) {
@@ -492,6 +498,10 @@ module Translate {
         this.currentTranslationsProvider.translate(fromLang, toLang, text)
           .success((translation) => {
             translation.mainResult = translation.mainResult.toLowerCase();
+            translation.mainResult = translation.mainResult.trimChars('\'');
+            translation.mainResult = translation.mainResult.trimChars('(');
+            translation.mainResult = translation.mainResult.trimChars(')');
+
             _this.LanguagesService.fromLang(fromLang);
             _this.LanguagesService.toLang(toLang);
             _this.LanguagesService.addPrefered(fromLang);
@@ -532,7 +542,7 @@ module Translate {
     TranslateService.setProvider(provider);
 
     //wait connected
-    $rootScope.$on('ms:connected', function(){
+    $rootScope.$on('ms:connected', function () {
       console.log('servicesMod: ms:connected');
     });
   });

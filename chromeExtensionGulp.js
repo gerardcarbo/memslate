@@ -91,6 +91,10 @@ gulp.task('copy', function() {
 		gulp.src('ionic/manifest.json')
 			.pipe(gulp.dest('chrome_ext/build')),
 		gulp.src('ionic/www/img/icon_bn.svg')
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/img')),
+		gulp.src('ionic/www/img/icon_siluete.svg')
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/img')),
+		gulp.src('ionic/www/img/waves.jpg')
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/img'))
 	);
 });
@@ -137,6 +141,8 @@ gulp.task('scripts', function() {
 
 	return merge([
 		//memslate app
+		gulp.src('ionic/www/lib/angular-component/dist/angular-component.min.js')
+			.pipe(gulp.dest('chrome_ext/build/www/lib/angular-component/dist')),
 		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.min.js')
 			.pipe(gulp.dest('chrome_ext/build/www/lib/ionic/js')),
 		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.js')

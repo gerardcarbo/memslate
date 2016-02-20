@@ -67,8 +67,8 @@ var MemslateBasicTestPage = function() {
         $('.progress-bar').getText().then(function (text) {
             console.log('Test: ' + langs+ ' - '+ level);
             console.log('Text: ' + text);
-            console.log('correctAnswers: ',correctAnswers);
-            console.log('givenAnswers: ',givenAnswers);
+            //console.log('correctAnswers: ',correctAnswers);
+            //console.log('givenAnswers: ',givenAnswers);
 
             //shown result
             var results = text.split('of');
