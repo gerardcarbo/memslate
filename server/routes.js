@@ -79,6 +79,9 @@ module.exports = function (models, knex) {
                         console.log('saveUserTranslation: saved Id:' + item.id);
                     });
                 }
+                else {
+                    model.set("userTranslationInsertTime",new Date()).save();
+                }
             });
 
             //compute difficulty
@@ -100,8 +103,10 @@ module.exports = function (models, knex) {
         }
     }
 
-    function checkIfTranslationExists(req, res, doSave) {
+    function checkTranslation(req, res, doSave) {
         req.translation = req.body;
+        req.translation.translate = req.translation.translate.substr(0,254);
+        req.translation.mainResult = req.translation.mainResult.substr(0,254);
 
         console.log('checkTranslation: ' + req.translation.translate);
 
@@ -268,34 +273,12 @@ module.exports = function (models, knex) {
                     qb.debug();
                 }).fetchAll().then(function (collection) {
                     if (collection) {
-                        console.log('translations:getAll:fetchAll: ',collection.models);
                         res.json(collection);
                     }
                     else {
                         res.json(false);
                     }
                 });
-
-                /* Using withRelated -> pagination problems when filtering by Translations fields
-                 models.UserTranslations.query(function(qb) {
-                 qb.orderBy(orderBy, orderWay);
-                 qb.limit(limit);
-                 qb.offset(offset);
-                 })
-                 .where({userId: userId})
-                 .fetchAll({withRelated: ['translation']})
-                 .then(function (collection) {
-                 if (collection) {
-                 var translationsCol = collection.models.map(function (model) {
-                 return model.relations.translation;
-                 });
-
-                 res.json(translationsCol);
-                 }
-                 else {
-                 res.json(false);
-                 }
-                 });*/
             },
             get: function (req, res) {
                 console.log("Translations.get", req.params.id);
@@ -311,7 +294,7 @@ module.exports = function (models, knex) {
                     }
                 });
             },
-            preSave: checkIfTranslationExists,
+            preSave: checkTranslation,
             postSave: saveUserTranslation,
             preDelete: function (req, res, doDelete) {
                 //check user translation.

@@ -44,7 +44,6 @@ gulp.task('copy_config_release', function() {
 	);
 });
 
-gulp.task('copy_all', ['html', 'scripts', 'styles', 'copy']);
 
 //build ditributable and sourcemaps after other tasks completed
 gulp.task('zip', function() {
@@ -75,8 +74,34 @@ gulp.task('clean_end', function() {
 			.pipe(clean()));
 });
 
+gulp.task('copy_all', ['copy_html', 'copy_app', 'copy_scripts', 'copy_styles', 'copy_static']);
+
+
+//copy and compress HTML files
+gulp.task('copy_html', function() {
+	return merge(
+		gulp.src('ionic/options.html')
+			.pipe(cleanhtml())
+			.pipe(gulp.dest('chrome_ext/build')),
+		gulp.src(['ionic/www/*.html','!ionic/www/googleb656a46304b8158f.html'])
+			.pipe(cleanhtml())
+			.pipe(gulp.dest('chrome_ext/build/www')),
+		gulp.src('ionic/chrome_ext/*.html')
+			.pipe(cleanhtml())
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext'))
+	);
+});
+
+//copy and compress app files
+gulp.task('copy_app', function() {
+	return merge(
+		gulp.src('ionic/www/app/**/*')
+			.pipe(gulp.dest('chrome_ext/build/www/app/'))
+	);
+});
+
 //copy static folders to build directory
-gulp.task('copy', function() {
+gulp.task('copy_static', function() {
 	return merge(
 		gulp.src('ionic/www/img/**')
 			.pipe(gulp.dest('chrome_ext/build/www/img')),
@@ -99,45 +124,9 @@ gulp.task('copy', function() {
 	);
 });
 
-//copy and compress HTML files
-gulp.task('html', function() {
-	return merge(
-		gulp.src('ionic/options.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build')),
-		gulp.src(['ionic/www/*.html','!ionic/www/googleb656a46304b8158f.html'])
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/www')),
-		gulp.src('ionic/www/templates/**/*.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/www/templates')),
-		gulp.src('ionic/www/templates/register.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/chrome_ext/templates')),
-		gulp.src('ionic/www/templates/recoverPwd.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/chrome_ext/templates')),
-		gulp.src('ionic/www/templates/login.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/chrome_ext/templates')),
-		gulp.src('ionic/www/templates/widgets/ms-select.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/chrome_ext/templates/widgets')),
-		gulp.src('ionic/chrome_ext/*.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/chrome_ext'))
-	);
-});
-
-//run scripts through JSHint
-gulp.task('jshint', function() {
-	return gulp.src('ionic/chrome_ext/js/*.js')
-		.pipe(jshint())
-		.pipe(jshint.reporter('default'));
-});
 
 //copy vendor scripts and uglify all other scripts, creating source maps
-gulp.task('scripts', function() {
+gulp.task('copy_scripts', function() {
 
 	return merge([
 		//memslate app
@@ -178,7 +167,7 @@ gulp.task('scripts', function() {
 });
 
 //minify styles
-gulp.task('styles', function() {
+gulp.task('copy_styles', function() {
 // 	return gulp.src('ionic/chrome_ext/styles/**/*.css')
 // 		.pipe(minifycss({root: 'ionic/chrome_ext/styles', keepSpecialComments: 0}))
 // 		.pipe(gulp.dest('chrome_ext/build/styles'));
@@ -191,3 +180,9 @@ gulp.task('styles', function() {
 });
 
 
+//run scripts through JSHint
+gulp.task('jshint', function() {
+	return gulp.src('ionic/chrome_ext/js/*.js')
+		.pipe(jshint())
+		.pipe(jshint.reporter('default'));
+});

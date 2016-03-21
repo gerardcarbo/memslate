@@ -25,9 +25,9 @@
   left: 50%;
   z-index: $z-index-popover;
   display: block;
-  margin-top: 12px;
+  margin-top: 5px;
   margin-left: -$popover-width / 2;
-  height: $popover-height;
+  height: 100%;
   width: $popover-width;
   background-color: $popover-bg-color;
   box-shadow: $popover-box-shadow;
@@ -120,14 +120,13 @@
 .platform-android {
 
   .popover {
-    margin-top: -32px;
     background-color: $popover-bg-color-android;
     box-shadow: $popover-box-shadow-android;
 
     .item {
       border-color: $popover-bg-color-android;
-      background-color: $popover-bg-color-android;
-      color: #4d4d4d;
+      /*background-color: $popover-bg-color-android;
+      color: #4d4d4d;*/
     }
     &.popover-bottom {
       margin-top: 32px;

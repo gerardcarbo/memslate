@@ -139,6 +139,17 @@ ion-content {
   font-size: smaller;
 }
 
+.x-small-font {
+  font-size: x-small;
+  line-height: 15px;
+}
+
+
+.xx-small-font {
+  font-size: xx-small;
+  line-height: 12px;
+}
+
 .padding-bottom-min {
   padding-bottom: 1px;
 }
@@ -165,7 +176,7 @@ ion-content {
   height: 35px;
   vertical-align: middle;
   padding-right: 8px;
-  margin-top: 0px;
+  margin-top: -2px;
 }
 
 .logo_bn {
@@ -183,6 +194,12 @@ ion-content {
   margin-right: 8px;
 }
 
+.logo_user_menu {
+  width: 20px;
+  margin-left: 18px;
+  margin-right: 8px;
+}
+
 .logo_user
 {
   width: 25px;
@@ -194,6 +211,12 @@ ion-content {
 .logo-small
 {
   height: 24px;
+}
+
+.user_menu
+{
+  display: inline-block;
+  text-align: left;
 }
 
 .caret_left {
@@ -259,20 +282,28 @@ ion-content {
 .ng-enter.ng-enter-active,
 .ng-leave {
   opacity: 1;
+}
 
+.box-shadow {
+  box-shadow: inset 0px 2px 8px -1px #364a4f;
 }
 
 /**
  * Accordion in memo
  */
 .item-accordion {
-  transition: .8s max-height ease;
+  transition: 1.0s max-height ease;
   overflow: hidden;
-  max-height: 1000px;
-  box-shadow: inset 0px 2px 8px -1px #364a4f;
+  max-height: 800px;
 }
 
+
+
 .item-accordion.ng-hide {
+   max-height: 0;
+ }
+
+.item-accordion.ng-leave {
   max-height: 0;
 }
 
@@ -728,6 +759,10 @@ ion-content {
     font-size: 19px;
     line-height: 19px;
   }
+
+  .logo {
+    margin-top: -5px;
+  }
 }
 
 #btnSwap
@@ -843,4 +878,22 @@ ion-content {
 {
   margin: 2px 25px;
   text-align: left;
+}
+
+/** Ionmic Popover */
+ion-popover-view.fit {
+  height: auto;
+}
+
+ion-popover-view.fit ion-content {
+  position: relative;
+}
+
+.platform-android ion-popover-view.fit {
+  margin-top: 5px;
+}
+
+.platform-ios ion-popover-view.fit {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }

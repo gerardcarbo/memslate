@@ -110,7 +110,7 @@ $button-light-active-border:      #ccc !default;
 $button-stable-bg:                $stable !default;
 $button-stable-text:              #444 !default;
 $button-stable-border:            #b2b2b2 !default;
-$button-stable-active-bg: #dbdbdb !default;
+$button-stable-active-bg: #ECECEC !default;
 $button-stable-active-border:     #a2a2a2 !default;
 
 $button-positive-bg:              $positive !default;
@@ -582,7 +582,7 @@ $modal-inset-mode-min-height:     240px !default;
 // Popovers
 // -------------------------------
 
-$popover-bg-color:                $light !default;
+$popover-bg-color:                $dark !default;
 $popover-backdrop-bg-active:      rgba(0,0,0,0.1) !default;
 $popover-backdrop-bg-inactive:    rgba(0,0,0,0) !default;
 $popover-width:                   220px !default;
@@ -590,13 +590,13 @@ $popover-height:                  280px !default;
 $popover-large-break-point:       680px !default;
 $popover-large-width:             360px !default;
 
-$popover-box-shadow:              0 1px 3px rgba(0,0,0,0.4) !default;
+$popover-box-shadow:              0 1px 3px rgba(26, 83, 92, 1) !default;
 $popover-border-radius:           2px !default;
 
 $popover-box-shadow-ios:          0 0 40px rgba(0,0,0,0.08) !default;
 $popover-border-radius-ios:       10px !default;
 
-$popover-bg-color-android:        #fafafa !default;
+$popover-bg-color-android: #366574 !default;
 $popover-box-shadow-android:      0 2px 6px rgba(0,0,0,0.35) !default;
 
 

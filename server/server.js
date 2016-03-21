@@ -1,7 +1,7 @@
 /**
  * Created by gerard on 22/07/2015.
  */
-exports.serve = function ()
+exports.serve = function (serverLogFile)
 {
     "use strict";
     var express = require('express');
@@ -19,6 +19,20 @@ exports.serve = function ()
     var user = require('./user')(knex,models);
     var tasks = require('./tasks')(knex,models);
     var nodemailer = require('nodemailer');
+    var log4js = require('log4js');
+    var fs = require('fs');
+
+    log4js.configure({
+        appenders: [
+            {"type": "console"},
+            {"type": "file", "filename": serverLogFile, "alwaysIncludePattern": false}
+        ],
+        replaceConsole: true
+    });
+
+    console.log('Tracing to: ' + serverLogFile);
+
+    fs.chmodSync(serverLogFile, '777');
 
     process.on('uncaughtException', function (err) {
         console.log('Memslate Server: uncaughtException: ', err);
@@ -29,7 +43,7 @@ exports.serve = function ()
         transporter.sendMail({
             from: 'Memslate Team ✔ <info@memslate.com>',
             to: 'gcarbo@miraiblau.com',
-            subject: 'Memslate Exception!',
+            subject: 'Memslate Exception! ✘',
             text: 'Exception Caught,\r\nexc: ' + err + '\r\n\r\nstack: '+err.stack
         });
     });

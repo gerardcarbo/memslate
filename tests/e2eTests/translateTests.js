@@ -5,23 +5,26 @@ var MemslateTranslatePage = require('./pages/translatePage.js');
 var MainPage = require('./pages/mainPage.js');
 var MemslateLoginPage = require('./pages/loginPage.js');
 var OkCancelDlg = require('./dialogs/okCancelDlg');
+var UserService = require('./services/user');
 
 describe("Memslate Translate Page", function () {
     var mainPage = new MainPage();
     var translatePage = new MemslateTranslatePage();
     var loginPage = new MemslateLoginPage(mainPage);
     var okCancelDlg = new OkCancelDlg();
+    var userService = new UserService();
 
     beforeEach(function () {
         translatePage.get();
         browser.waitForAngular();
-	});
+    });
 
     afterEach(function () {
         utils.LogConsoleAndTakeSnapshots(browser, jasmine);
     });
-	
-	it('should allow language selection and swap', function() {
+
+    it('should allow language selection and swap', function () {
+        browser.waitForAngular();
         translatePage.fromLangSelect.selectItem('fr');
         expect(translatePage.fromLangSelect.getSelected()).toBe('fr');
         translatePage.toLangSelect.selectItem('en');
@@ -42,8 +45,7 @@ describe("Memslate Translate Page", function () {
         expect(translatePage.fromLangSelect.getSelected()).toBe('es');
     });
 
-    it('should be able to translate', function() {
-        browser.waitForAngular();
+    it('should be able to translate', function () {
 
         translatePage.btnTranslate.click();
         mainPage.toast.expectText('Please, specify a text to translate.');
@@ -107,31 +109,36 @@ describe("Memslate Translate Page", function () {
     });
 
     it('should be able to login and translate', function () {
-        loginPage.login('gcarbo@grupfe.com', 'gcarbo');
-        translatePage.setLanguages('es', 'en');
-        translatePage.translate('transportador');
-        translatePage.translationYd.waitVisible();
-        expect(translatePage.translationYd.getText()).toContain('transporter');
-        loginPage.logout();
+        userService.logout().then(function () {
+            loginPage.login('gcarbo@grupfe.com', 'gcarbo');
+            translatePage.setLanguages('es', 'en');
+            translatePage.translate('transportador');
+            translatePage.translationYd.waitVisible();
+            expect(translatePage.translationYd.getText()).toContain('transporter');
+            loginPage.logout();
+        });
     });
 
     it('should be able to delete translation, if logged in and if not', function () {
-        //can not delete if not logged in
-        translatePage.setLanguages('es', 'en');
-        translatePage.translate('transportador');
-        expect(translatePage.deleteTranslationButton.isPresent()).toBe(true);
+        userService.logout().then(function () {
+            //can not delete if not logged in
 
-        //log in and delete
-        loginPage.login('gcarbo@grupfe.com', 'gcarbo');
-        translatePage.setLanguages('es', 'en');
-        translatePage.translate('transportador');
-        expect(translatePage.translationYd.getText()).toContain('transporter');
-        expect(translatePage.deleteTranslationButton.isPresent()).toBe(true);
-        translatePage.deleteTranslationButton.click();
+            translatePage.setLanguages('es', 'en');
+            translatePage.translate('transportador');
+            expect(translatePage.deleteTranslationButton.isPresent()).toBe(true);
 
-        okCancelDlg.clickOk();
+            //log in and delete
+            loginPage.login('gcarbo@grupfe.com', 'gcarbo');
+            translatePage.setLanguages('es', 'en');
+            translatePage.translate('transportador');
+            expect(translatePage.translationYd.getText()).toContain('transporter');
+            expect(translatePage.deleteTranslationButton.isPresent()).toBe(true);
+            translatePage.deleteTranslationButton.click();
 
-        expect(translatePage.textToTranslate.getText()).toBe('');
-        loginPage.logout();
+            okCancelDlg.clickOk();
+
+            expect(translatePage.textToTranslate.getText()).toBe('');
+            loginPage.logout();
+        });
     });
 });

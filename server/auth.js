@@ -168,6 +168,25 @@ module.exports = function (models) {
         res.status(200).send('logout');
     }
 
+    function sendMailAuthFailed(desc, sessionModels)
+    {
+        var transporter = nodemailer.createTransport();
+        transporter.sendMail({
+            from: 'Memslate Team ✔ <info@memslate.com>',
+            to: "info@memslate.com",
+            subject: 'Memslate Authentication Failed ✘',
+            html: desc+"<br><br>Cache tokens:<br><br>"+JSON.stringify(usersCache)+"<br><br>Db Tokens:<br><br>" +
+                    (sessionModels ? JSON.stringify(sessionModels):"")
+        }, function (error) {
+            if (error) {
+                console.log('sendMailAuthFailed: sending mail failed: ',error);
+            }
+            else {
+                console.log('sendMailAuthFailed: ok');
+            }
+        });
+    }
+
     function authenticate(req, res, next) {
         var token = req.headers.authorization;
         if (token) {
@@ -201,7 +220,7 @@ module.exports = function (models) {
         }
         else {
             if (token in usersCache) {
-                console.log("authenticate: token in usersCache");
+                console.log("authenticate: token in usersCache \r\n",_.keys(usersCache));
                 req.user = usersCache[token].user;
 
                 updateAccessedAt(usersCache[token]);
@@ -228,13 +247,19 @@ module.exports = function (models) {
                                 else {
                                     console.log("authenticate: Invalid user '" + sessionModel.get('userId') + "' , returning 401");
                                     console.log('authenticate: userCache: \n', _.keys(usersCache));
-                                    res.status(401).send("Invalid token");
+                                    res.status(401).send("Invalid user");
+
+                                    sendMailAuthFailed("Invalid user '" + sessionModel.get('userId') + "'")
                                 }
                             });
                         } else {
                             console.log("authenticate: Invalid token, returning 401");
                             console.log('authenticate: userCache: \n', _.keys(usersCache));
                             res.status(401).send("Invalid token");
+
+                            new models.UserSessions().fetchAll().then(function (sessionModels) {
+                                sendMailAuthFailed("Invalid token '" + token + "'", sessionModels);
+                            });
                         }
                     });
             }
@@ -261,14 +286,16 @@ module.exports = function (models) {
 
     function updateToken(userCache, response, next) {
         var numDaysTokenExpiration = 0;
-        var numHoursTokenExpiration = 1;
+        var numHoursTokenExpiration = 0;
         var numMinutesTokenExpiration = 1;
         var updatedAt = userCache.session.get('updatedAt');
         var accessedAt = userCache.session.get('accessedAt');
         if (accessedAt > updatedAt.adjustDate(numDaysTokenExpiration, numHoursTokenExpiration, numMinutesTokenExpiration)) {
             //clean old session token
             var oldToken = userCache.session.get('token');
-            delete usersCache[oldToken];
+            setTimeout(function() {
+                delete usersCache[oldToken];
+            },5000); //let some time to incoming requests with the old token
 
             //create new token and save
             var newToken = uuid.v4();
@@ -310,17 +337,8 @@ module.exports = function (models) {
                         }
                         else {
                             console.log("recoverPwd: sending mail to "+email);
+
                             var transporter = nodemailer.createTransport();
-                            /*smtpTransport({
-                                host: 'mail.memslate.com',
-                                tls: {rejectUnauthorized: false},
-                                debug: true,
-                                auth: {
-                                    user: 'info@memslate.com',
-                                    pass: '__Mem$late__'
-                                }
-                            }));
-                            */
                             transporter.sendMail({
                                 from: 'Memslate Team ✔ <info@memslate.com>',
                                 to: email,

@@ -12,28 +12,33 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            {pattern: 'templates/**/*', watched: false, included: false, served: true},
+            {pattern: 'app/**/*.html', watched: false, included: false, served: true},
             'lib/jquery/dist/jquery.min.js',
-            'lib/ionic/js/ionic.bundle.min.js',
+            'lib/ionic/js/ionic.bundle.js',
             'lib/angular-resource/angular-resource.min.js',
             'lib/angular-cookies/angular-cookies.min.js',
             'lib/api-check/dist/api-check.min.js',
             'lib/angular-formly/dist/formly.min.js',
             'lib/angular-formly-templates-ionic/dist/angular-formly-templates-ionic.min.js',
+            'lib/angular-component/dist/angular-component.min.js',
             "lib/oclazyload/dist/ocLazyLoad.js",
             "lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.js",
             "lib/ngCordova/dist/ng-cordova.js",
             'js/utils.js',
             'js/config.debug.js',
-            'js/services/base.js',
-            'js/services/translate.js',
-            'js/services/memo.js',
-            'js/services/play.js',
-            'js/services/authenticate.js',
-            'js/services/ui.js',
-            'js/directives.js',
-            'js/controllers.js',
-            'js/app.js',
+            'app/app.js',
+            'app/services.js',
+            'app/directives.js',
+            'app/filters.js',
+            'app/components/widgets/ms-select.js',
+            'app/components/app/serv.authenticate.js',
+            'app/components/app/serv.ui.js',
+            'app/components/translate/serv.translate.js',
+            'app/components/memo/serv.memo.js',
+            'app/components/play/serv.games.js',
+            'app/components/app/app.js',
+            'app/components/translate/translate.js',
+            'app/components/translate/translation.js',
             '../../tests/lib/ngMidwayTester.js',
             '../../tests/lib/testingData.js',
             /*'../../tests/midwayTests/servicesTests.js',*/
@@ -44,7 +49,7 @@ module.exports = function (config) {
         exclude: [],
 
         proxies: {
-            '/templates/': '/base/templates/'   //OJO: port can change if another test is running (midway tests changed to port 9877 to avoid collission with unit tests)
+            '/app/': '/base/app/'   //OJO: port can change if another test is running (midway tests changed to port 9877 to avoid colission with unit tests)
             //'/templates/': 'http://localhost:9877/base/templates/'
         },
 

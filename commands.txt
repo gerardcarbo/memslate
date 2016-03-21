@@ -19,8 +19,10 @@ bower info <package> :  view published package's versions
 npm list <package> : currently installed package version
 npm show <package> : published package's versions
 
-#DOKKU
+#DOKKU / DOCKER
+docker images -> view docker images
 docker ps -> view all containers
+docker rmi $(docker images -f "dangling=true" -q) : prune <none><none> dandling images
 
 Create and link DB:
     dokku postgres:create memslate
@@ -78,8 +80,11 @@ git commit --amend --all --no-edit: redo last commit
 git reset <commit>: Move the current branch tip backward to <commit>, reset the staging area to match, but leave the
     working directory alone. All changes made since <commit> will reside in the working directory , which lets you re-commit
     the project history using cleaner, more atomic snapshots.
+
 git branch -D <branch_name>: force delete branch
 git branch --no-merged: list unmerged branches
+git push origin --delete <branchName> : delete remote branch
+
 git push [-f] remote local_branch[:remote_branch] : push local_branch to remote (into remote_branch) (-f with force push)
     ex: git push -f dokku UserPasswordRecovery:master
     	git push dokku-test master (upload to test.memslate.com)
@@ -166,6 +171,8 @@ chmod 777 setup/ : give full access to everybody to folder
 tail setup.log -f : show the last lines of file (-f : with follow)
 df -h : disk usage
 sudo dpkg-reconfigure tzdata : set server timezone
+
+scp root@memslate.com:/home/apps/memslate/logs/server.log ./server.log : copy from ssh connection
 
 #TYPESCRIPT
 Download and install d.ts for angular:

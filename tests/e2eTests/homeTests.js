@@ -15,45 +15,42 @@ describe("Memslate Home Page and Basic navigation", function()
 		//var ptor = protractor.getInstance();
 	    //ptor.ignoreSynchronization = true;   //<- for non angularjs sites
 		homePage.get();
+		browser.waitForAngular();
 	});
 
 	afterEach(function () {
 		utils.LogConsoleAndTakeSnapshots(browser, jasmine);
 	});
 	
-	it('Testing navigation', function()
+	it('should navigate on this way', function()
     {
-		browser.waitForAngular();
-
 		expect(homePage.getTitle()).toEqual(homePage.titles.home);
 		
 		//main menu
 		console.log('translateMenu.click...');
-        mainPage.click();
+        mainPage.openMenu();
         mainPage.translateMenu.waitAndClick();
 		expect(homePage.getTitle()).toEqual(homePage.titles.translate);
 
 		console.log('memoMenu.click...');
-        mainPage.click();
+        mainPage.openMenu();
         mainPage.memoMenu.waitAndClick();
 		expect(homePage.getTitle()).toEqual(homePage.titles.memo);
 
 		console.log('playMenu.click...');
-        mainPage.click();
+        mainPage.openMenu();
         mainPage.playMenu.waitAndClick();
 		expect(homePage.getTitle()).toEqual(homePage.titles.play);
 
 		console.log('homeMenu.click...');
-		browser.sleep(1000)
-		mainPage.waitAndClick();
+		mainPage.openMenu();
         mainPage.homeMenu.waitAndClick();
 		expect(homePage.getTitle()).toEqual(homePage.titles.home);
 
 		//marketing area
 		homePage.translateButton.click();
-		browser.sleep(1000)
 		expect(homePage.getTitle()).toEqual(homePage.titles.translate);
-        mainPage.waitAndClick();
+        mainPage.openMenu();
         mainPage.homeMenu.waitAndClick();
 		
 		homePage.memoButton.getLocation()
@@ -64,7 +61,7 @@ describe("Memslate Home Page and Basic navigation", function()
 			homePage.memoButton.click();
 			expect(homePage.getTitle()).toEqual(homePage.titles.memo);
 			browser.sleep(1000)
-			mainPage.waitAndClick();
+			mainPage.openMenu();
             mainPage.homeMenu.waitAndClick();
 			
 			return homePage.playButton.getLocation();
@@ -76,5 +73,25 @@ describe("Memslate Home Page and Basic navigation", function()
 			homePage.playButton.click();
 			expect(homePage.getTitle()).toEqual(homePage.titles.play);		
 		});
+	});
+
+	it("should keep last opened page", function(){
+		console.log('translateMenu.click...');
+		mainPage.openMenu();
+		mainPage.translateMenu.waitAndClick();
+		browser.refresh();
+		expect(homePage.getTitle()).toEqual(homePage.titles.translate);
+
+		console.log('memoMenu.click...');
+		mainPage.openMenu();
+		mainPage.memoMenu.waitAndClick();
+		browser.refresh();
+		expect(homePage.getTitle()).toEqual(homePage.titles.memo);
+
+		console.log('playMenu.click...');
+		mainPage.openMenu();
+		mainPage.playMenu.waitAndClick();
+		browser.refresh();
+		expect(homePage.getTitle()).toEqual(homePage.titles.play);
 	});
 });

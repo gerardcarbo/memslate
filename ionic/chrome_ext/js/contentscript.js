@@ -256,7 +256,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
             return;
           }
 
-          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(translation, font_size), 'ltr');
+          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(response.succeeded, translation, font_size), 'ltr');
         });
       }
     }

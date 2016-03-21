@@ -1,0 +1,34 @@
+<ion-modal-view>
+  <ion-header-bar class="bar-dark">
+    <h1 class="title"><img src="img/icon_siluete.svg" class="logo_user">Recover Password</h1>
+
+    <div class="buttons">
+      <button id="closeButton" class="button button-clear ion-close" ng-click="$ctrl.closeRecover()"> Close</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list">
+      <form id="recoverForm" name="recoverForm" ng-submit="$ctrl.doRecover(recoverForm)" novalidate>
+        <label class="item item-input">
+          <input name="email" type="email" placeholder="Enter Registered Email" ng-model="$ctrl.recoverData.email"
+                 ng-model-options="{ updateOn: 'blur' }" required>
+
+          <div ng-show="(recoverForm.$submitted || recoverForm.email.$touched)">
+            <span id="emailRequired" class="validation-item" ng-show="recoverForm.email.$error.required">(required)</span>
+            <span id="emailInvalid" class="validation-item" ng-show="recoverForm.email.$error.email">(invalid)</span>
+          </div>
+        </label>
+        <label class="item">
+          <button id="loginButton" class="button button-block button-positive" type="submit">Recover
+          </button>
+        </label>
+      </form>
+      <label class="item">
+        <button id="registerButton" class="button button-block button-calm" ng-click="$ctrl.openRegisterFromRecover()">
+          Not registered? Register
+        </button>
+      </label>
+    </div>
+  </ion-content>
+</ion-modal-view>
+

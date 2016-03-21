@@ -35,7 +35,7 @@ describe("Memslate Memo Page", function () {
 
             element.all(by.repeater('(i, translation) in group.translations track by $index'))
                 .then(function (elements) {
-                    expect(elements.length).toBe(20); //2 pages
+                    expect(elements.length).toBeGreaterThan(19); //1 pages
                 });
         });
     });
@@ -57,7 +57,7 @@ describe("Memslate Memo Page", function () {
 
             memoFilterPage.memoBackMenu.click();
             browser.sleep(1000);
-            expect(browser.getTitle()).toBe('Memslate > Memo');
+            expect(browser.getTitle()).toBe('Memo');
         });
     });
 

@@ -21,6 +21,7 @@ var MemslateUserPage = function()
     this.viewPwd = element(by.id('viewPwd'));
 	this.changePwdButton = element(by.id('changePwdButton'));
     this.deleteAccountButton = element(by.id('deleteAccountButton'));
+    this.logoutButton = element(by.id('logoutButton'));
 };
 
 module.exports = MemslateUserPage;

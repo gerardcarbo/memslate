@@ -1,0 +1,37 @@
+  <ion-content class="has-header">
+    <div class="row">
+
+      <ms-select id="fromLang" name="From" title="From Language" ng-disabled="translateCtrl.translating"
+                 items="translateCtrl.languages.items" prefered-items="translateCtrl.languages.user.prefered"
+                 selected-item="translateCtrl.languages.user.fromLang"
+                 style="border-right: 1px;border-top-right-radius: 0px;border-bottom-right-radius: 0px;"
+                 class="translate-lang button-positive col"></ms-select>
+      <button id="swapLangsButton" ng-disabled="translateCtrl.translating"
+              class="col col-10 button button-image button-positive" ng-click="translateCtrl.swapLanguages()"
+              style="border-radius: 0px;border-right: 0px;border-left: 0px;">
+        <img id="btnSwap" src="img/swap3.svg" title="Swap languages" class="image animate-rotate"></button>
+      <ms-select id="toLang" name="To" title="To Language" ng-disabled="translateCtrl.translating"
+                 items="translateCtrl.languages.items" prefered-items="translateCtrl.languages.user.prefered"
+                 selected-item="translateCtrl.languages.user.toLang"
+                 style="border-left: 1px;border-top-left-radius: 0px;border-bottom-left-radius: 0px;"
+                 class="translate-lang button-positive col"></ms-select>
+    </div>
+    <div class="row margin-top--1 margin-left-1">
+      <form id="translateForm" ng-submit="translateCtrl.translate()" class="full-width">
+        <div class="col item item-input">
+          <button type="button" class="button button-clear button-dark button-medium ion-android-cancel"
+                  ng-if="translateCtrl.textToTranslate"
+                  ng-click="translateCtrl.cleanTextToTranslate()"></button>
+          <input id="textToTranslate" type="text" class="center-text" placeholder="Text to Translate"
+                 ng-model="translateCtrl.textToTranslate">
+          <button id="btnTranslate" type="submit" ng-disabled="translateCtrl.translating"
+                  class="button button-energized icon icon-left ion-search" style="min-width: 115px;">
+            Translate
+          </button>
+        </div>
+      </form>
+    </div>
+    <div class="row translation_area rest_of_height">
+        <ms-translation translation="translateCtrl.translation" parent="translateCtrl"></ms-translation>
+    </div>
+  </ion-content>

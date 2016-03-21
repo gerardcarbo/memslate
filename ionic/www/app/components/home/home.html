@@ -1,0 +1,109 @@
+<ion-view view-title='Memslate' class="home center-text">
+  <ion-nav-title>
+    <img src="img/icon.svg" class="logo">Memslate
+  </ion-nav-title>
+  <ion-content class="has-header">
+    <ion-slide-box auto-play="false" does-continue="true"
+                   slide-interval="3000" show-pager="true">
+      <ion-slide class="slider-slide-translate">
+        <h2>1. Translate...</h2>
+
+        <p>Translate words and phrases from and to multiple languages...</p>
+
+        <p>
+          <button class="button button-stable button-positive" ui-sref="app.translate" role="button">Try it!</button>
+        </p>
+      </ion-slide>
+      <ion-slide class="slider-slide-memo">
+        <h2>2. ...Memorize...</h2>
+
+        <p>Access to your past translations. Order, filter and review in order to memorize them.</p>
+
+        <p><button class="button button-stable button-positive" ui-sref="app.memo" role="button">View Demo</button></p>
+      </ion-slide>
+      <ion-slide class="slider-slide-play">
+        <h2>3. ...and Play!</h2>
+
+        <p>Perform funny tests based on you previous translations!</p>
+
+        <p><button class="button button-stable button-positive" ui-sref="app.play" role="button">View Demo</button></p>
+      </ion-slide>
+    </ion-slide-box>
+    <div>
+      <div class="row center-text display-block">
+        <h1 class="featurette-heading">Memslate &gt; <span class="text-muted">Memorize your Translations</span></h1>
+
+        <p class="lead featurette-text">Memslate can help you to translate words and phrases and, memorize them. How
+          does it works?<br></p>
+      </div>
+      <!-- marketing area -->
+      <div class="row responsive-sm">
+        <div class="col">
+          <h2 class="featurette-heading ion-search"> Translate</h2>
+
+          <p style="padding:0px 20px">Memslate is able to translate form and to multiple languages. Translations include multiple exceptions and
+            phonetic transcription.</p>
+
+          <p class="center-text">
+            <button id="translateButton" class="button button-stable button-positive" ui-sref="app.translate"
+                    role="button" nav-clear menu-close>Try It!
+            </button>
+          </p>
+        </div>
+        <div class="col">
+          <h2 class="featurette-heading ion-clipboard"> Memorize</h2>
+
+          <p style="padding:0px 20px">Memslate keeps track of your translations. You can order, filter and review them whenever you want in order
+            to memorize them.</p>
+
+          <p class="center-text">
+            <button id="memoButton" class="button button-stable button-positive" ui-sref="app.memo" role="button"
+                    nav-clear menu-close>View Demo
+            </button>
+          </p>
+        </div>
+        <div class="col">
+          <h2 class="featurette-heading ion-play"> And Play!</h2>
+
+          <p style="padding:0px 20px">And finally Memslate can perform tests, based on your previous translations. The tests are performed in
+            order to help you memorize them. Learn while playing!</p>
+
+          <p class="center-text">
+            <button id="playButton" class="button button-stable button-positive" ui-sref="app.play" role="button"
+                    nav-clear menu-close>View Demo
+            </button>
+          </p>
+        </div>
+      </div>
+
+    </div>
+    <div class="memslate-tools" >
+      <div class="memslate-tools row center-text display-block">
+        <h1 class="featurette-heading">Memslate <span class="text-muted">Tools</span></h1>
+      </div>
+      <!-- marketing area -->
+      <div class="memslate-tools row responsive-sm" >
+        <div class="col col-33">
+          <h2 class="featurette-heading ion-settings"> Chrome Extension</h2>
+
+          <p style="padding:0px 40px">Try out our <a href="https://chrome.google.com/webstore/detail/memslate/hmdilmnmaojnnoddpljfenbinlfjlibg"
+                                                     target="_blank" style="font-weight: 400;">Chrome Extension</a>!<br>
+            Translate on-the-fly words or phrases on a web page<br>when you point (mouse over) or click on it.</p>
+        </div>
+        <div class="memslate-tools col col-33">
+          <h2 class="featurette-heading ion-social-android"> Android App</h2>
+
+          <p style="padding:0px 40px">Try out our custom App for Android devices</p>
+        </div>
+        <div class="col col-33">
+          <h2 class="featurette-heading ion-social-apple"> Apple App</h2>
+
+          <p style="padding:0px 40px">Try out our custom App for Apple devices</p>
+        </div>
+      </div>
+    </div>
+    <div class="memslate-footer"  >
+      Memslate <span class="smaller-font">&copy;</span> <a ui-sref="app.privacyPol" style="font-weight: 400;">Privacy Policy</a>
+    </div>
+  </ion-content>
+</ion-view>

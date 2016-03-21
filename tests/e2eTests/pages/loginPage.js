@@ -1,17 +1,19 @@
 "use strict";
 var OkCancelDlg = require('../dialogs/okCancelDlg');
+var UserPage = require('./userPage');
 
 var MemslateLogin = function (mainMenu)
 {
     this.okCancelDlg = new OkCancelDlg();
-
+    this.userPage = new UserPage();
     this.mainMenu = mainMenu;
 
     this.formLogin = element(by.id('loginForm'));
     this.emailInput = element(by.name('email'));
     this.passwordInput = element(by.name('password'));
     this.loginButton = element(by.id('loginButton'));
-    this.logoutMenu = element(by.id('logoutMenu'));
+    this.loginMenu = element(by.id('loginMenu'));
+    this.userMenu = element(by.id('userMenu'));
     this.registerButton = element(by.id('registerButton'));
     this.emailRequired = element(by.id('emailRequired'));
     this.emailInvalid = element(by.id('emailInvalid'));
@@ -33,29 +35,21 @@ var MemslateLogin = function (mainMenu)
     {
         var self = this;
 
-        self.formLogin.isPresent().then(function(present){
-            console.log('login present:',present);
-            if(!present) {
-                self.logoutMenu.isDisplayed().then(function(isLoggedIn) {
-                    if (isLoggedIn) {
-                        self.logout();
+        self.loginMenu.isPresent().then(function(present){
+            console.log('login present:', present);
+            if(present) {
+                self.loginMenu.isDisplayed().then(function (displayed) {
+                    console.log('login displayed:', displayed);
+                    if (!displayed) {
+                        self.mainMenu.clickLogin();
                     }
-                    self.mainMenu.clickLogin();
-                });
-            }
-            else
-            {
-                self.formLogin.isDisplayed().then(function(displayed) {
-                    console.log('login displayed:',displayed);
-                    if(!displayed) {
-                        self.logoutMenu.isDisplayed().then(function(isLoggedIn) {
-                            if (isLoggedIn) {
-                                self.logout();
-                            }
-                            self.mainMenu.clickLogin();
-                        });
+                    else {
+                        self.loginMenu.waitAndClick();
                     }
                 });
+            } else {
+                // !present
+                self.mainMenu.clickLogin();
             }
         });
 
@@ -74,10 +68,21 @@ var MemslateLogin = function (mainMenu)
 
     this.logout = function()
     {
-        this.mainMenu.clickLogout().then(function(wasLoggedIn){
-            if(wasLoggedIn)
-                self.okCancelDlg.clickOk();
+        self.userMenu.isPresent().then(function(present){
+            if(!present) {
+                self.mainMenu.openMenu();
+            } else {
+                self.userMenu.isDisplayed().then(function (displayed) {
+                    if (!displayed) {
+                        self.mainMenu.openMenu();
+                    }
+                });
+            }
         });
+
+        this.userMenu.click();
+        this.userPage.logoutButton.waitAndClick();
+        this.okCancelDlg.clickOk();
     };
 };
 

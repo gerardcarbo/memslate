@@ -21,10 +21,10 @@ MemsExt.deserialize = function (text) {
   }
   return res;
 };
-MemsExt.formatTranslation = function (translation,font_size) {
+MemsExt.formatTranslation = function (succeeded, translation,font_size) {
   var formatted_translation = '';
   var powered_by = '<div class="powered_by smaller-font" style="padding-top:3px">Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a></div>';
-  if (!translation.succeeded) {formatted_translation = '<div>No Translation Found</div>'}
+  if (!succeeded) {formatted_translation = '<div>Not Found</div>'}
   else if (translation instanceof Array) {
     translation.forEach(function (pos_block) {
       var formatted_pos = pos_block.pos ? '<b>' + pos_block.pos + '</b>: ' : '';

@@ -4,6 +4,7 @@ var MsSelect = function(elem) {
     this.selectItem = function(value)
     {
         this.element.click();
+
         var item=element(by.xpath("//div[contains(concat(' ',normalize-space(@class),' '),' active ')]//label[input[@value='"+value+"']]"));
         browser.executeScript(function () { arguments[0].scrollIntoView(); }, item.getWebElement());
         item.click();
