@@ -1,4 +1,4 @@
-var app = angular.module('memslate.chrome_ext', ['memslate.controllers', 'memslate.directives', 'memslate.services']);
+var app = angular.module('memslate.chrome_ext', ['ionic', 'memslate.directives', 'memslate.services']);
 
 var MemslateExtOptions =
 {
@@ -50,7 +50,7 @@ app.factory("MemslateExtOptions", function () {
   return MemslateExtOptions;
 });
 
-app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsProviders, LanguagesService, UI, MemslateExtOptions) {
+app.controller("MemslateExtApp", function ($scope, SessionService, UserService, TranslationsProviders, LanguagesService, UI, MemslateExtOptions, UserStatusService, $ionicModal) {
   "use strict";
   var self = this;
   this.from_lang = MemslateExtOptions.from_lang();
@@ -62,12 +62,65 @@ app.controller("MemslateExtApp", function ($scope, SessionService, TranslationsP
   this.dismiss_on = MemslateExtOptions.dismiss_on();
   this.translate_by_opts = [
     {name:'Click on word',value:'click'},
-    {name:'Point at word',value:'point'}
+    {name:'Point at word (mouse over)',value:'point'}
   ];
   this.dismiss_on_opts = [
     {name:'On Mouse Move',value:'mousemove'},
     {name:'When ESC key pressed',value:'esc'}
   ];
+
+  this.userLoggedin = function () {
+    return UserStatusService.isAuthenticated();
+  };
+
+  this.registerData = {};
+
+  $scope.doNotShowLogin = true;
+  this.doRegister = function (registerForm) {
+    if (!registerForm.$valid) {
+      UI.toast("Some data is not correct. Please, check it.");
+      return false;
+    }
+    console.log('Doing register: ', self.registerData.email);
+    if (self.registerData.password !== self.registerData.password2) {
+      $ionicPopup.alert({
+        title: 'Registration Failed',
+        content: 'Passwords does not match.',
+        cssClass: 'registrationFailedPopup'
+      });
+      return null;
+    }
+    UserService.register(self.registerData).then(function (register) {
+      if (register.done) {
+        self.registerModal.hide();
+        self.registerData = {};
+        registerForm.$setUntouched();
+        registerForm.$setPristine();
+
+        console.log('register done!');
+      }
+      else {
+        $ionicPopup.alert({
+          title: 'Registration Failed',
+          content: register.err.data,
+          cssClass: 'registrationFailedPopup'
+        });
+      }
+    });
+  };
+
+  // Create the register modal
+  $ionicModal.fromTemplateUrl('../www/app/components/app/dialogs/register.html', {
+    scope: $scope
+  }).then(function (modal) {
+    self.registerModal = modal;
+  });
+
+  this.register = function () {
+    this.registerModal.show();
+  };
+
+
 
   LanguagesService.getLanguages().success(function (langs) {
     self.languagesFrom = angular.copy(langs);

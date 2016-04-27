@@ -86,6 +86,8 @@ gulp.task('copy_html', function() {
 		gulp.src(['ionic/www/*.html','!ionic/www/googleb656a46304b8158f.html'])
 			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/www')),
+		gulp.src(['ionic/www/app/components/widgets/ms-select.html'])
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/app/components/widgets')),
 		gulp.src('ionic/chrome_ext/*.html')
 			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext'))

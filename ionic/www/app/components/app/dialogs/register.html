@@ -3,16 +3,16 @@
     <h1 class="title"><img src="img/icon_siluete.svg" class="logo_user">Register</h1>
 
     <div class="buttons">
-      <button id="closeButton" class="button button-clear ion-close" ng-click="$ctrl.closeRegisterLogin()"> Close</button>
+      <button id="closeButton" class="button button-clear ion-close" ng-click="msAppCtrl.closeRegisterLogin()"> Close</button>
     </div>
   </ion-header-bar>
   <ion-content>
     <div class="list list-inset">
-      <form name="registerForm" ng-submit="$ctrl.doRegister(registerForm)" novalidate>
+      <form name="registerForm" ng-submit="msAppCtrl.doRegister(registerForm)" novalidate>
          <p class="center-text no-padding">Register a Free account and do not lose your translations:</p>
 
         <label class="item item-input">
-        <input type="text" name="nameRegister" placeholder="User Alias" ng-model="$ctrl.registerData.name" ng-required="true">
+        <input type="text" name="nameRegister" placeholder="User Alias" ng-model="msAppCtrl.registerData.name" ng-required="true">
 
         <div ng-show="(registerForm.$submitted || registerForm.password.$touched)">
           <span id="nameRequired" class="validation-item" ng-show="registerForm.name.$error.required">(required)</span>
@@ -20,7 +20,7 @@
         </label>
 
         <label class="item item-input">
-          <input type="email" name="emailRegister" placeholder="Email" ng-model="$ctrl.registerData.email" ng-required="true">
+          <input type="email" name="emailRegister" placeholder="Email" ng-model="msAppCtrl.registerData.email" ng-required="true">
 
           <div ng-show="(registerForm.$submitted || registerForm.email.$touched)">
             <span id="emailRequired" class="validation-item"
@@ -30,7 +30,7 @@
         </label>
 
         <label class="item item-input">
-          <input type="password" name="passwordRegister" placeholder="Password" ng-model="$ctrl.registerData.password"
+          <input type="password" name="passwordRegister" placeholder="Password" ng-model="msAppCtrl.registerData.password"
                  ng-required="true">
 
           <div ng-show="(registerForm.$submitted || registerForm.password.$touched)">
@@ -41,14 +41,14 @@
 
         <label class="item item-input">
           <input type="password" name="password2Register" placeholder="Re-enter password"
-                 ng-model="$ctrl.registerData.password2" ng-required="true">
+                 ng-model="msAppCtrl.registerData.password2" ng-required="true">
 
           <div ng-show="(registerForm.$submitted || registerForm.password2.$touched)">
             <span id="pwd2Required" class="validation-item"
                   ng-show="registerForm.password2.$error.required">(required)</span>
           </div>
           <div ng-show="(registerForm.$submitted || registerForm.password2.$touched)">
-            <span id="pwdMismatch" class="validation-item" ng-show="$ctrl.registerData.password2!==$ctrl.registerData.password">(mismatch)</span>
+            <span id="pwdMismatch" class="validation-item" ng-show="msAppCtrl.registerData.password2!==msAppCtrl.registerData.password">(mismatch)</span>
           </div>
         </label>
 
@@ -57,8 +57,8 @@
           </button>
         </label>
       </form>
-      <label class="item">
-        <button id="loginButtonRegister" class="button button-block button-stable button-calm" ng-click="$ctrl.openLogin()">
+      <label class="item" ng-hide="doNotShowLogin">
+        <button id="loginButtonRegister" class="button button-block button-stable button-calm" ng-click="msAppCtrl.openLogin()">
           Already registered? Log In<i class="icon-arrow-right"></i>
         </button>
       </label>

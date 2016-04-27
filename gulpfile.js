@@ -97,11 +97,15 @@ gulp.task('~git_push_master',shell.task('git push -f dokku master',{verbose:true
 gulp.task('~git_push_test',shell.task('git push -f dokku-test HEAD:master',{verbose:true}));
 
 gulp.task('dokku_install',function(){
-    runSequence('config_release', 'git_amend', '~git_push_master','config_debug');
+    runSequence('config_release', 'git_amend', '~git_push_master');
 });
 
 gulp.task('dokku_test_install',function(){
-    runSequence('config_test', 'git_amend','~git_push_test','config_debug');
+    runSequence('config_test', 'git_amend','~git_push_test');
+});
+
+gulp.task('dokku_test_release_install',function(){
+    runSequence('config_release', 'git_amend','~git_push_test');
 });
 
 gulp.task('android_install_live',shell.task([

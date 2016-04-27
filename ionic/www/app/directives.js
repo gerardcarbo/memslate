@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var app = angular.module('memslate.directives', ['memslate.services', 'memslate.services.ui']);
+  var app = angular.module('memslate.directives', ['memslate.services', 'memslate.services.ui', 'memslate.filters']);
 
   /*
    * This directive allows us to pass a function in on an enter key to do what

@@ -6,6 +6,7 @@
     .component('msApp',
       {
         templateUrl: "app/components/app/app.html",
+        controllerAs: "msAppCtrl",
         controller: function ($scope, $rootScope, $timeout, $state,
                               $ionicModal, $ionicPopup, $cordovaSplashscreen,$ionicHistory,$ionicPopover,
                               UserService, UserStatusService, SessionService, UI, MemoFilterSettingsService) {
@@ -46,7 +47,7 @@
             self.registerModal = modal;
           });
 
-          // Create the register modal
+          // Create the recover modal
           $ionicModal.fromTemplateUrl('app/components/app/dialogs/recoverPwd.html', {
             scope: $scope
           }).then(function (modal) {
@@ -137,7 +138,7 @@
           };
 
           self.doLogout = function () {
-            UI.showOkCancelModal("Close Session", "Do you really want to logout?'")
+            UI.showOkCancelModal("Close Session", "Do you really want to sign out?'")
               .then(function (res) {
                 if (res === true) {
                   UserService.logout();
@@ -145,6 +146,7 @@
                 }
               });
           };
+
 
           self.goHome = function()
           {

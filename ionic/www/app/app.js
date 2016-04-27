@@ -2,7 +2,7 @@
   "use strict";
 
   angular.module('memslate', ['ionic', 'formly', 'formlyIonic', 'ngCordova', 'oc.lazyLoad', 'ui.bootstrap',
-      'memslate.services', 'memslate.services.ui', 'memslate.directives'])
+      'memslate.services', 'memslate.services.ui', 'memslate.directives', 'memslate.filters'])
 
     .run(function ($ionicPlatform) {
       $ionicPlatform.ready(function () {
@@ -173,7 +173,7 @@
           url: "/user/:param",
           views: {
             'menuContent': {
-              template: "<ion-view view-title='User'><ion-nav-title><img src='img/icon.svg' class='logo'>{{$ctrl.userName()}} Account</ion-nav-title>" +
+              template: "<ion-view view-title='User'><ion-nav-title><img src='img/icon.svg' class='logo'>{{msAppCtrl.userName()}} Account</ion-nav-title>" +
               "<ms-user></ms-user>" +
               "</ion-view>"
             }

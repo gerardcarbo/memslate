@@ -1,8 +1,7 @@
 (function () {
   "use strict";
 
-  angular.module('memslate')
-
+  angular.module('memslate.filters', [])
 
     .filter('searchfilter', function () {
       return function (input, query) {

@@ -119,11 +119,11 @@
         });
 
         $scope.$on('ms:login', function () {
-          self.reset();
+          self.reload();
         });
 
         $scope.$on('ms:logout', function () {
-          self.reset();
+          self.reload();
         });
 
         this.init();

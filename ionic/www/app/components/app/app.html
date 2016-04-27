@@ -1,15 +1,15 @@
-<ion-nav-bar class="bar-dark" align-title="{{$ctrl.getAlignTitle()}}">
-  <ion-nav-back-button ng-click="$ctrl.goBack()">
+<ion-nav-bar class="bar-dark" align-title="{{msAppCtrl.getAlignTitle()}}">
+  <ion-nav-back-button ng-click="msAppCtrl.goBack()">
   </ion-nav-back-button>
 
   <ion-nav-buttons side="right">
-    <button id="memoOrderWayMenu" class="button button-icon button-clear" ng-class="$ctrl.getOrderClass()"
-            ng-if="$ctrl.stateIs('app.memo')" ng-click="$ctrl.changeOrderWay($event)">
+    <button id="memoOrderWayMenu" class="button button-icon button-clear" ng-class="msAppCtrl.getOrderClass()"
+            ng-if="msAppCtrl.stateIs('app.memo')" ng-click="msAppCtrl.changeOrderWay($event)">
     </button>
     <button id="memoFilterMenu" class="button button-icon button-clear ion-more animate-rotate ms-rotate-90"
-            ui-sref="app.memoFilter" ng-if="$ctrl.stateIs('app.memo')">
+            ui-sref="app.memoFilter" ng-if="msAppCtrl.stateIs('app.memo')">
     </button>
-    <button class="button button-icon button-clear ion-navicon" ng-click="$ctrl.popover.show($event)">
+    <button class="button button-icon button-clear ion-navicon" ng-click="msAppCtrl.popover.show($event)">
     </button>
   </ion-nav-buttons>
 </ion-nav-bar>
@@ -18,25 +18,25 @@
   <ion-popover-view class="fit item-accordion">
     <ion-content style="border-top-width: 0px;background-color: #F2F2F2 !important;" scroll="false">
       <ion-list class="center-text">
-        <ion-item id="loginMenu" class="item-dark bar-dark" ng-click="$ctrl.popover.hide();$ctrl.openLogin()"
-                  ng-if="!$ctrl.isAuthenticated()">
+        <ion-item id="loginMenu" class="item-dark bar-dark" ng-click="msAppCtrl.popover.hide();msAppCtrl.openLogin()"
+                  ng-if="!msAppCtrl.isAuthenticated()">
           <img src="img/icon_siluete_void.svg" class="logo_login">Login
         </ion-item>
-        <ion-item id="userMenu" class="item-dark bar-dark" ui-sref="app.user"  ng-click="$ctrl.popover.hide()"
-                  ng-if="$ctrl.isAuthenticated()">
+        <ion-item id="userMenu" class="item-dark bar-dark" ui-sref="app.user"  ng-click="msAppCtrl.popover.hide()"
+                  ng-if="msAppCtrl.isAuthenticated()">
           <img src="img/icon_siluete.svg" class="logo_user_menu">
-          <label class="user_menu">{{$ctrl.userName()}}<div class="x-small-font">{{$ctrl.userEmail()}}</div></label>
+          <label class="user_menu">{{msAppCtrl.userName()}}<div class="x-small-font">{{msAppCtrl.userEmail()}}</div></label>
         </ion-item>
-        <ion-item id="homeMenu" class="item-positive" ui-sref="app.home" ng-click="$ctrl.goHome();$ctrl.popover.hide()">
+        <ion-item id="homeMenu" class="item-positive" ui-sref="app.home" ng-click="msAppCtrl.goHome();msAppCtrl.popover.hide()">
           <i class="icon ion-home"></i> Home
         </ion-item>
-        <ion-item id="translateMenu" class="item-calm" ui-sref="app.translate" ng-click="$ctrl.popover.hide()">
+        <ion-item id="translateMenu" class="item-calm" ui-sref="app.translate" ng-click="msAppCtrl.popover.hide()">
           <i class="icon ion-search"></i> Translate
         </ion-item>
-        <ion-item id="memoMenu" class="item-calm" ui-sref="app.memo" ng-click="$ctrl.popover.hide()">
+        <ion-item id="memoMenu" class="item-calm" ui-sref="app.memo" ng-click="msAppCtrl.popover.hide()">
           <i class="icon ion-clipboard"></i> Memo
         </ion-item>
-        <ion-item id="playMenu" class="item-calm" ui-sref="app.play" ng-click="$ctrl.popover.hide()"
+        <ion-item id="playMenu" class="item-calm" ui-sref="app.play" ng-click="msAppCtrl.popover.hide()"
                   style="box-shadow: 0px 2px 8px -1px #364a4f;">
           <i class="icon ion-play"></i> Play
         </ion-item>
