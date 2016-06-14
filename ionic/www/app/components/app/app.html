@@ -18,14 +18,14 @@
   <ion-popover-view class="fit item-accordion">
     <ion-content style="border-top-width: 0px;background-color: #F2F2F2 !important;" scroll="false">
       <ion-list class="center-text">
-        <ion-item id="loginMenu" class="item-dark bar-dark" ng-click="msAppCtrl.popover.hide();msAppCtrl.openLogin()"
-                  ng-if="!msAppCtrl.isAuthenticated()">
+        <ion-item id="loginMenu" class="item-dark bar-dark" ng-click="msAppCtrl.popover.hide();msAppCtrl.user.openLogin()"
+                  ng-if="!msAppCtrl.user.isAuthenticated()">
           <img src="img/icon_siluete_void.svg" class="logo_login">Login
         </ion-item>
         <ion-item id="userMenu" class="item-dark bar-dark" ui-sref="app.user"  ng-click="msAppCtrl.popover.hide()"
-                  ng-if="msAppCtrl.isAuthenticated()">
+                  ng-if="msAppCtrl.user.isAuthenticated()">
           <img src="img/icon_siluete.svg" class="logo_user_menu">
-          <label class="user_menu">{{msAppCtrl.userName()}}<div class="x-small-font">{{msAppCtrl.userEmail()}}</div></label>
+          <label class="user_menu">{{msAppCtrl.user.userName()}}<div class="x-small-font">{{msAppCtrl.user.userEmail()}}</div></label>
         </ion-item>
         <ion-item id="homeMenu" class="item-positive" ui-sref="app.home" ng-click="msAppCtrl.goHome();msAppCtrl.popover.hide()">
           <i class="icon ion-home"></i> Home

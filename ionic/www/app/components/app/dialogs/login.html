@@ -3,14 +3,14 @@
     <h1 class="title"><img src="img/icon_siluete.svg" class="logo_user">Login</h1>
 
     <div class="buttons">
-      <button id="closeButton" class="button button-clear ion-close" ng-click="msAppCtrl.closeLogin()"> Close</button>
+      <button id="closeButton" class="button button-clear ion-close" ng-click="msUserCtrl.closeLogin()"> Close</button>
     </div>
   </ion-header-bar>
   <ion-content>
     <div class="list">
-      <form id="loginForm" name="loginForm" ng-submit="msAppCtrl.doLogin(loginForm)" novalidate>
+      <form id="loginForm" name="loginForm" ng-submit="msUserCtrl.doLogin(loginForm)" novalidate>
         <label class="item item-input">
-          <input name="email" type="email" placeholder="Email" ng-model="msAppCtrl.loginData.email"
+          <input name="email" type="email" placeholder="Email" ng-model="msUserCtrl.loginData.email"
                  ng-model-options="{ updateOn: 'blur' }" required>
 
           <div ng-show="(loginForm.$submitted || loginForm.email.$touched)">
@@ -19,7 +19,7 @@
           </div>
         </label>
         <label class="item item-input">
-          <input name="password" type="password" placeholder="Password" ng-model="msAppCtrl.loginData.password"
+          <input name="password" type="password" placeholder="Password" ng-model="msUserCtrl.loginData.password"
                  ng-model-options="{ updateOn: 'blur' }" required>
 
           <div ng-show="(loginForm.$submitted || loginForm.password.$touched)">
@@ -35,11 +35,11 @@
       </form>
       <form>
         <div class="item">
-          <a type="button" href="" ng-click="msAppCtrl.openRecover()">Password Lost...</a>
+          <a type="button" href="" ng-click="msUserCtrl.openRecover()">Password Lost...</a>
         </div>
       </form>
       <label class="item">
-        <button id="registerButton" class="button button-block button-calm" ng-click="msAppCtrl.openRegister()">
+        <button id="registerButton" class="button button-block button-calm" ng-click="msUserCtrl.openRegister()">
           Not registered? Register
         </button>
       </label>

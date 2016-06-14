@@ -7,6 +7,7 @@ var MemslateUserPage = require('./pages/userPage.js');
 var MemslateRegisterPage = require('./pages/registerPage.js');
 var MainPage = require('./pages/mainPage.js');
 var UserService = require('./services/user');
+var MemslateMemoPage = require('./pages/memoPage.js');
 
 console.log('user tests....');
 
@@ -17,6 +18,7 @@ describe("Memslate User Tests", function () {
     var homePage = new MemslateHomePage();
     var registerPage = new MemslateRegisterPage();
     var userService = new UserService();
+    var memoPage = new MemslateMemoPage();
 
     beforeEach(function () {
         homePage.get();
@@ -98,10 +100,6 @@ describe("Memslate User Tests", function () {
             //check user page data
             expect(userPage.userName.getText()).toEqual('tester');
             expect(userPage.userEmail.getText()).toEqual('test@test.com');
-            /*userPage.userTranslations.getAttribute('value')
-             .then(function (value){
-             expect(Number(value)).toBeGreaterThan(10);
-             });*/
 
             //change password
             //invalid pwd
@@ -148,7 +146,6 @@ describe("Memslate User Tests", function () {
             mainPage.toast.expectText('Password Changed', false, true);
 
             //logout and login again
-            mainPage.backMenu.click();
             mainPage.openMenu();
             loginPage.logout();
             expect(mainPage.userMenu.isPresent()).not.toBeTruthy();
@@ -176,7 +173,13 @@ describe("Memslate User Tests", function () {
             //try to login again, should fail
             loginPage.login('test@test.com', 'testtest');
             mainPage.toast.expectToContain('Login Failed:', false, true);
-            //loginPage.loginFailedPopupOkButton.click();
+            loginPage.closeButton.click();
+
+            //try to register in memo page
+            mainPage.openMenu();
+            mainPage.memoMenu.click();
+            memoPage.registerButton.click();
+            expect(registerPage.registerButton.isDisplayed()).toBe(true);
         });
     }, 180000);
 });

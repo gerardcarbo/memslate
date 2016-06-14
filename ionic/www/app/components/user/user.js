@@ -4,14 +4,16 @@
   angular.module('memslate')
 
     .component('msUser', {
+      require: {
+        user: '^msUserOperations'
+      },
       templateUrl: "app/components/user/user.html",
       controllerAs: 'userCtrl',
       controller: function ($scope, $rootScope, $state, $animate,
-                            $ionicHistory, $ionicPopup,
+                            $ionicHistory, $ionicPopup, $timeout,
                             UserStatusService, UserService, UI) {
         var self = this;
 
-        this.User = UserStatusService;
         this.UserStatistics = {};
         this.showingChangePwd = false;
 
@@ -27,7 +29,6 @@
         if ($state.params.param === 'changePwd') {
           this.showingChangePwd = true;
         }
-        ;
 
         this.deleteAccount = function () {
           $ionicPopup.confirm({
@@ -64,9 +65,13 @@
 
           UserService.changePassword(this.oldPwd, this.newPwd).then(function (res) {
             if (res.done) {
-              UI.toast("Password Changed");
-              self.oldPwd = self.newPwd = self.newPwd2 = "";
               self.showingChangePwd = false;
+              self.oldPwd = self.newPwd = self.newPwd2 = "";
+              changePwdForm.$setUntouched();
+              changePwdForm.$setPristine();
+              $timeout(function() {
+                UI.toast("Password Changed");
+              },1000);
             }
             else {
               UI.toast("Failed to change password: " + res.err.data);

@@ -1,6 +1,6 @@
 "use strict";
 var levenshtein = require('fast-levenshtein');
-var Promise = require('knex/lib/promise');
+var Promise = require('bluebird');
 
 module.exports = function (models, log)
 {

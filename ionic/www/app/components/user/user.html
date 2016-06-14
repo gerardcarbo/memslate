@@ -2,11 +2,11 @@
   <div class="list">
     <label class="item item-input">
       <span class="input-label">User Alias:</span>
-      <span id="userName" class="input-label">{{userCtrl.User.name()}}</span>
+      <span id="userName" class="input-label">{{userCtrl.user.userName()}}</span>
     </label>
     <label class="item item-input">
       <span class="input-label">Email:</span>
-      <span id="userEmail" class="input-label">{{userCtrl.User.email()}}</span>
+      <span id="userEmail" class="input-label">{{userCtrl.user.userEmail()}}</span>
     </label>
     <label class="item item-input" style="align-items: flex-start;">
       <span class="input-label">Translations:</span>
@@ -61,7 +61,7 @@
         </label>
       </form>
     </label>
-    <label class="item item-input" ng-show="userCtrl.User.isAdmin()">
+    <label class="item item-input" ng-show="userCtrl.user.isAdmin()">
       <span class="input-label">Administrator User</span>
     </label>
     <label class="item item-input">
@@ -71,7 +71,7 @@
 
     </label>
     <label class="item item-input">
-      <button id="logoutButton" class="button" ng-click="$parent.$parent.msAppCtrl.doLogout()">Sign Out</button>
+      <button id="logoutButton" class="button" ng-click="userCtrl.user.doLogout()">Sign Out</button>
     </label>
   </div>
 </ion-content>

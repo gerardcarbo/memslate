@@ -9779,3 +9779,10 @@ a.button {
   opacity: 0;
   -webkit-transition-duration: 0s;
   transition-duration: 0s; }
+
+body {
+  user-select: text !important;
+  -webkit-user-select: auto !important; }
+  body .scroll {
+    user-select: inherit !important;
+    -webkit-user-select: inherit; }

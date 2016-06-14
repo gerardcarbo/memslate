@@ -9,6 +9,12 @@ body, table {
   border-spacing: 0px;
 }
 
+.register {
+  width: 900px;
+  margin: auto;
+  padding: 10px;
+}
+
 .options
 {
   width: 900px;

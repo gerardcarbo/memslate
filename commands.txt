@@ -8,7 +8,7 @@ Install dokku:
 
 Update SO:
     apt-get dist-upgrade
-    sudo shutdown -r now
+		
 
 #BOWER
 
@@ -20,6 +20,15 @@ npm list <package> : currently installed package version
 npm show <package> : published package's versions
 
 #DOKKU / DOCKER
+dokku trace on : verbose on
+dokku apps : list apps
+dokku apps:create material-pos : create application (on server)
+
+git remote add dokku dokku@memslate.com:material-pos : configure git remote (on client)
+git push dokku master : push to remote dokku server (on client)
+
+Dokku Static Webs: https://florianheinemann.com/github/dokku/2014/11/17/Hosting-static-pages-on-Dokku.html
+
 docker images -> view docker images
 docker ps -> view all containers
 docker rmi $(docker images -f "dangling=true" -q) : prune <none><none> dandling images
@@ -43,9 +52,9 @@ Redirect top domain:
          }
       /etc/init.d/nginx restart
 
-dokku postgres:restart
-dokku postgres:info memslate memslate : get db info (password)
-dokku postgres:console:admin :  admin postgresql console
+dokku postgres:restart memslate
+dokku postgres:info memslate memslate : get db info (password) 011a51ea1142d7881c508f8dd2cfa973
+do :  admin postgresql console
 dokku ps:scale memslate setup=1 : start setup task
 dokku postgres:list : list dbs, apps and exposes.
 dokku postgres:expose memslate 5444: expose postgress at the specified port
@@ -58,7 +67,11 @@ Add storage pesistence (logs app folder persisted in /home/apps/memslate/logs):
 Check nginx (502 Bad Gateway):
 	nginx -t (test config files)
 	dokku nginx:error-logs memslate
+	
+	dokku ps:rebuild memslate  (!!! worked)
 
+dokku letsencrypt:auto-renew : renovació de certificat https de letsencrypt
+ 
 #CORDOVA
 
 npm install -g cordova@latest
@@ -83,6 +96,8 @@ git reset <commit>: Move the current branch tip backward to <commit>, reset the 
 
 git branch -D <branch_name>: force delete branch
 git branch --no-merged: list unmerged branches
+git branch -m newname : rename current branch
+
 git push origin --delete <branchName> : delete remote branch
 
 git push [-f] remote local_branch[:remote_branch] : push local_branch to remote (into remote_branch) (-f with force push)
@@ -99,8 +114,7 @@ git rebase:
 git tag -a v0.1.7 -m "... 0.1.7" : create tag
 git tag -d v0.1.9 : delete tag
 
-
-git branch -m newname : rename current branch
+git reset -- ..\cleanSales.sql: oposite of add. Unstage file.
 
 git remove file 'chrome_ext/dist/Memslate v0.1.7.zip' from history:
 
@@ -142,6 +156,7 @@ ionic run -> installs app on connected device
 ionic resources -> regenerates logo and splash images
 
 #ANDROID
+adb devices: refresh devices list. Usefull if the USB connected devide does not appear in Chrome.
 adb wait-for-device : start usb debugging
 
 #TESTING
@@ -178,7 +193,11 @@ scp root@memslate.com:/home/apps/memslate/logs/server.log ./server.log : copy fr
 HTTPS ->
 sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 dokku config:set --no-restart myapp DOKKU_LETSENCRYPT_EMAIL=info@memslate.com
-dokku letsencrypt myapp
+dokku letsencrypt memslate
+dokku letsencrypt:auto-renew : renew certificate
+
+dokku letsencrypt:revoke memslate
+dokku letsencrypt:cleanup memslate
 
 #TYPESCRIPT
 Download and install d.ts for angular:

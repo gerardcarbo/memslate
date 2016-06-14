@@ -24,7 +24,7 @@
         self.getLanguages();
       };
 
-      self.userLoggedin = function(){
+      self.isAuthenticated = function(){
         return UserStatusService.isAuthenticated();
       }
 

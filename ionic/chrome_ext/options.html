@@ -1,58 +1,21 @@
-<html>
-<head>
-  <title>Memslate Chrome Extension Options</title>
-
-  <script src="../www/lib/ionic/js/ionic.bundle.min.js"></script>
-  <script src="../www/lib/angular-resource/angular-resource.min.js"></script>
-  <script src="../www/lib/angular-cookies/angular-cookies.min.js"></script>
-  <script src="../www/lib/ngCordova/dist/ng-cordova.min.js"></script>
-  <script src="../www/lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.min.js"></script>
-  <script src="../www/lib/api-check/dist/api-check.min.js"></script>
-  <script src="../www/lib/angular-formly/dist/formly.min.js"></script>
-  <script src="../www/lib/angular-formly-templates-ionic/dist/angular-formly-templates-ionic.min.js"></script>
-  <script src="../www/lib/oclazyload/dist/ocLazyLoad.min.js"></script>
-
-  <script src="../www/js/utils.js"></script>
-  <script src="../www/js/config.js"></script>
-  <script src="../www/app/services.js"></script>
-  <script src="../www/app/directives.js"></script>
-  <script src="../www/app/filters.js"></script>
-  <script src="../www/app/components/translate/serv.translate.js"></script>
-  <script src="../www/app/components/app/serv.authenticate.js"></script>
-  <script src="../www/app/components/app/serv.ui.js"></script>
-  <script src="../www/app/components/widgets/ms-select.js"></script>
-
-  <script src="lib/jquery.min.js"></script>
-  <script src="lib/lodash.min.js"></script>
-
-  <script src="js/ext_utils.js"></script>
-  <script src="js/tooltip.js"></script>
-  <script src="js/options.js"></script>
-
-  <link href="../www/css/ionic.app.css" rel="stylesheet">
-  <link href="../www/css/style.css" rel="stylesheet">
-
-  <link href="css/options.css" rel="stylesheet">
-  <link href="css/tooltip.css" rel="stylesheet">
-</head>
-<body ng-app="memslate.chrome_ext" ng-controller="MemslateExtApp as msAppCtrl">
 <ion-nav-view>
   <ion-view>
-    <ion-content >
-      <div class="bar bar-dark bar-header "><img src="img/icon_siluete.svg"  class="logo">Memslate Chrome Extension
+    <ion-content>
+      <div class="bar bar-dark bar-header "><img src="img/icon_siluete.svg" class="logo">Memslate Chrome Extension
         Options
       </div>
 
-      <div class="options">
-        <div ng-if="!msAppCtrl.userLoggedin()">
+      <div class="register">
+        <div ng-if="!msAppCtrl.user.isAuthenticated()">
           <label>In order to keep track of your translations, and be able to play with them, you
             need to create a free user account:</label>
-          <button class="button button-calm button-block" id="register_user" ng-click="msAppCtrl.register()">Register User
+          <button class="button button-calm button-block" id="register_user" ng-click="msAppCtrl.user.openRegister()">
+            Register User
           </button>
         </div>
       </div>
 
-      <div class="options" >
+      <div class="options">
         <form id="optionsForm" name="optionsForm" ng-submit="msAppCtrl.saveOptions(true)" novalidate>
           <div class="option">
             <label for="translate_by">When I&nbsp;</label>
@@ -90,7 +53,8 @@
           </div>
           <div class="option">
             <input type="checkbox" id="save_translation_sample" ng-model="msAppCtrl.save_translation_sample"/>
-            <label for="save_translation_sample">Save samples: save the phrase where the translated word is on.</label>
+            <label for="save_translation_sample">Save samples: save the phrase where the translated word is
+              on.</label>
           </div>
           <div class="option" style="display:none">
             <input type="checkbox" id="word_key_only" name="word_key_only" ng-model="msAppCtrl.word_key_only"/>
@@ -118,5 +82,3 @@
     </ion-content>
   </ion-view>
 </ion-nav-view>
-</body>
-</html>

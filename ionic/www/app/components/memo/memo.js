@@ -4,7 +4,7 @@
   angular.module('memslate')
 
     .component('msMemoFilter', {
-      templateUrl: "app/components/memo/memoFilter.html",
+      templateUrl: 'app/components/memo/memoFilter.html',
       controllerAs: 'memoFilterCtrl',
       controller: function ($scope, $rootScope, $state, $timeout, LanguagesService,
                             MemoFilterSettingsService) {
@@ -154,6 +154,9 @@
     .component('msMemo', {
       templateUrl: "app/components/memo/memo.html",
       controllerAs: "memoCtrl",
+      require: {
+        user: '^msUserOperations'
+      },
       bindings: {scope: '='},
       controller: function ($scope, $timeout, $filter, $window, $document,
                             $location, $ionicScrollDelegate, $q,
@@ -176,7 +179,7 @@
           self.unstickTabs();
           $ionicScrollDelegate.scrollTop(false);
           self.addGroups()
-            .then($timeout(self.checkToLoadGroups, 500));
+            .finally(self.checkToLoadGroups);
         };
 
         self.translationGroup = function (groupName, groupData) {
@@ -265,20 +268,26 @@
         self.checkToLoadGroups = function () {
           var elem = document.getElementById('tab-ending-group-container');
           var tab_ending_top = elem.getTop();
-          console.log('checkToLoadGroups:  tab_ending_group_top: ' + tab_ending_top + " windowHeight: " + window.innerHeight);
+          console.log('checkToLoadGroups:  tab_ending_group_top: ' + tab_ending_top +
+                      ' windowHeight: ' + window.innerHeight);
           if (tab_ending_top < window.innerHeight) {
             return self.addGroups()
-              .then(function () {
-                $timeout(self.checkToLoadGroups, 500); //if add groups succeeded, check to load groups again after a timeout to give time to rendering
-              }, function (err) {
-                console.log('checkToLoadGroups: error while addGroups: ', err);
-              });
+              .then(function(){console.log('checkToLoadGroups: addGroups succeeded');},
+                    function (err) {
+                      console.log('checkToLoadGroups: error while addGroups: ', err);
+                    })
+              .finally(function () {
+                    console.log('checkToLoadGroups: check again');
+                    $timeout(self.checkToLoadGroups,2000);
+                  } //if add groups succeeded, check to load groups again after a timeout to give time to rendering
+              );
           }
           return $q.resolve('adding groups done');
         };
 
         self.addingGroups = false;
         self.addGroups = function () {
+          console.log('addGroups: enter');
           if (!self.moreDataAvailable) {
             console.log('addGroups: moreDataAvailable:' + self.moreDataAvailable);
             return $q.reject('no data available');
@@ -318,7 +327,7 @@
                 self.groupsSettings.offset += self.groupsSettings.limit;
                 self.loading = false;
 
-                return addTranslationsPr;
+                return $q.all(addTranslationsPr);
               }
 
               self.loading = false;
@@ -340,8 +349,8 @@
             if (self.translationsGroups[groupKey].loading) continue;
             if (!self.translationsGroups[groupKey].moreDataAvailable) continue;
             var tab_ending_top = elem.getTop();
-            //console.log('checkToLoadTranslations: ' + groupKey + ' tab_ending_top: ' + tab_ending_top + " windowHeight: " + window.innerHeight);
-            if (tab_ending_top < window.innerHeight) {
+            console.log('checkToLoadTranslations: ' + groupKey + ' tab_ending_top: ' + tab_ending_top + " windowHeight: " + window.innerHeight);
+            if (tab_ending_top - 500 < window.innerHeight) {
               return self.addTranslations(self.translationsGroups[groupKey]);
             }
           }

@@ -28,7 +28,7 @@
     </div>
     <div id="memoRegisterNotification" class="item center-text assertive-bg light smaller-font"
          style="padding: 5px;display:flex;flex-flow: row;align-items: center;justify-content: center;"
-         ng-show="!memoCtrl.isAuthenticated()">
+         ng-show="!memoCtrl.user.isAuthenticated()">
       <div>
         Anonymous Translations
         <div class="smaller-font">
@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="padding-10">
-        <button id="registerButton" class="button button-positive" ng-click="openRegister()">
+        <button id="registerButton" class="button button-positive" ng-click="memoCtrl.user.openRegister()">
           Register
         </button>
       </div>

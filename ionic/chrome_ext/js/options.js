@@ -1,4 +1,6 @@
-var app = angular.module('memslate.chrome_ext', ['ionic', 'memslate.directives', 'memslate.services']);
+"use strict";
+
+var app = angular.module('memslate', ['ionic', 'memslate.directives', 'memslate.services']);
 
 var MemslateExtOptions =
 {
@@ -36,7 +38,7 @@ var MemslateExtOptions =
     if (arg != undefined) {
       localStorage['save_translation_sample'] = arg;
     }
-    return localStorage['save_translation_sample'] ? (localStorage['save_translation_sample']=='true' ? true : false) : false;
+    return localStorage['save_translation_sample'] ? (localStorage['save_translation_sample'] == 'true' ? true : false) : false;
   },
   dismiss_on: function (arg) {
     if (arg != undefined) {
@@ -50,133 +52,82 @@ app.factory("MemslateExtOptions", function () {
   return MemslateExtOptions;
 });
 
-app.controller("MemslateExtApp", function ($scope, SessionService, UserService, TranslationsProviders, LanguagesService, UI, MemslateExtOptions, UserStatusService, $ionicModal) {
-  "use strict";
-  var self = this;
-  this.from_lang = MemslateExtOptions.from_lang();
-  this.to_lang = MemslateExtOptions.to_lang();
-  this.not_langs = MemslateExtOptions.not_langs() ? MemslateExtOptions.not_langs().split(',') : [];
-  this.translate_by = MemslateExtOptions.translate_by();
-  this.delay = MemslateExtOptions.delay();
-  this.save_translation_sample = MemslateExtOptions.save_translation_sample();
-  this.dismiss_on = MemslateExtOptions.dismiss_on();
-  this.translate_by_opts = [
-    {name:'Click on word',value:'click'},
-    {name:'Point at word (mouse over)',value:'point'}
-  ];
-  this.dismiss_on_opts = [
-    {name:'On Mouse Move',value:'mousemove'},
-    {name:'When ESC key pressed',value:'esc'}
-  ];
+app.component("msExtensionOptions", {
+  templateUrl: "./options.html",
+  controllerAs: "msAppCtrl",
+  require: {
+    user: '^msUserOperations'
+  },
+  controller: function ($scope, SessionService, UserService, TranslationsProviders, LanguagesService, UI, MemslateExtOptions) {
+    var self = this;
+    this.from_lang = MemslateExtOptions.from_lang();
+    this.to_lang = MemslateExtOptions.to_lang();
+    this.not_langs = MemslateExtOptions.not_langs() ? MemslateExtOptions.not_langs().split(',') : [];
+    this.translate_by = MemslateExtOptions.translate_by();
+    this.delay = MemslateExtOptions.delay();
+    this.save_translation_sample = MemslateExtOptions.save_translation_sample();
+    this.dismiss_on = MemslateExtOptions.dismiss_on();
+    this.translate_by_opts = [
+      {name: 'Click on word', value: 'click'},
+      {name: 'Point at word (mouse over)', value: 'point'}
+    ];
+    this.dismiss_on_opts = [
+      {name: 'On Mouse Move', value: 'mousemove'},
+      {name: 'When ESC key pressed', value: 'esc'}
+    ];
 
-  this.userLoggedin = function () {
-    return UserStatusService.isAuthenticated();
-  };
+    LanguagesService.getLanguages().success(function (langs) {
+      self.languagesFrom = angular.copy(langs);
+      self.languagesFrom.items.unshift({name: 'Autodetect', value: 'auto'});
+      self.languagesFrom.user.prefered.unshift('auto');
+      self.languagesTo = angular.copy(langs);
 
-  this.registerData = {};
-
-  $scope.doNotShowLogin = true;
-  this.doRegister = function (registerForm) {
-    if (!registerForm.$valid) {
-      UI.toast("Some data is not correct. Please, check it.");
-      return false;
-    }
-    console.log('Doing register: ', self.registerData.email);
-    if (self.registerData.password !== self.registerData.password2) {
-      $ionicPopup.alert({
-        title: 'Registration Failed',
-        content: 'Passwords does not match.',
-        cssClass: 'registrationFailedPopup'
-      });
-      return null;
-    }
-    UserService.register(self.registerData).then(function (register) {
-      if (register.done) {
-        self.registerModal.hide();
-        self.registerData = {};
-        registerForm.$setUntouched();
-        registerForm.$setPristine();
-
-        console.log('register done!');
-      }
-      else {
-        $ionicPopup.alert({
-          title: 'Registration Failed',
-          content: register.err.data,
-          cssClass: 'registrationFailedPopup'
-        });
+      if (!self.to_lang || !msUtils.objectFindByKey(langs.items, 'value', self.to_lang)) {
+        self.to_lang = langs.user.prefered[0];
+        self.saveOptions(false);
       }
     });
-  };
 
-  // Create the register modal
-  $ionicModal.fromTemplateUrl('../www/app/components/app/dialogs/register.html', {
-    scope: $scope
-  }).then(function (modal) {
-    self.registerModal = modal;
-  });
-
-  this.register = function () {
-    this.registerModal.show();
-  };
-
-
-
-  LanguagesService.getLanguages().success(function (langs) {
-    self.languagesFrom = angular.copy(langs);
-    self.languagesFrom.items.unshift({name:'Autodetect', value:'auto'});
-    self.languagesFrom.user.prefered.unshift('auto');
-    self.languagesTo = angular.copy(langs);
-
-    if(!self.to_lang || !msUtils.objectFindByKey(langs.items,'value',self.to_lang))
-    {
-      self.to_lang = langs.user.prefered[0];
-      self.saveOptions(false);
-    }
-  });
-
-  this.getLanguage = function(lang){
-    if (!self.languagesTo) return;
-    var item = msUtils.objectFindByKey(self.languagesTo.items, "value", lang);
-    if (item) return item.name;
-    return;
-  };
-
-  this.saveOptions = function (showToast) {
-    if(!this.to_lang) {
-      UI.showAlert('To Language Not Defined','You must define a language to translate to.');
+    this.getLanguage = function (lang) {
+      if (!self.languagesTo) return;
+      var item = msUtils.objectFindByKey(self.languagesTo.items, "value", lang);
+      if (item) return item.name;
       return;
-    }
-    MemslateExtOptions.from_lang(this.from_lang);
-    MemslateExtOptions.to_lang(this.to_lang);
-    MemslateExtOptions.not_langs(this.not_langs);
-    MemslateExtOptions.translate_by(this.translate_by);
-    MemslateExtOptions.delay(this.delay);
-    MemslateExtOptions.save_translation_sample(this.save_translation_sample);
-    MemslateExtOptions.dismiss_on(this.dismiss_on);
+    };
 
-    chrome.extension.sendRequest({handler: 'options_changed'});
-
-    if(showToast)
-      UI.toast('Options Applied!');
-  };
-
-  $scope.$watch('extApp.not_lang', function (newValue, oldValue) {
-    if(newValue) {
-      console.log('extApp.not_lang: '+newValue);
-      var index=0;
-      if((index = self.not_langs.indexOf(newValue)) == -1)
-      {
-        self.not_langs.push(newValue);
+    this.saveOptions = function (showToast) {
+      if (!this.to_lang) {
+        UI.showAlert('To Language Not Defined', 'You must define a language to translate to.');
+        return;
       }
-      else
-      {
-        self.not_langs.splice(index,1);
-      }
-      self.not_lang = undefined;
-    }
-  });
+      MemslateExtOptions.from_lang(this.from_lang);
+      MemslateExtOptions.to_lang(this.to_lang);
+      MemslateExtOptions.not_langs(this.not_langs);
+      MemslateExtOptions.translate_by(this.translate_by);
+      MemslateExtOptions.delay(this.delay);
+      MemslateExtOptions.save_translation_sample(this.save_translation_sample);
+      MemslateExtOptions.dismiss_on(this.dismiss_on);
 
+      chrome.extension.sendRequest({handler: 'options_changed'});
+
+      if (showToast)
+        UI.toast('Options Applied!');
+    };
+
+    $scope.$watch('msAppCtrl.not_lang', function (newValue, oldValue) {
+      if (newValue) {
+        console.log('extApp.not_lang: ' + newValue);
+        var index = 0;
+        if ((index = self.not_langs.indexOf(newValue)) == -1) {
+          self.not_langs.push(newValue);
+        }
+        else {
+          self.not_langs.splice(index, 1);
+        }
+        self.not_lang = undefined;
+      }
+    });
+  }
 });
 
 

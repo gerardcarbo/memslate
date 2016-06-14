@@ -21,3 +21,11 @@ $ionicons-font-path: "./fonts" !default;
 // Include all of Ionic
 @import "./scss/ionic";
 
+body {
+  user-select: text !important;
+  -webkit-user-select: auto !important;
+  .scroll {
+    user-select: inherit !important;
+    -webkit-user-select: inherit;
+  }
+}

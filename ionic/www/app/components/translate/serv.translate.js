@@ -1,7 +1,7 @@
 /// <reference path="../../typings/tsd.d.ts" />
 var Translate;
 (function (Translate) {
-    var Translation = (function () {
+    var Translation = /** @class */ (function () {
         function Translation() {
             this.fromLang = "";
             this.toLang = "";
@@ -12,25 +12,25 @@ var Translate;
             this.rawResult = "";
         }
         return Translation;
-    })();
+    }());
     Translate.Translation = Translation;
-    var UserLanguages = (function () {
+    var UserLanguages = /** @class */ (function () {
         function UserLanguages() {
             this.fromLang = "";
             this.toLang = "";
             this.prefered = [];
         }
         return UserLanguages;
-    })();
+    }());
     Translate.UserLanguages = UserLanguages;
-    var Languages = (function () {
+    var Languages = /** @class */ (function () {
         function Languages() {
             this.user = new UserLanguages();
         }
         return Languages;
-    })();
+    }());
     Translate.Languages = Languages;
-    var TranslationsProviders = (function () {
+    var TranslationsProviders = /** @class */ (function () {
         function TranslationsProviders($log, SessionService) {
             this.$log = $log;
             this.SessionService = SessionService;
@@ -64,9 +64,9 @@ var Translate;
         }
         TranslationsProviders.$inject = ['$log', 'SessionService'];
         return TranslationsProviders;
-    })();
+    }());
     Translate.TranslationsProviders = TranslationsProviders;
-    var YandexLanguagesService = (function () {
+    var YandexLanguagesService = /** @class */ (function () {
         function YandexLanguagesService($q, $rootScope, $http, YandexTranslateApiKey) {
             this.$q = $q;
             this.$rootScope = $rootScope;
@@ -92,9 +92,9 @@ var Translate;
         }
         YandexLanguagesService.$inject = ['$q', '$rootScope', '$http', 'YandexTranslateApiKey'];
         return YandexLanguagesService;
-    })();
+    }());
     Translate.YandexLanguagesService = YandexLanguagesService;
-    var HablaaLanguagesService = (function () {
+    var HablaaLanguagesService = /** @class */ (function () {
         function HablaaLanguagesService($q, $rootScope, $http, YandexTranslateApiKey) {
             this.$q = $q;
             this.$rootScope = $rootScope;
@@ -120,9 +120,9 @@ var Translate;
         }
         HablaaLanguagesService.$inject = ['$q', '$rootScope', '$http', 'YandexTranslateApiKey'];
         return HablaaLanguagesService;
-    })();
+    }());
     Translate.HablaaLanguagesService = HablaaLanguagesService;
-    var LanguagesService = (function () {
+    var LanguagesService = /** @class */ (function () {
         function LanguagesService($q, $rootScope, $http, $resource, $injector, SessionService, BaseUrlService, TranslationsProviders) {
             this.$q = $q;
             this.$rootScope = $rootScope;
@@ -231,9 +231,9 @@ var Translate;
         }
         LanguagesService.$inject = ['$q', '$rootScope', '$http', '$resource', '$injector', 'SessionService', 'BaseUrlService', 'TranslationsProviders'];
         return LanguagesService;
-    })();
+    }());
     Translate.LanguagesService = LanguagesService;
-    var YandexTranslateService = (function () {
+    var YandexTranslateService = /** @class */ (function () {
         function YandexTranslateService($log, $rootScope, $http, $resource, $q, $injector, $timeout, TranslationRes, YandexTranslateApiKey, YandexDictionaryApiKey) {
             this.$log = $log;
             this.$rootScope = $rootScope;
@@ -324,9 +324,9 @@ var Translate;
         }
         YandexTranslateService.$inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
         return YandexTranslateService;
-    })();
+    }());
     Translate.YandexTranslateService = YandexTranslateService;
-    var HablaaTranslateService = (function () {
+    var HablaaTranslateService = /** @class */ (function () {
         function HablaaTranslateService($log, $rootScope, $http, $resource, $q, $injector, $timeout, TranslationRes, YandexTranslateApiKey, YandexDictionaryApiKey) {
             this.$log = $log;
             this.$rootScope = $rootScope;
@@ -383,9 +383,9 @@ var Translate;
         }
         HablaaTranslateService.$inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
         return HablaaTranslateService;
-    })();
+    }());
     Translate.HablaaTranslateService = HablaaTranslateService;
-    var TranslateService = (function () {
+    var TranslateService = /** @class */ (function () {
         function TranslateService($log, $http, $injector, $q, SessionService, TranslationRes, LanguagesService, TranslationSampleRes, TranslationsProviders) {
             this.$log = $log;
             this.$http = $http;
@@ -428,7 +428,7 @@ var Translate;
                 return this.TranslationSampleRes.query({ translationId: translationId }, onSuccess, onError);
             };
             this.deleteTranslationSample = function (translationSampleId) {
-                return this.TranslationSampleRes.delete({ id: translationSampleId });
+                return this.TranslationSampleRes["delete"]({ id: translationSampleId });
             };
             this.detect = function (txt) {
                 if (this.currentTranslationsProvider) {
@@ -463,11 +463,17 @@ var Translate;
                         _this.LanguagesService.toLang(toLang);
                         _this.LanguagesService.addPrefered(fromLang);
                         _this.LanguagesService.addPrefered(toLang);
+                        deferred.resolve(translation);
                         var translationRes = new _this.TranslationRes(translation);
                         translationRes.$save(function () {
                             _this.$log.log('Translation Saved: id:' + translationRes.id);
                             translation.id = translationRes.id;
-                            deferred.resolve(translation);
+                        }, function (error) {
+                            //retry
+                            translationRes.$save(function () {
+                                _this.$log.log('Translation Saved: id:' + translationRes.id);
+                                translation.id = translationRes.id;
+                            });
                         });
                     })
                         .error(function (err) {
@@ -482,7 +488,7 @@ var Translate;
         }
         TranslateService.$inject = ['$log', '$http', '$injector', '$q', 'SessionService', 'TranslationRes', 'LanguagesService', 'TranslationSampleRes', 'TranslationsProviders'];
         return TranslateService;
-    })();
+    }());
     Translate.TranslateService = TranslateService;
 })(Translate || (Translate = {}));
 (function () {
@@ -505,7 +511,7 @@ var Translate;
     servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
     servicesMod.factory('TranslationRes', function ($log, $resource, BaseUrlService) {
         $log.log('TranslationRes: base ' + BaseUrlService.get());
-        return $resource(BaseUrlService.get() + 'resources/translations/:id', { id: '@id' });
+        return $resource(BaseUrlService.get() + 'resources/translations/:id', { id: '@id' }, { 'query': { method: 'GET', isArray: true, timeout: 5000 } });
     });
     servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrlService) {
         return $resource(BaseUrlService.get() + 'resources/translations/:translationId/samples/:id', { translationId: '@translationId', id: '@id' });

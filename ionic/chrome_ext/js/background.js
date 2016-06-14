@@ -180,7 +180,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
 
     chrome.runtime.onInstalled.addListener(function (details) {
       if (details.reason == 'install') {
-        chrome.tabs.create({url: chrome.extension.getURL('chrome_ext/options.html')});
+        chrome.tabs.create({url: chrome.extension.getURL('chrome_ext/index.html')});
       }
     });
   }

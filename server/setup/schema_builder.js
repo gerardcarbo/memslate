@@ -2,7 +2,7 @@
 
 var config = require('../config');
 var knex = require('knex')(config.knex_options);
-var Promise = require('knex/lib/promise');
+var Promise = require('bluebird');
 var bookshelf = require('bookshelf')(knex);
 var models = require('../models')(bookshelf);
 var when = require('when/when');

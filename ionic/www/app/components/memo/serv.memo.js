@@ -17,7 +17,7 @@
   });
 
   servicesMod.service("MemoFilterSettingsService", function (SessionService,$rootScope) {
-    var limit = 20; //translations gotten
+    var limit = 50; //translations gotten
     this.reset = function () {
       this._settings = {};
       this._settings.orderBy = 'Date';

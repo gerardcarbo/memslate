@@ -45,11 +45,13 @@ fs.stat(setupLogFile, function (err, stat) {
 //setup operations
 function DoSetup() {
     log4js.configure({
-        appenders: [
-            {"type": "console"},
-            {"type": "file", "filename": setupLogFile, "alwaysIncludePattern": false}
-        ],
-        replaceConsole: true
+        appenders: {
+            out:{ type: 'console' },
+            app:{ type: 'file', filename: setupLogFile, alwaysIncludePattern: false }
+        },
+        categories: {
+            default: { appenders: [ 'out', 'app' ], level: 'debug' }
+        }
     });
 
     console.log('Tracing to: ' + setupLogFile);

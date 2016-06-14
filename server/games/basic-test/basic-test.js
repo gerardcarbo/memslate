@@ -2,7 +2,7 @@
 
 var config = require('../../config'),
     _ = require('lodash'),
-    Promise = require('knex/lib/promise');
+    Promise = require('bluebird');
 
 module.exports = function (bookshelf, models) {
     "use strict";

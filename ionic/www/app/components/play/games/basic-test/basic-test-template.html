@@ -7,11 +7,11 @@
       <div class="center-text padding-5">And the level of difficulty:</div>
       <ms-select id="basic-test-level" class="col" title="Level" items="basicTestCtrl.levels"
                  selected-item="basicTestCtrl.selectedLevel"></ms-select>
-      <ion-checkbox ng-if="basicTestCtrl.userLoggedin()" ng-disabled="basicTestCtrl.useAnonymousLangsDisabled"
+      <ion-checkbox ng-if="basicTestCtrl.isAuthenticated()" ng-disabled="basicTestCtrl.useAnonymousLangsDisabled"
                     ng-model="basicTestCtrl.useAnonymousLangs" class="useAnonymous">
         Use Anonymous Translations
       </ion-checkbox>
-      <button ng-if="basicTestCtrl.userLoggedin()" class="button button-clear button-positive button-medium ion-help-circled useAnonymousIcon"
+      <button ng-if="basicTestCtrl.isAuthenticated()" class="button button-clear button-positive button-medium ion-help-circled useAnonymousIcon"
                               ng-click="basicTestCtrl.showAnonymosuTranslationsHelp()"></button>
       <button id="basic-test-start-game" class="button button-block button-positive"
               ng-disabled="!basicTestCtrl.gameLangs.length"

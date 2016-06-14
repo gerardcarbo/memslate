@@ -3,14 +3,14 @@
     <h1 class="title"><img src="img/icon_siluete.svg" class="logo_user">Recover Password</h1>
 
     <div class="buttons">
-      <button id="closeButton" class="button button-clear ion-close" ng-click="msAppCtrl.closeRecover()"> Close</button>
+      <button id="closeButton" class="button button-clear ion-close" ng-click="msUserCtrl.closeRecover()"> Close</button>
     </div>
   </ion-header-bar>
   <ion-content>
     <div class="list">
-      <form id="recoverForm" name="recoverForm" ng-submit="msAppCtrl.doRecover(recoverForm)" novalidate>
+      <form id="recoverForm" name="recoverForm" ng-submit="msUserCtrl.doRecover(recoverForm)" novalidate>
         <label class="item item-input">
-          <input name="email" type="email" placeholder="Enter Registered Email" ng-model="msAppCtrl.recoverData.email"
+          <input name="email" type="email" placeholder="Enter Registered Email" ng-model="msUserCtrl.recoverData.email"
                  ng-model-options="{ updateOn: 'blur' }" required>
 
           <div ng-show="(recoverForm.$submitted || recoverForm.email.$touched)">
@@ -24,7 +24,7 @@
         </label>
       </form>
       <label class="item">
-        <button id="registerButton" class="button button-block button-calm" ng-click="msAppCtrl.openRegisterFromRecover()">
+        <button id="registerButton" class="button button-block button-calm" ng-click="msUserCtrl.openRegisterFromRecover()">
           Not registered? Register
         </button>
       </label>

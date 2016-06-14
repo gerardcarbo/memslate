@@ -80,7 +80,7 @@ gulp.task('copy_all', ['copy_html', 'copy_app', 'copy_scripts', 'copy_styles', '
 //copy and compress HTML files
 gulp.task('copy_html', function() {
 	return merge(
-		gulp.src('ionic/options.html')
+		gulp.src('ionic/index.html')
 			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build')),
 		gulp.src(['ionic/www/*.html','!ionic/www/googleb656a46304b8158f.html'])
@@ -88,6 +88,8 @@ gulp.task('copy_html', function() {
 			.pipe(gulp.dest('chrome_ext/build/www')),
 		gulp.src(['ionic/www/app/components/widgets/ms-select.html'])
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/app/components/widgets')),
+		gulp.src(['ionic/www/app/components/app/dialogs/*.html'])
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/app/components/app/dialogs')),
 		gulp.src('ionic/chrome_ext/*.html')
 			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext'))

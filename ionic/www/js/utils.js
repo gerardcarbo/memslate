@@ -99,7 +99,6 @@ msUtils.objectDeleteByKey = function (array, key, value) {
   }
 };
 
-
 msUtils.decoratePromise = function (promise) {
   //define success and error methods for the promise
   promise.success = function (fn) {
