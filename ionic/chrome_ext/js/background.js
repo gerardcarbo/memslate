@@ -57,7 +57,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
       var translation = {};
       translation.succeeded = false;
 
-      translation.translation = word + ': ' + ((error.data && error.data.message) || error) + " (" + sl + " > " + tl + ")";
+      translation.translation = word + ":  (" + sl + " 🡢 " + tl + ")";
 
       sendResponse(translation);
     }
@@ -98,6 +98,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
     function getOptions() {
       return {
         options: JSON.stringify({
+          ctrl_pressed: MemslateExtOptions.ctrl_pressed(),
           to_lang: MemslateExtOptions.to_lang(),
           delay: MemslateExtOptions.delay(),
           translate_by: MemslateExtOptions.translate_by(),

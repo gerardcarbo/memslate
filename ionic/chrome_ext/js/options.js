@@ -16,6 +16,12 @@ var MemslateExtOptions =
     }
     return localStorage['to_lang'] || "";
   },
+  ctrl_pressed: function(option){
+      if (option != undefined) {
+          localStorage['ctrl_pressed'] = option;
+      }
+      return localStorage['ctrl_pressed'] ? (localStorage['ctrl_pressed'] == 'true' ? true : false) : false;
+  },
   not_langs: function (langs) {
     if (langs) {
       localStorage['not_langs'] = langs;
@@ -62,6 +68,7 @@ app.component("msExtensionOptions", {
     var self = this;
     this.from_lang = MemslateExtOptions.from_lang();
     this.to_lang = MemslateExtOptions.to_lang();
+    this.ctrl_pressed = MemslateExtOptions.ctrl_pressed();
     this.not_langs = MemslateExtOptions.not_langs() ? MemslateExtOptions.not_langs().split(',') : [];
     this.translate_by = MemslateExtOptions.translate_by();
     this.delay = MemslateExtOptions.delay();
@@ -102,6 +109,7 @@ app.component("msExtensionOptions", {
       }
       MemslateExtOptions.from_lang(this.from_lang);
       MemslateExtOptions.to_lang(this.to_lang);
+      MemslateExtOptions.ctrl_pressed(this.ctrl_pressed);
       MemslateExtOptions.not_langs(this.not_langs);
       MemslateExtOptions.translate_by(this.translate_by);
       MemslateExtOptions.delay(this.delay);

@@ -24,7 +24,7 @@ MemsExt.deserialize = function (text) {
 MemsExt.formatTranslation = function (succeeded, translation,font_size) {
   var formatted_translation = '';
   var powered_by = '<div class="powered_by smaller-font" style="padding-top:3px">Powered by&nbsp;<a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a></div>';
-  if (!succeeded) {formatted_translation = '<div>Not Found</div>'}
+  if (!succeeded) {formatted_translation = '<div>Not Found<div style="font-size:smaller">'+translation+'</div></div>'}
   else if (translation instanceof Array) {
     translation.forEach(function (pos_block) {
       var formatted_pos = pos_block.pos ? '<b>' + pos_block.pos + '</b>: ' : '';

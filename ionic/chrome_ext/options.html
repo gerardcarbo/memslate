@@ -42,6 +42,10 @@
                        class="button-small button-positive options-select"></ms-select>
           </div>
           <div class="option">
+            <input type="checkbox" id="ctrl_pressed" ng-model="msAppCtrl.ctrl_pressed"/>
+            <label for="ctrl_pressed">Only when CTRL is Pressed.</label>
+          </div>
+          <div class="option">
             <label>Do not translate from the following languages: </label>
             <label class="bold" ng-repeat="lang in msAppCtrl.not_langs track by $index">{{msAppCtrl.getLanguage(lang)}}<label
               ng-if="!$last">,&nbsp;</label></label>

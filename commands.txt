@@ -8,6 +8,7 @@ Install dokku:
 
 Update SO:
     apt-get dist-upgrade
+	shutdown -r now
 		
 
 #BOWER
@@ -207,7 +208,7 @@ Download and install d.ts for angular:
 - Add reference to angular.d.ts inside .ts file: /// <reference path="../typings/angularjs/angular.d.ts" />
                      or better all defined d.ts: /// <reference path="../typings/tsd.d.ts" />
 
-### Google Developer Dashboard
+### Google Developer Dashboard (chrome extension)
 https://chrome.google.com/webstore/developer/dashboard?utm_source=chrome-app-launcher-info-dialog&authuser=2#
 memslate@gmail.com
 _M_

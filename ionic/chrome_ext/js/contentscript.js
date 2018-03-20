@@ -195,12 +195,10 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       var selection = window.getSelection();
       var hit_elem = document.elementFromPoint(e.clientX, e.clientY);
 
-      // happens sometimes on page resize (I think)
       if (!hit_elem) {
         return;
       }
 
-      //skip inputs and editable divs
       if (/INPUT|TEXTAREA/.test(hit_elem.nodeName) || hit_elem.isContentEditable
         || $(hit_elem).parents().filter(function () {
           return this.isContentEditable
@@ -262,6 +260,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
     }
 
     function withOptionsSatisfied(e, do_stuff) {
+      if (options.ctrl_pressed && !e.ctrlKey) return;
       if (options.to_lang) {
         do_stuff();
       }
