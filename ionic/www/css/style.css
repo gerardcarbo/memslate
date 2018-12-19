@@ -897,3 +897,7 @@ ion-popover-view.fit ion-content {
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
+.popover.active {
+  opacity: 1;
+}

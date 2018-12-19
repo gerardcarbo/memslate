@@ -10,6 +10,24 @@ Update SO:
     apt-get dist-upgrade
 	shutdown -r now
 		
+#SSH
+
+Client setup:
+
+ssh-keygen (enter-enter-enter)
+cat ~/.ssh/id_rsa.pub | ssh root@memslate.com "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"	(enter root pwd)	
+ssh root@memslate.com (boom)
+
+Dokku setup:
+ *on server (memslate.com):
+ 
+dokku apps:create appmodelsoft
+ 
+ *on client:
+ 
+cat ~/.ssh/id_rsa.pub | ssh root@memslate.com "sudo sshcommand acl-add dokku dokkuacl"
+git remote add dokku dokku@memslate.com:appmodelsoft
+git push dokku master
 
 #BOWER
 
@@ -20,7 +38,15 @@ bower info <package> :  view published package's versions
 npm list <package> : currently installed package version
 npm show <package> : published package's versions
 
-#DOKKU / DOCKER
+#DOCKER
+docker images -> view docker images
+docker ps -> view all containers
+docker rmi $(docker images -f "dangling=true" -q) : prune <none><none> dandling images
+docker image prune : prune dandling images
+docker container prune : prune non running containers
+docker container ls : list containers -> check for duplicates, and delete them. Then prune containers.
+
+#DOKKU
 dokku trace on : verbose on
 dokku apps : list apps
 dokku apps:create material-pos : create application (on server)
@@ -30,9 +56,6 @@ git push dokku master : push to remote dokku server (on client)
 
 Dokku Static Webs: https://florianheinemann.com/github/dokku/2014/11/17/Hosting-static-pages-on-Dokku.html
 
-docker images -> view docker images
-docker ps -> view all containers
-docker rmi $(docker images -f "dangling=true" -q) : prune <none><none> dandling images
 
 Create and link DB:
     dokku postgres:create memslate
@@ -126,6 +149,9 @@ git remove file 'chrome_ext/dist/Memslate v0.1.7.zip' from history:
     git gc --aggressive --prune=now
 
 git config --global core.safecrlf false : turn off git “LF will be replaced by CRLF” warning
+git check-ignore -v filename : search witch .gitignore makes ignore filename.
+
+git add -A : to solve move problems (add/delete). cd to the top of that directory structure.
 
 #HEROKU
 
@@ -195,6 +221,10 @@ sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 dokku config:set --no-restart myapp DOKKU_LETSENCRYPT_EMAIL=info@memslate.com
 dokku letsencrypt memslate
 dokku letsencrypt:auto-renew : renew certificate
+
+for multiple domains:
+
+dokku proxy:ports-add appmodelsoft https:443:5000
 
 dokku letsencrypt:revoke memslate
 dokku letsencrypt:cleanup memslate

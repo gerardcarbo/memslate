@@ -23,13 +23,14 @@ exports.serve = function (serverLogFile)
     var log4js = require('log4js');
     var fs = require('fs');
 
+    log4js.level = 'all';
     log4js.configure({
         appenders: {
             out:{ type: 'console' },
-            app:{ type: 'file', filename: serverLogFile, alwaysIncludePattern: false }
+            app:{ type: 'file', filename: serverLogFile}
         },
         categories: {
-            default: { appenders: [ 'out', 'app' ], level: 'debug' }
+            default: { appenders: [ 'out', 'app' ], level: 'all' }
         }
     });
 
