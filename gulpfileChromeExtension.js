@@ -15,12 +15,6 @@ var gulp = require('gulp'),
 	runSequence = require('run-sequence'),
 	debug = require('gulp-debug');
 
-//run all tasks after build_ext directory has been cleaned
-gulp.task('default', ['build_release']);
-
-gulp.task('build_release', function(callback) {
-	runSequence('clean', 'copy_all', 'copy_config_release', 'clean_end', 'zip', callback);
-});
 
 gulp.task('build_debug', function(callback) {
 	runSequence('clean', 'copy_all', 'copy_config_debug', 'clean_end', callback);
@@ -74,15 +68,10 @@ gulp.task('clean_end', function() {
 			.pipe(clean()));
 });
 
-gulp.task('copy_all', ['copy_html', 'copy_app', 'copy_scripts', 'copy_styles', 'copy_static']);
-
 
 //copy and compress HTML files
 gulp.task('copy_html', function() {
 	return merge(
-		gulp.src('ionic/index.html')
-			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build')),
 		gulp.src(['ionic/www/*.html','!ionic/www/googleb656a46304b8158f.html'])
 			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/www')),
@@ -134,8 +123,6 @@ gulp.task('copy_scripts', function() {
 
 	return merge([
 		//memslate app
-		gulp.src('ionic/www/lib/angular-component/dist/angular-component.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/angular-component/dist')),
 		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.min.js')
 			.pipe(gulp.dest('chrome_ext/build/www/lib/ionic/js')),
 		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.js')
@@ -183,6 +170,8 @@ gulp.task('copy_styles', function() {
 	);
 });
 
+gulp.task('copy_all', gulp.series('copy_html', 'copy_app', 'copy_scripts', 'copy_styles', 'copy_static', function(done){done()}));
+
 
 //run scripts through JSHint
 gulp.task('jshint', function() {
@@ -190,3 +179,8 @@ gulp.task('jshint', function() {
 		.pipe(jshint())
 		.pipe(jshint.reporter('default'));
 });
+
+gulp.task('build_release', gulp.series('clean', 'copy_all', 'copy_config_release', 'clean_end', 'zip', function(done){done()}));
+
+//run all tasks after build_ext directory has been cleaned
+gulp.task('default', gulp.series('build_release', function(done){done()}));

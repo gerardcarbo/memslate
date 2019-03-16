@@ -510,18 +510,22 @@ module Translate {
                         _this.LanguagesService.addPrefered(fromLang);
                         _this.LanguagesService.addPrefered(toLang);
 
-                        deferred.resolve(translation);
-
                         var translationRes = new _this.TranslationRes(translation);
                         translationRes.$save(() => {
                                 _this.$log.log('Translation Saved: id:' + translationRes.id);
                                 translation.id = translationRes.id;
+                                deferred.resolve(translation);
                             },
                             (error) => {
                                 //retry
                                 translationRes.$save(() => {
                                     _this.$log.log('Translation Saved: id:' + translationRes.id);
                                     translation.id = translationRes.id;
+                                    deferred.resolve(translation);
+
+                                },
+                                (error) => {
+                                    deferred.resolve(translation);
                                 });
                             });
                     })

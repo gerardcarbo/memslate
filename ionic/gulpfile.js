@@ -5,7 +5,6 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
-var nodemon = require('gulp-nodemon');
 var jshint = require('gulp-jshint');
 var shell = require('gulp-shell');
 var ngmin = require("gulp-ngmin"); // NEW
@@ -16,12 +15,13 @@ var paths = {
   sass: ['./scss/scss/**/*.scss']
 };
 
-gulp.task('default', ['serve-ionic']);
-
 //Ionic Serve Task
 gulp.task('serve-ionic',shell.task([
     'ionic serve'
 ]));
+
+gulp.task('default', gulp.series('serve-ionic', function(done){done()}));
+
 
 gulp.task('serve-ionic lab',shell.task([
     'ionic serve --lab'
@@ -62,13 +62,6 @@ gulp.task('watch sass', function() {
   gulp.watch(paths.sass, ['sass']);
 });
 
-gulp.task('install', ['git-check'], function() {
-  return bower.commands.install()
-    .on('log', function(data) {
-      console.log('bower', data.message);
-    });
-});
-
 gulp.task('git-check', function(done) {
   if (!sh.which('git')) {
     console.log(
@@ -81,6 +74,14 @@ gulp.task('git-check', function(done) {
   }
   done();
 });
+
+gulp.task('install', gulp.series('git-check', function(done) {
+  return bower.commands.install()
+    .on('log', function(data) {
+      console.log('bower', data.message);
+      done();
+    });
+}));
 
 gulp.task("dist", function() {
   gulp.src(["www/js/*.js"])            // Read the files

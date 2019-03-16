@@ -1,1 +1,0 @@
-"C:\Program Files\Git\usr\bin\ssh.exe" root@memslate.com

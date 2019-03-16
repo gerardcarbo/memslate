@@ -359,6 +359,7 @@ ion-content {
   margin: 3px auto !important;
   padding: 10px !important;
   width: 99%;
+  user-select: text;
 }
 
 .translation_samples {
@@ -371,6 +372,7 @@ ion-content {
   overflow: auto;
   overflow-y: hidden;
   width:100%;
+  user-select: text;
 }
 
 .bold {

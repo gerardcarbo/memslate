@@ -97,11 +97,6 @@ gulp.task('config_test', function() {
 });
 
 gulp.task(
-  'ionic_run',
-  shell.task('git commit --amend --all --no-edit', { verbose: true })
-);
-
-gulp.task(
   'git_amend',
   shell.task('git commit --amend --all --no-edit', { verbose: true })
 );
