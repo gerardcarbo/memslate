@@ -135,7 +135,7 @@ var Translate;
             this.langsGotten = false;
             this.languages = new Translate.Languages();
             this.getLanguages = function () {
-                var _this = this;
+                var _this_1 = this;
                 if (this.langsGotten) {
                     var deferred = this.$q.defer();
                     deferred.resolve(this.languages);
@@ -155,12 +155,12 @@ var Translate;
                         });
                         _self.languages.dirs = data[0].dirs;
                     }
-                    _this.languages.user = data[1];
-                    if (_this.languages.user.prefered == undefined) {
-                        _this.languages.user.prefered = [];
+                    _this_1.languages.user = data[1];
+                    if (_this_1.languages.user.prefered == undefined) {
+                        _this_1.languages.user.prefered = [];
                     }
-                    _this.langsGotten = true;
-                    return _this.languages;
+                    _this_1.langsGotten = true;
+                    return _this_1.languages;
                 });
                 msUtils.decoratePromise(allPromise);
                 return allPromise;
@@ -174,7 +174,7 @@ var Translate;
                 })[0];
             };
             this.getUserLanguages = function () {
-                var _this = this;
+                var _this_1 = this;
                 var deferedGet = this.$q.defer();
                 var promiseGetUserLanguages = deferedGet.promise;
                 var userLanguages = this.SessionService.getObject('userLanguages');
@@ -183,8 +183,8 @@ var Translate;
                     return promiseGetUserLanguages;
                 }
                 this.$resource(this.BaseUrlService.get() + 'resources/userLanguages/').get({}, function (data) {
-                    _this.languages.user = data;
-                    _this.saveUserLanguages();
+                    _this_1.languages.user = data;
+                    _this_1.saveUserLanguages();
                     deferedGet.resolve(data);
                 }, function (err) {
                     deferedGet.reject(err);
@@ -264,7 +264,7 @@ var Translate;
                 return promise;
             };
             this.translate = function (fromLang, toLang, text) {
-                var _this = this;
+                var _this_1 = this;
                 var deferred = this.$q.defer();
                 var promise = deferred.promise;
                 msUtils.decoratePromise(promise);
@@ -292,9 +292,9 @@ var Translate;
                         deferred.resolve(translation);
                     }
                     else {
-                        _this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate', {
+                        _this_1.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate', {
                             params: {
-                                key: _this.YandexTranslateApiKey,
+                                key: _this_1.YandexTranslateApiKey,
                                 lang: fromLang + "-" + toLang,
                                 text: text,
                                 ui: 'en'
@@ -428,7 +428,7 @@ var Translate;
                 return this.TranslationSampleRes.query({ translationId: translationId }, onSuccess, onError);
             };
             this.deleteTranslationSample = function (translationSampleId) {
-                return this.TranslationSampleRes["delete"]({ id: translationSampleId });
+                return this.TranslationSampleRes.delete({ id: translationSampleId });
             };
             this.detect = function (txt) {
                 if (this.currentTranslationsProvider) {
@@ -463,16 +463,19 @@ var Translate;
                         _this.LanguagesService.toLang(toLang);
                         _this.LanguagesService.addPrefered(fromLang);
                         _this.LanguagesService.addPrefered(toLang);
-                        deferred.resolve(translation);
                         var translationRes = new _this.TranslationRes(translation);
                         translationRes.$save(function () {
                             _this.$log.log('Translation Saved: id:' + translationRes.id);
                             translation.id = translationRes.id;
+                            deferred.resolve(translation);
                         }, function (error) {
                             //retry
                             translationRes.$save(function () {
                                 _this.$log.log('Translation Saved: id:' + translationRes.id);
                                 translation.id = translationRes.id;
+                                deferred.resolve(translation);
+                            }, function (error) {
+                                deferred.resolve(translation);
                             });
                         });
                     })
@@ -523,4 +526,3 @@ var Translate;
     servicesMod.service('LanguagesService', Translate.LanguagesService);
     servicesMod.service('TranslateService', Translate.TranslateService);
 })();
-//# sourceMappingURL=serv.translate.js.map

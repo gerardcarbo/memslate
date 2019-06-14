@@ -13,8 +13,8 @@ var gulp = require('gulp'),
 	merge = require('merge-stream'),
 	rename = require('gulp-rename'),
 	runSequence = require('run-sequence'),
-	debug = require('gulp-debug');
-
+	debug = require('gulp-debug'),
+	process = require('process');
 
 gulp.task('build_debug', function(callback) {
 	runSequence('clean', 'copy_all', 'copy_config_debug', 'clean_end', callback);
@@ -25,7 +25,7 @@ gulp.task('copy_config_debug', function() {
 		gulp.src(['ionic/www/js/config.debug.js'])
 			.pipe(rename('config.js'))
 			.pipe(debug({title: 'copy_config_debug:'}))
-			.pipe(gulp.dest('chrome_ext/build/www/js/'))
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/js/'))
 	);
 });
 
@@ -34,16 +34,18 @@ gulp.task('copy_config_release', function() {
 		gulp.src(['ionic/www/js/config.release.js'])
 			.pipe(rename('config.js'))
 			.pipe(debug({title: 'copy_config_release:'}))
-			.pipe(gulp.dest('chrome_ext/build/www/js/'))
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/js/'))
 	);
 });
 
 
 //build ditributable and sourcemaps after other tasks completed
 gulp.task('zip', function() {
-	var manifest = require('./ionic/manifest'),
-		distFileName = manifest.name + ' v' + manifest.version + '.zip',
-		mapFileName = manifest.name + ' v' + manifest.version + '-maps.zip';
+	var manifest = require('./ionic/manifest');
+	
+	process.stdout.write('version: ' +  manifest.version);
+	var distFileName = manifest.name + ' v' + manifest.version + '.zip';
+	var mapFileName = manifest.name + ' v' + manifest.version + '-maps.zip';
 	//collect all source maps
 	gulp.src('chrome_ext/build/scripts/**/*.map')
 		.pipe(zip(mapFileName))
@@ -64,7 +66,7 @@ gulp.task('clean', function() {
 
 //clean build directory once build done
 gulp.task('clean_end', function() {
-	return merge(gulp.src('chrome_ext/build/www/js/config.*.js', {read: false})
+	return merge(gulp.src('chrome_ext/build/chrome_ext/www/js/config.*.js', {read: false})
 			.pipe(clean()));
 });
 
@@ -74,7 +76,7 @@ gulp.task('copy_html', function() {
 	return merge(
 		gulp.src(['ionic/www/*.html','!ionic/www/googleb656a46304b8158f.html'])
 			.pipe(cleanhtml())
-			.pipe(gulp.dest('chrome_ext/build/www')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www')),
 		gulp.src(['ionic/www/app/components/widgets/ms-select.html'])
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/app/components/widgets')),
 		gulp.src(['ionic/www/app/components/app/dialogs/*.html'])
@@ -89,7 +91,7 @@ gulp.task('copy_html', function() {
 gulp.task('copy_app', function() {
 	return merge(
 		gulp.src('ionic/www/app/**/*')
-			.pipe(gulp.dest('chrome_ext/build/www/app/'))
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/app/'))
 	);
 });
 
@@ -97,9 +99,9 @@ gulp.task('copy_app', function() {
 gulp.task('copy_static', function() {
 	return merge(
 		gulp.src('ionic/www/img/**')
-			.pipe(gulp.dest('chrome_ext/build/www/img')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/img')),
 		gulp.src('ionic/www/lib/ionic/fonts/**')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/ionic/fonts')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/ionic/fonts')),
 		gulp.src('ionic/chrome_ext/fonts/**')
 			.pipe(gulp.dest('chrome_ext/build/fonts')),
 		gulp.src('ionic/chrome_ext/icons/**')
@@ -124,30 +126,30 @@ gulp.task('copy_scripts', function() {
 	return merge([
 		//memslate app
 		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/ionic/js')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/ionic/js')),
 		gulp.src('ionic/www/lib/ionic/js/ionic.bundle.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/ionic/js')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/ionic/js')),
 		gulp.src('ionic/www/lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.13.3.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/ui-bootstrap')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/ui-bootstrap')),
 		gulp.src('ionic/www/lib/api-check/dist/api-check.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/api-check/dist')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/api-check/dist')),
 		gulp.src('ionic/www/lib/angular-formly/dist/formly.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/angular-formly/dist')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/angular-formly/dist')),
 		gulp.src('ionic/www/lib/angular-formly-templates-ionic/dist/angular-formly-templates-ionic.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/angular-formly-templates-ionic/dist')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/angular-formly-templates-ionic/dist')),
 		gulp.src('ionic/www/lib/oclazyload/dist/ocLazyLoad.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/oclazyload/dist')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/oclazyload/dist')),
 		gulp.src('ionic/www/lib/ngCordova/dist/ng-cordova.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/ngCordova/dist')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/ngCordova/dist')),
 		gulp.src(['ionic/www/js/**/*.js','!ionic/www/js/config.js'])
-			.pipe(gulp.dest('chrome_ext/build/www/js')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/js')),
 		//chrome ext
 		gulp.src('ionic/www/lib/angular/angular.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/angular/')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/angular/')),
 		gulp.src('ionic/www/lib/angular-resource/angular-resource.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/angular-resource/')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/angular-resource/')),
 		gulp.src('ionic/www/lib/angular-cookies/angular-cookies.min.js')
-			.pipe(gulp.dest('chrome_ext/build/www/lib/angular-cookies/')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/lib/angular-cookies/')),
 		gulp.src('ionic/chrome_ext/lib/**/*.js')
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/lib')),
 		gulp.src(['ionic/chrome_ext/js/**/*.js'])
@@ -164,7 +166,7 @@ gulp.task('copy_styles', function() {
 // 		.pipe(gulp.dest('chrome_ext/build/styles'));
 	return merge(
 		gulp.src('ionic/www/css/**')
-			.pipe(gulp.dest('chrome_ext/build/www/css')),
+			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www/css')),
 		gulp.src('ionic/chrome_ext/css/**')
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/css'))
 	);

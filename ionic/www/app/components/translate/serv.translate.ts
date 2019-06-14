@@ -39,9 +39,9 @@ module Translate {
     }
 
     interface ITranslationsProvider {
-        detect (text): ng.IPromise<void>
+        detect(text): ng.IPromise<void>
 
-        translate (fromLang, toLang, text): ng.IPromise<void>
+        translate(fromLang, toLang, text): ng.IPromise<void>
     }
 
     export class TranslationsProviders {
@@ -147,7 +147,7 @@ module Translate {
         static $inject = ['$q', '$rootScope', '$http', '$resource', '$injector', 'SessionService', 'BaseUrlService', 'TranslationsProviders'];
 
         constructor(public $q, public $rootScope, public $http, public $resource, public $injector,
-                    public SessionService, public BaseUrlService, public TranslationsProviders) {
+            public SessionService, public BaseUrlService, public TranslationsProviders) {
         }
 
         public getLanguages = function () {
@@ -168,7 +168,7 @@ module Translate {
             var allPromise = this.$q.all([promiseProviderLangs, promiseUserLangs]).then((data) => {
                 if (data[0]) {
                     _self.languages.items = Object.keys(data[0].langs).map(function (item) {
-                        return {value: item, name: data[0].langs[item]};
+                        return { value: item, name: data[0].langs[item] };
                     });
                     _self.languages.dirs = data[0].dirs;
                 }
@@ -285,7 +285,7 @@ module Translate {
                 deferred.resolve(data);
             })
                 .error(function (data, status) {
-                    deferred.reject({status: status, data: data});
+                    deferred.reject({ status: status, data: data });
                 });
 
             return promise;
@@ -310,49 +310,49 @@ module Translate {
                     withCredentials: false
                 }
             ).success((data) => {
-                    var translation = new Translate.Translation();
-                    translation.fromLang = fromLang;
-                    translation.toLang = toLang;
-                    translation.translate = text;
+                var translation = new Translate.Translation();
+                translation.fromLang = fromLang;
+                translation.toLang = toLang;
+                translation.translate = text;
 
-                    if (data && data.def && data.def.length > 0) {
-                        translation.provider = 'yd';
-                        translation.mainResult = data.def[0].tr[0].text;
-                        translation.rawResult = data;
-                        translation.transcription = data.def[0].ts;
+                if (data && data.def && data.def.length > 0) {
+                    translation.provider = 'yd';
+                    translation.mainResult = data.def[0].tr[0].text;
+                    translation.rawResult = data;
+                    translation.transcription = data.def[0].ts;
 
-                        deferred.resolve(translation);
-                    }
-                    else {
-                        this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate',
-                            {
-                                params: {
-                                    key: this.YandexTranslateApiKey,
-                                    lang: fromLang + "-" + toLang,
-                                    text: text,
-                                    ui: 'en'
-                                },
-                                withCredentials: false
-                            }
-                        ).success((dataTranslate) => {
-                            if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
-                                translation.provider = 'yt';
-                                translation.mainResult = dataTranslate.text[0];
-                                translation.rawResult = dataTranslate;
-
-                                deferred.resolve(translation);
-                            }
-                            else {
-                                deferred.reject("Translation not found");
-                            }
-                        })
-                            .error((data, status) => {
-                                deferred.reject({status: status, data: data});
-                            });
-                    }
+                    deferred.resolve(translation);
                 }
+                else {
+                    this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate',
+                        {
+                            params: {
+                                key: this.YandexTranslateApiKey,
+                                lang: fromLang + "-" + toLang,
+                                text: text,
+                                ui: 'en'
+                            },
+                            withCredentials: false
+                        }
+                    ).success((dataTranslate) => {
+                        if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
+                            translation.provider = 'yt';
+                            translation.mainResult = dataTranslate.text[0];
+                            translation.rawResult = dataTranslate;
+
+                            deferred.resolve(translation);
+                        }
+                        else {
+                            deferred.reject("Translation not found");
+                        }
+                    })
+                        .error((data, status) => {
+                            deferred.reject({ status: status, data: data });
+                        });
+                }
+            }
             ).error(function (data, status) {
-                deferred.reject({status: status, data: data});
+                deferred.reject({ status: status, data: data });
             });
 
             return promise;
@@ -383,7 +383,7 @@ module Translate {
                 deferred.resolve(data);
             })
                 .error(function (data, status) {
-                    deferred.reject({status: status, data: data});
+                    deferred.reject({ status: status, data: data });
                 });
 
             return promise;
@@ -402,19 +402,19 @@ module Translate {
                     withCredentials: false
                 }
             ).success((data) => {
-                    var translation = new Translate.Translation();
-                    translation.fromLang = fromLang;
-                    translation.toLang = toLang;
-                    translation.translate = text;
+                var translation = new Translate.Translation();
+                translation.fromLang = fromLang;
+                translation.toLang = toLang;
+                translation.translate = text;
 
-                    translation.provider = 'ha';
-                    translation.mainResult = data[0].text;
-                    translation.rawResult = data;
+                translation.provider = 'ha';
+                translation.mainResult = data[0].text;
+                translation.rawResult = data;
 
-                    deferred.resolve(translation);
-                }
+                deferred.resolve(translation);
+            }
             ).error(function (data, status) {
-                deferred.reject({status: status, data: data});
+                deferred.reject({ status: status, data: data });
             });
 
             return promise;
@@ -449,11 +449,11 @@ module Translate {
         };
 
         public getTranslation = function (id: number) {
-            return this.TranslationRes.get({id: id}).$promise;
+            return this.TranslationRes.get({ id: id }).$promise;
         };
 
         public deleteTranslation = function (id: number) {
-            return new this.TranslationRes({id: id}).$delete();
+            return new this.TranslationRes({ id: id }).$delete();
         };
 
         public addTranslationSample = function (translationId: number, sample) {
@@ -465,11 +465,11 @@ module Translate {
         };
 
         public getTranslationSamples = function (translationId: number, onSuccess, onError) {
-            return this.TranslationSampleRes.query({translationId: translationId}, onSuccess, onError);
+            return this.TranslationSampleRes.query({ translationId: translationId }, onSuccess, onError);
         };
 
         public deleteTranslationSample = function (translationSampleId: number) {
-            return this.TranslationSampleRes.delete({id: translationSampleId});
+            return this.TranslationSampleRes.delete({ id: translationSampleId });
         };
 
         public detect = function (txt: string) {
@@ -512,10 +512,10 @@ module Translate {
 
                         var translationRes = new _this.TranslationRes(translation);
                         translationRes.$save(() => {
-                                _this.$log.log('Translation Saved: id:' + translationRes.id);
-                                translation.id = translationRes.id;
-                                deferred.resolve(translation);
-                            },
+                            _this.$log.log('Translation Saved: id:' + translationRes.id);
+                            translation.id = translationRes.id;
+                            deferred.resolve(translation);
+                        },
                             (error) => {
                                 //retry
                                 translationRes.$save(() => {
@@ -523,10 +523,10 @@ module Translate {
                                     translation.id = translationRes.id;
                                     deferred.resolve(translation);
 
-                                },
-                                (error) => {
-                                    deferred.resolve(translation);
-                                });
+                                    },
+                                    (error) => {
+                                        deferred.resolve(translation);
+                                    });
                             });
                     })
                     .error(function (err) {
@@ -569,13 +569,13 @@ module Translate {
     servicesMod.factory('TranslationRes', function ($log, $resource, BaseUrlService) {
         $log.log('TranslationRes: base ' + BaseUrlService.get());
         return $resource(BaseUrlService.get() + 'resources/translations/:id',
-            {id: '@id'},
-            {'query': {method: 'GET', isArray: true, timeout: 5000}});
+            { id: '@id' },
+            { 'query': { method: 'GET', isArray: true, timeout: 5000 } });
     });
 
     servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrlService) {
         return $resource(BaseUrlService.get() + 'resources/translations/:translationId/samples/:id',
-            {translationId: '@translationId', id: '@id'});
+            { translationId: '@translationId', id: '@id' });
     });
 
     servicesMod.service('YandexLanguagesService', Translate.YandexLanguagesService);
@@ -590,5 +590,5 @@ module Translate {
 
     servicesMod.service('TranslateService', Translate.TranslateService);
 })
-();
+    ();
 
