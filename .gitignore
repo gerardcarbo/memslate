@@ -15,3 +15,4 @@ sql/anonymousTranslations.backup
 sql/anonymousTranslations2.backup
 tests/report/
 /package-lock.json
+ionic/package-lock.json
