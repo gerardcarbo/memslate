@@ -124,6 +124,10 @@ module.exports = function (models, knex) {
             else {
                 doSave(req.translation);
             }
+        }, 
+        function (error){
+            console.log('checkTranslation: error: ', error);
+            doSave(req.translation);
         });
 
         addToUserLanguages(req);
