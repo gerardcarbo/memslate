@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "memslate_server",
   "version": "0.1.14",
-  "description": "Memslate",
+  "description": "memslate server",
   "main": "server.js",
   "repository": {
     "type": "git",
@@ -13,6 +13,9 @@
     "url": "https://github.com/gerardcarbo/memslate/issues"
   },
   "homepage": "https://github.com/gerardcarbo/memslate",
+  "engines": {
+    "node": "12.16.x"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
@@ -23,7 +26,7 @@
     "debug": "^2.6.9",
     "express": "^4.16.1",
     "fast-levenshtein": "^2.0.6",
-    "knex": "^0.20.13",
+    "knex": "^0.20.15",
     "latest-version": "^3.1.0",
     "locale": "^0.1.0",
     "lodash": "^4.17.15",
@@ -66,17 +69,16 @@
     "natives": "^1.1.6",
     "node-sass": "^4.13.1",
     "npm-force-resolutions": "0.0.3",
-    "protractor": "^5.4.3",
+    "protractor": "^5.4.4",
     "q": "^1.3.0",
     "run-sequence": "^2.2.1"
   },
   "resolutions": {
-    "https-proxy-agent": "^3.0.0",
-    "clean-css": "^4.1.11 "
+    "https-proxy-agent": ">=2.2.3",
+    "clean-css": ">=4.1.11"
   },
   "scripts": {
-    "build": "tsc -w",
-    "start": "gulp default",
+    "start web": "gulp default",
     "compile Extension": "gulp -f ./gulpfileChromeExtension.js"
   }
 }
