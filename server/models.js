@@ -61,6 +61,7 @@ module.exports = function (bookshelf)
 
     var UserTranslations = bookshelf.Model.extend({
         tableName: 'UserTranslations',
+        requireFetch: false,
         translation: function () {
             return this.belongsTo(Translations, "translationId");
         }
@@ -68,17 +69,21 @@ module.exports = function (bookshelf)
 
     var UserTranslationsSamples = bookshelf.Model.extend({
         tableName: 'UserTranslationsSamples',
+        requireFetch: false,
         translation: function () {
             return this.belongsTo(Translations, "translationId");
         }
     });
 
     var UserLanguages = bookshelf.Model.extend({
-        tableName: 'UserLanguages'
+        tableName: 'UserLanguages',
+        requireFetch: false,
+
     });
 
     var Games = bookshelf.Model.extend({
-        tableName: 'Games'
+        tableName: 'Games',
+        requireFetch: false,
     });
 
 

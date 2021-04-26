@@ -86,20 +86,20 @@ module.exports = function (Model, resource, options)
     function deleteItem(item,res)
     {
         return new Model(item)
-            .fetch({require: true})
+            .fetch({require: false})
             .then(function (modelItem) {
                 return modelItem.destroy()
                     .then(function () {
                         console.log('deleteItem ' + resource + ' id:' + item.id);
                         return item;
                     })
-                    .otherwise(function (err) {
+                    .catch(function (err) {
                         console.log('deleteItem destroy error:', err);
                         res.status(500).json({error: true, data: {message: err.message}});
                         return false;
                     });
             })
-            .otherwise(function (err) {
+            .catch(function (err) {
                 console.log('deleteItem fetch error:', err);
                 res.status(500).json({error: true, data: {message: err.message}});
                 return false;

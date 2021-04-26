@@ -36,7 +36,7 @@ module.exports = function (models, knex) {
         var translation = req.translation;
 
         if (req.user.id !== config.ANONIMOUS_USER_ID) {
-            new models.UserLanguages({userId: req.user.id}).fetch().then(function (ulModel) {
+            new models.UserLanguages({userId: req.user.id}).fetch({require: true}).then(function (ulModel) {
                 var prefered;
                 if (ulModel) {
                     prefered = ulModel.attributes.prefered.arr; //arr is used because of a bug when storing json arrays
@@ -74,6 +74,7 @@ module.exports = function (models, knex) {
 
             //save user translation
             models.UserTranslations.forge(userTranslation).fetch().then(function (model) {
+                console.log('saveUserTranslation: forge ->', model);
                 if (!model) {
                     models.UserTranslations.forge(userTranslation).save().then(function (item) {
                         console.log('saveUserTranslation: saved Id:' + item.id);
@@ -114,7 +115,8 @@ module.exports = function (models, knex) {
             fromLang: req.translation.fromLang,
             toLang: req.translation.toLang,
             translate: req.translation.translate
-        }).fetch().then(function (model) {
+        }).fetch({require: false}).then(function (model) {
+            console.log('checkTranslation: Translations.fetch', model);
             if (model) {
                 console.log('translation found for:' + req.translation.translate);
                 req.translation.id = model.get("id");
@@ -124,8 +126,7 @@ module.exports = function (models, knex) {
             else {
                 doSave(req.translation);
             }
-        }, 
-        function (error){
+        }).catch(function (error){
             console.log('checkTranslation: error: ', error);
             doSave(req.translation);
         });
@@ -335,7 +336,7 @@ module.exports = function (models, knex) {
                             res.status(404).send('Translation not found');
                         }
                     })
-                    .otherwise(function (err) {
+                    .catch(function (err) {
                         res.status(500).json({error: true, data: {message: err.message}});
                     });
             }
@@ -357,7 +358,9 @@ module.exports = function (models, knex) {
                     userId: req.translationSample.userId,
                     translationId: req.translationSample.translationId,
                     sample: req.translationSample.sample
-                }).fetch().then(function (model) {
+                }).fetch({
+                    require: false
+                }).then(function (model) {
                     if (model) {
                         console.log('translationSample found for:' + req.translationSample.sample);
                         req.translationSample.id = model.get("id");
@@ -372,7 +375,9 @@ module.exports = function (models, knex) {
                 //check translation sample user.
                 new models.UserTranslationsSamples({
                     id: req.params.id
-                }).fetch()
+                }).fetch({
+                    require: false
+                })
                     .then(function (model) {
                         if (model) {
                             if (model.get('userId') === req.user.id) {
@@ -382,10 +387,7 @@ module.exports = function (models, knex) {
                                 res.status(403).send('Invalid user');
                             }
                         }
-                    })
-                    .otherwise(function (err) {
-                        res.status(500).json({error: true, data: {message: err.message}});
-                    });
+                    }); 
             }
         }
     );
