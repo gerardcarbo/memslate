@@ -12,57 +12,81 @@
         <p>
           <span class='bold response_main'>{{::translation.translate}}</span>
           <button class="button button-clear button-positive button-medium ion-volume-medium"
-                  ng-click="msTranslationCtrl.playText(translation.translate, translation.fromLang)"></button>
+            ng-click="msTranslationCtrl.playText(translation.translate, translation.fromLang)"></button>
           &nbsp;>&nbsp;
-            <span>
-                <span class='bold response_main' ng-repeat="text in translation.rawResult.text">{{::text}}
-                    <button class="button button-clear button-positive button-medium ion-volume-medium"
-                            ng-click="msTranslationCtrl.playText(text, translation.toLang)"></button>
-                    <span ng-show="!$last">, </span>
-                </span>
+          <span>
+            <span class='bold response_main' ng-repeat="text in translation.rawResult.text">{{::text}}
+              <button class="button button-clear button-positive button-medium ion-volume-medium"
+                ng-click="msTranslationCtrl.playText(text, translation.toLang)"></button>
+              <span ng-show="!$last">, </span>
             </span>
+          </span>
         </p>
       </div>
 
       <div class="translation_def translation_yd wrap-text" ng-if="translation.provider == 'yd'"
-           ng-repeat="def in translation.rawResult.def">
+        ng-repeat="def in translation.rawResult.def">
         <p>
           <b>
             <span class='bold response_main'>{{::def.text}}</span>
             <span class='response_transcript' ng-show="def.ts"> [{{::def.ts}}] </span>
             <button class="button button-clear button-positive button-medium ion-volume-medium"
-                    ng-click="msTranslationCtrl.playText(def.text, translation.fromLang)"></button>
+              ng-click="msTranslationCtrl.playText(def.text, translation.fromLang)"></button>
             &gt;
             <span class='bold response_main'>{{::def.tr[0].text}}</span>
             <button class="button button-clear button-positive button-medium ion-volume-medium"
-                    ng-click="msTranslationCtrl.playText(def.tr[0].text, translation.toLang)"></button>
+              ng-click="msTranslationCtrl.playText(def.tr[0].text, translation.toLang)"></button>
           </b>
         </p>
 
-        <p ng-repeat="tr in def.tr" >
+        <p ng-repeat="tr in def.tr">
           <span class='response_type'>{{::tr.pos}}:</span>
           <span class='response_def'>{{::tr.text}}<span ng-repeat="syn in tr.syn">, {{::syn.text}}</span></span>
           <span class='response_mean' ng-show="tr.mean[0].text">({{::tr.mean[0].text}})</span>
         </p>
       </div>
 
-      <div style="" ng-if="translation && (translation.provider == 'yd' || translation.provider == 'yt')" class="row powered_by">
-        <a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a><span>Powered by&nbsp;</span>
+      <div ng-if="translation && (translation.provider == 'yd' || translation.provider == 'yt')" class="row powered_by">
+        <a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a><span>Powered
+          by&nbsp;</span>
+      </div>
+
+      <div ng-if="translation.provider == 'go'" ng-repeat="dict in translation.rawResult.dict">
+        <p>
+          <b>
+            Type: <span class='bold response_main'>{{::dict.pos}}</span>
+          </b>
+        </p>
+        <div class="translation_def translation_yd wrap-text" ng-repeat="entry in dict.entry">
+          <p>
+            <b>
+              <span class='bold response_main'>{{::def.text}}</span>
+              <span class='response_transcript' ng-show="entry.reverse_translation">
+                {{::entry.reverse_translation.join(', ')}} </span>
+              <button class="button button-clear button-positive button-medium ion-volume-medium"
+                ng-click="msTranslationCtrl.playText(entry.reverse_translation.join(', '), translation.fromLang)"></button>
+              &gt;
+              <span class='bold response_main'>{{::entry.word}}</span>
+              <button class="button button-clear button-positive button-medium ion-volume-medium"
+                ng-click="msTranslationCtrl.playText(entry.word, translation.toLang)"></button>
+            </b>
+          </p>
+        </div>
       </div>
 
       <div ng_if="translation && showExtended" class="translation_samples">
         <div>
           <p>
-            <b>samples: </b>
+            <b>Samples: </b>
           </p>
 
           <div class="padding-5 padding-bottom-min" style="clear: both;" ng-repeat="sample in translation.samples">
             <span class="sample_text" ng-bind-html="sample.sample | searchfilter:translation.translate">
             </span>
             <button class="button button-clear button-positive button-medium ion-volume-medium"
-                    ng-click="msTranslationCtrl.playText(sample.sample, translation.fromLang)"></button>
-            <button class="button button-assertive icon ion-minus-round float-right btnDelSample" id="btnDelSample{{::$index}}"
-                    ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);">
+              ng-click="msTranslationCtrl.playText(sample.sample, translation.fromLang)"></button>
+            <button class="button button-assertive icon ion-minus-round float-right btnDelSample"
+              id="btnDelSample{{::$index}}" ng-click="msTranslationCtrl.deleteTranslationSample($index,sample);">
               Remove
             </button>
           </div>
@@ -70,10 +94,9 @@
             <form class="full-width" ng-submit="msTranslationCtrl.saveTranslationSample();">
               <div class="col item item-input">
                 <input ng-model="msTranslationCtrl.translationSample" type="text" id="sampleValue"
-                       placeholder="... with '{{::translation.translate}}'" class="form-control"
-                       required/>
+                  placeholder="... with '{{::translation.translate}}'" class="form-control" required />
                 <button id="btnAddSample"
-                        class="button button-energized button-stable btn-success icon ion-plus-round min-width-80">
+                  class="button button-energized button-stable btn-success icon ion-plus-round min-width-80">
                   Add
                 </button>
               </div>
@@ -85,15 +108,12 @@
       <div ng-if="showExtended" class="delete_translation_div" style="display:flex;flex-flow: row">
         <div style="flex:1">
           <button class="button icon ion-trash-b" id="btnDelTranslation"
-                  ng-click="msTranslationCtrl.deleteTranslation(translation.id);">&nbsp;Delete Translation
+            ng-click="msTranslationCtrl.deleteTranslation(translation.id);">&nbsp;Delete Translation
           </button>
         </div>
       </div>
-
-
     </div>
     <div class="error_translation_div" ng-if="translation.error">
     </div>
   </div>
 </div>
-
