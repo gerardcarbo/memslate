@@ -51,24 +51,33 @@
           by&nbsp;</span>
       </div>
 
-      <div ng-if="translation.provider == 'go'" ng-repeat="dict in translation.rawResult.dict">
-        <p>
-          <b>
-            Type: <span class='bold response_main'>{{::dict.pos}}</span>
-          </b>
-        </p>
-        <div class="translation_def translation_yd wrap-text" ng-repeat="entry in dict.entry">
+      <div ng-if="translation.provider == 'go'">
+        <div ng-if="translation.rawResult.dict" ng-repeat="dict in translation.rawResult.dict">
           <p>
             <b>
-              <span class='bold response_main'>{{::def.text}}</span>
-              <span class='response_transcript' ng-show="entry.reverse_translation">
-                {{::entry.reverse_translation.join(', ')}} </span>
-              <button class="button button-clear button-positive button-medium ion-volume-medium"
-                ng-click="msTranslationCtrl.playText(entry.reverse_translation.join(', '), translation.fromLang)"></button>
-              &gt;
-              <span class='bold response_main'>{{::entry.word}}</span>
-              <button class="button button-clear button-positive button-medium ion-volume-medium"
-                ng-click="msTranslationCtrl.playText(entry.word, translation.toLang)"></button>
+              Type: <span class='bold response_main'>{{::dict.pos}}</span>
+            </b>
+          </p>
+          <div class="translation_def translation_yd wrap-text" ng-repeat="entry in dict.entry">
+            <p>
+              <b>
+                <span class='bold response_main'>{{::def.text}}</span>
+                <span class='response_transcript' ng-show="entry.reverse_translation">
+                  {{::entry.reverse_translation.join(', ')}} </span>
+                <button class="button button-clear button-positive button-medium ion-volume-medium"
+                  ng-click="msTranslationCtrl.playText(entry.reverse_translation.join(', '), translation.fromLang)"></button>
+                &gt;
+                <span class='bold response_main'>{{::entry.word}}</span>
+                <button class="button button-clear button-positive button-medium ion-volume-medium"
+                  ng-click="msTranslationCtrl.playText(entry.word, translation.toLang)"></button>
+              </b>
+            </p>
+          </div>
+        </div>
+        <div ng-if="translation.rawResult.sentences" ng-repeat="sentence in translation.rawResult.sentences">
+          <p>
+            <b>
+              <span class='bold response_main'>{{::sentence.trans}}</span>
             </b>
           </p>
         </div>

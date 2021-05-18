@@ -694,9 +694,13 @@ module Translate {
                 translation.toLang = toLang;
                 translation.translate = text;
 
-                if (data && data.dict) {
+                if (data && (data.dict || data.sentences)) {
                     translation.provider = 'go';
-                    translation.mainResult = data.dict[0].terms[0];
+                    if(data.dict){
+                        translation.mainResult = data.dict[0].terms[0];
+                    } else {
+                        translation.mainResult = data.sentences[0].trans;
+                    }
                     translation.rawResult = data;
                     translation.transcription = '';
 

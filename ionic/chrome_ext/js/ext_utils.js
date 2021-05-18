@@ -28,18 +28,17 @@ MemsExt.formatTranslation = function (succeeded, translation,font_size) {
   else if (translation instanceof Array) {
     translation.forEach(function (pos_block) {
       var formatted_pos = pos_block.pos ? '<b>' + pos_block.pos + '</b>: ' : '';
-      var formatted_meanings = pos_block.meanings.slice(0, 5).join(', ') + ( pos_block.meanings.length > 5 ? '...' : '' );
+      var formatted_meanings = pos_block.meanings.slice(0, 6).join(', ') + ( pos_block.meanings.length > 6 ? '...' : '' );
       var formatted_syn = "";
       if(pos_block.syn.length > 0)
       {
-        formatted_syn = " (" + pos_block.syn.slice(0, 5).join(', ') + ( pos_block.syn.length > 5 ? '...' : '' ) + ")";
+        formatted_syn = " (" + pos_block.syn.slice(0, 6).join(', ') + ( pos_block.syn.length > 6 ? '...' : '' ) + ")";
       }
       formatted_translation = formatted_translation + '<div>' + formatted_pos + formatted_meanings + formatted_syn + '</div>';
     });
-    formatted_translation += powered_by;
   }
   else {
-    formatted_translation = '<div>' + MemsExt.escape_html(translation) + powered_by + '</div>';
+    formatted_translation = '<div>' + MemsExt.escape_html(translation) + '</div>';
   }
 
   return '<div class="pos_translation" style="font-size:'+font_size+'">'+formatted_translation+'</div>';

@@ -657,9 +657,14 @@ var Translate;
                     translation.fromLang = fromLang;
                     translation.toLang = toLang;
                     translation.translate = text;
-                    if (data && data.dict) {
+                    if (data && (data.dict || data.sentences)) {
                         translation.provider = 'go';
-                        translation.mainResult = data.dict[0].terms[0];
+                        if (data.dict) {
+                            translation.mainResult = data.dict[0].terms[0];
+                        }
+                        else {
+                            translation.mainResult = data.sentences[0].trans;
+                        }
                         translation.rawResult = data;
                         translation.transcription = '';
                         deferred.resolve(translation);
@@ -854,7 +859,7 @@ var Translate;
     var servicesMod = angular.module('memslate.services');
     servicesMod.run(function ($rootScope, SessionService, TranslateService, TranslationRes) {
         //Configure current translations provider
-        var provider = SessionService.get('TranslateServiceProvider') == 'Yandex'? 'Google': SessionService.get('TranslateServiceProvider') || 'Google';
+        var provider = SessionService.get('TranslateServiceProvider') || 'Google';
         TranslateService.setProvider(provider);
         //wait connected
         $rootScope.$on('ms:connected', function () {

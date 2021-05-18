@@ -40,8 +40,22 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
         {
           output = data.rawResult.text.join(' ');
         }
+      } else if(provider == 'Google')
+      {
+        if(data.rawResult.dict) {
+          data.rawResult.dict.forEach(function (dict) {
+            var definition = {pos: dict.pos, meanings: [], syn: []};
+            definition.meanings = dict.terms;
+            output.push(definition);
+          })
+        } else {
+          data.rawResult.sentences.forEach(function (sentence) {
+            var definition = {pos: 'phrase', meanings: [], syn: []};
+            definition.meanings = [sentence.trans];
+            output.push(definition);
+          })
+        }
       }
-
 
       if (!output instanceof String) {
         output = JSON.stringify(output);
