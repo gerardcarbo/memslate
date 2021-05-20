@@ -114,6 +114,10 @@
     this.get = function () {
       return msConfig.baseUrl; //currently returning fixed url
     }
+
+    this.getLibreTranslate = function () {
+      return msConfig.libreTranslateUrl; 
+    }
   });
 
 })();

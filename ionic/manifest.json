@@ -1,13 +1,13 @@
 {
   "name": "Memslate",
   "description": "Memslate > Memorize your Translations",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "memslate-16.png",
     "default_popup": "chrome_ext/www/index.html"
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://dictionary.yandex.net; object-src 'self'",
+  "content_security_policy": "script-src 'self'; object-src 'self'",
   "permissions": [
     "tts"
   ],

@@ -56,10 +56,10 @@ var Translate;
                 languages: 'YandexLanguagesService',
                 translate: 'YandexTranslateService'
             };
-            this._providers['Hablaa'] = {
-                name: 'Hablaa',
-                languages: 'HablaaLanguagesService',
-                translate: 'HablaaTranslateService'
+            this._providers['Libre'] = {
+                name: 'Libre',
+                languages: 'LibreLanguagesService',
+                translate: 'LibreTranslateService'
             };
             this._providers['Google'] = {
                 name: 'Google',
@@ -380,34 +380,31 @@ var Translate;
         return GoogleLanguagesService;
     }());
     Translate.GoogleLanguagesService = GoogleLanguagesService;
-    var HablaaLanguagesService = /** @class */ (function () {
-        function HablaaLanguagesService($q, $rootScope, $http, YandexTranslateApiKey) {
+    var LibreLanguagesService = /** @class */ (function () {
+        function LibreLanguagesService($q, $rootScope, $http, YandexTranslateApiKey) {
             this.$q = $q;
             this.$rootScope = $rootScope;
             this.$http = $http;
             this.YandexTranslateApiKey = YandexTranslateApiKey;
             this.getLanguages = function () {
-                var hablaaGet = this.$q.defer();
-                var promiseHablaa = hablaaGet.promise;
-                this.$http.get('http://hablaa.com/hs/languages/', {
-                    withCredentials: false
-                }).success(function (data) {
-                    var langs;
-                    data.forEach(function (item) {
-                        langs[item.lang_code] = item.name;
-                    });
-                    hablaaGet.resolve(langs);
+                var languagesGet = this.$q.defer();
+                var promiseLanguages = languagesGet.promise;
+                var langsMemslate = { langs: {} };
+                this.$http.get('https://libretranslate.com/languages')
+                    .success(function (data) {
+                    data.map(function (lang) { langsMemslate.langs[lang.code] = lang.name; });
+                    languagesGet.resolve(langsMemslate);
                 })
                     .error(function (data, status) {
-                    hablaaGet.reject(status);
+                    languagesGet.reject(status);
                 });
-                return promiseHablaa;
+                return promiseLanguages;
             };
         }
-        HablaaLanguagesService.$inject = ['$q', '$rootScope', '$http', 'YandexTranslateApiKey'];
-        return HablaaLanguagesService;
+        LibreLanguagesService.$inject = ['$q', '$rootScope', '$http', 'YandexTranslateApiKey'];
+        return LibreLanguagesService;
     }());
-    Translate.HablaaLanguagesService = HablaaLanguagesService;
+    Translate.LibreLanguagesService = LibreLanguagesService;
     var LanguagesService = /** @class */ (function () {
         function LanguagesService($q, $rootScope, $http, $resource, $injector, SessionService, BaseUrlService, TranslationsProviders) {
             this.$q = $q;
@@ -683,8 +680,8 @@ var Translate;
         return GoogleTranslateService;
     }());
     Translate.GoogleTranslateService = GoogleTranslateService;
-    var HablaaTranslateService = /** @class */ (function () {
-        function HablaaTranslateService($log, $rootScope, $http, $resource, $q, $injector, $timeout, TranslationRes, YandexTranslateApiKey, YandexDictionaryApiKey) {
+    var LibreTranslateService = /** @class */ (function () {
+        function LibreTranslateService($log, $rootScope, $http, $resource, $q, $injector, $timeout, TranslationRes, BaseUrlService) {
             this.$log = $log;
             this.$rootScope = $rootScope;
             this.$http = $http;
@@ -693,20 +690,14 @@ var Translate;
             this.$injector = $injector;
             this.$timeout = $timeout;
             this.TranslationRes = TranslationRes;
-            this.YandexTranslateApiKey = YandexTranslateApiKey;
-            this.YandexDictionaryApiKey = YandexDictionaryApiKey;
+            this.BaseUrlService = BaseUrlService;
             this.detect = function (text) {
                 var deferred = this.$q.defer();
                 var promise = deferred.promise;
                 msUtils.decoratePromise(promise);
-                this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/detect', {
-                    params: {
-                        key: this.YandexTranslateApiKey,
-                        text: [text]
-                    },
-                    withCredentials: false
-                }).success(function (data) {
-                    deferred.resolve(data);
+                this.$http.get(this.BaseUrlService.getLibreTranslate() + 'detect')
+                    .success(function (data) {
+                    deferred.resolve(data[0].language);
                 })
                     .error(function (data, status) {
                     deferred.reject({ status: status, data: data });
@@ -720,28 +711,36 @@ var Translate;
                 /*
                  * CORS not working when user logged in -> delete Authorization token with withCredentials=false
                  */
-                this.$http.get('http://hablaa.com/hs/translation/' + text + '/' + fromLang + "-" + toLang + '/', {
-                    withCredentials: false
+                this.$http.post(this.BaseUrlService.getLibreTranslate() + 'translate', {
+                    q: encodeURIComponent(text),
+                    source: fromLang,
+                    target: toLang
                 }).success(function (data) {
                     var translation = new Translate.Translation();
                     translation.fromLang = fromLang;
                     translation.toLang = toLang;
                     translation.translate = text;
-                    translation.provider = 'ha';
-                    translation.mainResult = data[0].text;
-                    translation.rawResult = data;
-                    deferred.resolve(translation);
+                    if (data && data.translatedText) {
+                        translation.provider = 'li';
+                        translation.mainResult = data.translatedText;
+                        translation.rawResult = data;
+                        translation.transcription = '';
+                        deferred.resolve(translation);
+                    }
+                    else {
+                        deferred.reject("Translation not found");
+                    }
                 }).error(function (data, status) {
                     deferred.reject({ status: status, data: data });
                 });
                 return promise;
             };
-            $log.log('YandexTranslateService:constructor');
+            $log.log('LibreTranslateService:constructor');
         }
-        HablaaTranslateService.$inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
-        return HablaaTranslateService;
+        LibreTranslateService.$inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'BaseUrlService'];
+        return LibreTranslateService;
     }());
-    Translate.HablaaTranslateService = HablaaTranslateService;
+    Translate.LibreTranslateService = LibreTranslateService;
     var TranslateService = /** @class */ (function () {
         function TranslateService($log, $http, $injector, $q, SessionService, TranslationRes, LanguagesService, TranslationSampleRes, TranslationsProviders) {
             this.$log = $log;
@@ -859,7 +858,7 @@ var Translate;
     var servicesMod = angular.module('memslate.services');
     servicesMod.run(function ($rootScope, SessionService, TranslateService, TranslationRes) {
         //Configure current translations provider
-        var provider = SessionService.get('TranslateServiceProvider') || 'Google';
+        var provider = 'Google';
         TranslateService.setProvider(provider);
         //wait connected
         $rootScope.$on('ms:connected', function () {
@@ -878,6 +877,8 @@ var Translate;
     });
     servicesMod.service('YandexLanguagesService', Translate.YandexLanguagesService);
     servicesMod.service('YandexTranslateService', Translate.YandexTranslateService);
+    servicesMod.service('LibreLanguagesService', Translate.LibreLanguagesService);
+    servicesMod.service('LibreTranslateService', Translate.LibreTranslateService);
     servicesMod.service('GoogleLanguagesService', Translate.GoogleLanguagesService);
     servicesMod.service('GoogleTranslateService', Translate.GoogleTranslateService);
     servicesMod.service('LanguagesService', Translate.LanguagesService);

@@ -69,12 +69,12 @@
               },
               function (error) //error
               {
-                self.translation.error = error ? (error.data && error.data.message ? error.data.message : error) : "Unknown Error";
+                self.translation.error = error ? (error.data ? (error.data.message ? error.data.message : error.data.error) : error) : "Unknown Error";
 
                 UI.toast(self.translation.error);
 
                 // log the error to the console
-                console.error("Translate: The following error happened: " + error);
+                console.error("Translate: The following error happened: " + JSON.stringify(error));
               })
             .finally(function ()	//finally
             {

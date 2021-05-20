@@ -83,6 +83,22 @@
         </div>
       </div>
 
+      <div ng-if="translation.provider == 'li'">
+        <div class="translation_def translation_yd wrap-text">
+          <p>
+            <b>
+              <span class='bold response_main'>{{::translation.translate}}</span>
+              <button class="button button-clear button-positive button-medium ion-volume-medium"
+                ng-click="msTranslationCtrl.playText(translation.translate, translation.fromLang)"></button>
+              &gt;
+              <span class='bold response_main'>{{::translation.mainResult}}</span>
+              <button class="button button-clear button-positive button-medium ion-volume-medium"
+                ng-click="msTranslationCtrl.playText(translation.mainResult, translation.toLang)"></button>
+            </b>
+          </p>
+        </div>
+      </div>
+
       <div ng_if="translation && showExtended" class="translation_samples">
         <div>
           <p>
