@@ -269,7 +269,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
     $(document).on('mousestop', function (e) {
       withOptionsSatisfied(e, function () {
         // translate selection unless 'translate selection on alt only' is set
-        if (options.translate_by == 'point' || window.getSelection().type == 'Range') {
+        if (options.translate_by == 'point') {
           process(e);
         }
       });
