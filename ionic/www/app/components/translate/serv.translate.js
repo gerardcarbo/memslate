@@ -363,7 +363,7 @@ var Translate;
                     translation.fromLang = fromLang;
                     translation.toLang = toLang;
                     translation.translate = text;
-                    if (data && data.translatedText) {
+                    if (data && data.translatedText && data.translatedText.toLowerCase() != text.toLowerCase()) {
                         translation.provider = 'li';
                         translation.mainResult = data.translatedText;
                         translation.rawResult = data;
@@ -447,13 +447,13 @@ var Translate;
                 msUtils.decoratePromise(promise);
                 text = text.toLowerCase();
                 text = text.trimChars(' "()\'');
-                if (text.length > 180) {
-                    text = text.substr(0, 180) + "...";
+                if (text.length > 350) {
+                    text = text.substr(0, 350) + "...";
                 }
                 if (this.currentTranslationsProvider) {
                     var _this = this;
                     this.currentTranslationsProvider.translate(fromLang, toLang, text)
-                        .success(function (translation) {
+                        .then(function (translation) {
                         translation.mainResult = translation.mainResult.toLowerCase();
                         translation.mainResult = translation.mainResult.trimChars('\'');
                         translation.mainResult = translation.mainResult.trimChars('(');
@@ -462,23 +462,25 @@ var Translate;
                         _this.LanguagesService.toLang(toLang);
                         _this.LanguagesService.addPrefered(fromLang);
                         _this.LanguagesService.addPrefered(toLang);
-                        var translationRes = new _this.TranslationRes(translation);
-                        translationRes.$save(function () {
-                            _this.$log.log('Translation Saved: id:' + translationRes.id);
-                            translation.id = translationRes.id;
-                            deferred.resolve(translation);
-                        }, function (error) {
-                            //retry
+                        if (translation.mainResult.length < 40) { //do not save phrases
+                            var translationRes = new _this.TranslationRes(translation);
                             translationRes.$save(function () {
                                 _this.$log.log('Translation Saved: id:' + translationRes.id);
                                 translation.id = translationRes.id;
                                 deferred.resolve(translation);
                             }, function (error) {
-                                deferred.resolve(translation);
+                                //retry
+                                translationRes.$save(function () {
+                                    _this.$log.log('Translation Saved: id:' + translationRes.id);
+                                    translation.id = translationRes.id;
+                                    deferred.resolve(translation);
+                                }, function (error) {
+                                    deferred.resolve(translation);
+                                });
                             });
-                        });
+                        }
                     })
-                        .error(function (err) {
+                        .catch(function (err) {
                         deferred.reject(err);
                     });
                 }

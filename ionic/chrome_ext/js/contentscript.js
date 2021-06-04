@@ -5,7 +5,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
   var options = {};
   var tooltip;
-  var font_size = '1em';
+  var hit_elem_style;
   var dblclicked=false;
 
   chrome.runtime.onMessage.addListener(function (message) {
@@ -74,8 +74,6 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
           'font-size': '1em',
           'font-family': hit_elem.css('font-family')
         };
-
-        font_size = hit_elem.css('font-size');
 
         var text_nodes = hit_elem.contents().filter(function () {
           return this.nodeType == Node.TEXT_NODE && XRegExp(word_re).test(this.nodeValue)
@@ -164,11 +162,11 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
         //extract sample. Split lines and find hit word
         var sample = "";
-        if (options.save_translation_sample) {
-          var lines = hit_elem[0].innerText.match(/[^\.!\?]+[\.!\?]+/g);
+        {
+          var lines = hit_elem[0].innerText.match(/((?![.?!] ).)+[.?!]+/g);
           if (!lines) {
-            if (hit_text_node.data.indexOf(hit_word) >= 0) {
-              sample = hit_text_node.data;
+            if (hit_elem[0].innerText.indexOf(hit_word) >= 0) {
+              sample = hit_elem[0].innerText;
             }
           }
           else {
@@ -181,7 +179,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
             }
           }
 
-          //exclude if less than two number of words
+          //exclude sample if less than two words
           if (sample.trim().split(/\s+/).length <= 2) {
             sample = "";
           }
@@ -191,6 +189,34 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
         return {word: hit_word, sample: sample};
       }
+      
+      function isTransparent(color) {
+        color = (color || "").replace(/\s+/g, '').toLowerCase();
+        switch (color) {
+          case "transparent":
+          case "":
+          case "rgba(0,0,0,0)":
+            return true;
+          default:
+            if(color.includes('rgba')) {
+              var colors = color.split(',');
+              return colors[3].trim()!='1';
+            }
+            return false;
+        }
+      }
+
+      function getBngdColor($elm){
+        var bc;
+        while (isTransparent(bc = $elm.css("background-color"))) {
+          if ($elm.is("html")) {
+            console.log("getBngdColor: Gave up");
+            return;
+          }
+          $elm = $elm.parent();
+        }
+        return bc;
+      }
 
       var selection = window.getSelection();
       var hit_elem = document.elementFromPoint(e.clientX, e.clientY);
@@ -199,13 +225,23 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         return;
       }
 
+      var $hit_elem=$(hit_elem)
+
       if (/INPUT|TEXTAREA/.test(hit_elem.nodeName) || hit_elem.isContentEditable
-        || $(hit_elem).parents().filter(function () {
+        || $hit_elem.parents().filter(function () {
           return this.isContentEditable
         }).length > 0) {
 
         return;
       }
+
+      hit_elem_style = {
+        'font-size': $hit_elem.css('font-size'),
+        'font-family': $hit_elem.css('font-family'),
+        'line-height': $hit_elem.css('line-height'),
+        'color': $hit_elem.css('color'),
+        'background-color': getBngdColor($hit_elem)
+      };
 
       var hit = {word: ''};
       if (selection.toString()) {
@@ -220,7 +256,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
         if (
           // only choose selection if mouse stopped within immediate parent of selection
-        ( $(hit_elem).is(sel_container) || $.contains(sel_container, hit_elem) )
+        ( $hit_elem.is(sel_container) || $.contains(sel_container, hit_elem) )
           // and since it can still be quite a large area
           // narrow it down by only choosing selection if mouse points at the element that is (partially) inside selection
         && selection.containsNode(hit_elem, true)
@@ -237,12 +273,16 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         hit = getHitWord(e);
       }
       if (hit.word != '') {
+        var previousCursor = hit_elem.style.cursor;
+        hit_elem.style.cursor='progress';
         chrome.extension.sendRequest({
           handler: 'translate',
           sl: document.documentElement.lang,
           word: hit.word,
           sample: hit.sample
         }, function (response) {
+          hit_elem.style.cursor = previousCursor;
+
           console.log('response: ', response);
 
           if(dblclicked) return;
@@ -254,7 +294,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
             return;
           }
 
-          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(response.succeeded, translation, font_size), 'ltr');
+          getToolTip().show(e.clientX, e.clientY, MemsExt.formatTranslation(response.succeeded, translation), 'ltr', hit_elem_style);
         });
       }
     }
@@ -307,11 +347,12 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         {
           return;
         }
-        if (e.target.parentElement.tagName === 'A' ||
+        if (e.target.parentElement && 
+            (e.target.parentElement.tagName === 'A' ||
             e.target.parentElement.tagName === 'BUTTON' ||
             e.target.parentElement.tagName === 'INPUT' ||
             e.target.parentElement.tagName === 'IMG' ||
-            e.target.parentElement.innerText === '')
+            e.target.parentElement.innerText === ''))
         {
           return;
         }

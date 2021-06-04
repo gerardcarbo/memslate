@@ -1,5 +1,4 @@
 .pos_translation {
-  white-space: nowrap;
   display: block;
 }
 
@@ -10,8 +9,6 @@
 #memslate_tooltip
 {
   padding:5px;
-  background-color: #cc9f00;
-  color: white;
 }
 
 #memslate_tooltip a, #memslate_tooltip a:visited {

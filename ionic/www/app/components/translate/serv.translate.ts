@@ -387,7 +387,7 @@ module Translate {
              * CORS not working when user logged in -> delete Authorization token with withCredentials=false
              */
             this.$http.post(this.BaseUrlService.getLibreTranslate() + 'translate', {
-                q: text, 
+                q: text,
                 source: fromLang,
                 target: toLang
             }
@@ -397,7 +397,7 @@ module Translate {
                 translation.toLang = toLang;
                 translation.translate = text;
 
-                if (data && data.translatedText) {
+                if (data && data.translatedText && data.translatedText.toLowerCase() != text.toLowerCase()) {
                     translation.provider = 'li';
                     translation.mainResult = data.translatedText;
                     translation.rawResult = data;
@@ -487,14 +487,14 @@ module Translate {
 
             text = text.toLowerCase();
             text = text.trimChars(' "()\'');
-            if (text.length > 180) {
-                text = text.substr(0, 180) + "...";
+            if (text.length > 350) {
+                text = text.substr(0, 350) + "...";
             }
 
             if (this.currentTranslationsProvider) {
                 var _this = this;
                 this.currentTranslationsProvider.translate(fromLang, toLang, text)
-                    .success((translation) => {
+                    .then((translation) => {
                         translation.mainResult = translation.mainResult.toLowerCase();
                         translation.mainResult = translation.mainResult.trimChars('\'');
                         translation.mainResult = translation.mainResult.trimChars('(');
@@ -505,26 +505,28 @@ module Translate {
                         _this.LanguagesService.addPrefered(fromLang);
                         _this.LanguagesService.addPrefered(toLang);
 
-                        var translationRes = new _this.TranslationRes(translation);
-                        translationRes.$save(() => {
-                            _this.$log.log('Translation Saved: id:' + translationRes.id);
-                            translation.id = translationRes.id;
-                            deferred.resolve(translation);
-                        },
-                            (error) => {
-                                //retry
-                                translationRes.$save(() => {
+                        if (translation.mainResult.length < 40) { //do not save phrases
+                            var translationRes = new _this.TranslationRes(translation);
+                            translationRes.$save(
+                                () => {
                                     _this.$log.log('Translation Saved: id:' + translationRes.id);
                                     translation.id = translationRes.id;
                                     deferred.resolve(translation);
-
                                 },
+                                (error) => {
+                                    //retry
+                                    translationRes.$save(() => {
+                                        _this.$log.log('Translation Saved: id:' + translationRes.id);
+                                        translation.id = translationRes.id;
+                                        deferred.resolve(translation);
+                                    },
                                     (error) => {
                                         deferred.resolve(translation);
                                     });
-                            });
+                                });
+                        }
                     })
-                    .error(function (err) {
+                    .catch(function (err) {
                         deferred.reject(err);
                     });
             }

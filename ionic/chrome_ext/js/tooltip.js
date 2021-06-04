@@ -25,19 +25,7 @@ Tooltip = (function () {
       else if (x - anchor - tt.outerWidth(true) - margin > 0) {
         pos.x = x - anchor - tt.outerWidth(true);
       }
-      // show popup at the very left if it is not wider than window
-      else if (tt.outerWidth(true) + margin*2 < $(window).width()) {
-        pos.x = margin;
-      }
-      // resize popup width to fit into window and position it the very left of the window
       else {
-        var non_content_x = tt.outerWidth(true) - tt.width();
-
-        tt.width( $(window).width() - margin*2 - non_content_x );
-        tt.contents().find('.pos_translation').css('white-space', 'normal');
-
-        tt.height(tt.contents().height() + 4);
-
         pos.x = margin;
       }
 
@@ -78,7 +66,8 @@ Tooltip = (function () {
       tt.contents().find('.pos_translation').css('direction', text_direction || 'ltr');
     }
 
-    this.show = function(x, y, content, text_direction) {
+
+    this.show = function(x, y, content, text_direction, style) {
       tt.html(content);
 
       var pos = position(x, y, tt);
@@ -91,6 +80,7 @@ Tooltip = (function () {
         .hide()
         .blur() // so that page document (not tt iframe) catches keyboard events
         .css({ top: pos.y, left: pos.x })
+        .css(style)
         .fadeIn(200)
         .queue(function() {
           if (self.on_open) {
