@@ -28,7 +28,7 @@ module.exports = function (bookshelf,models) {
 
         models.Games.query({
             select: '*'
-        }).where({name_id:gameName}).fetch().then(function(game){
+        }).where({name_id:gameName}).fetch({ require: false }).then(function(game){
             if(game)
             {
                 console.log("Games.get: getting game: "+game.get('name')+" -> "+game.get('name_id'));

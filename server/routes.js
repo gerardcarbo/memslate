@@ -10,7 +10,7 @@ var locale = require('locale');
 var moment = require('moment');
 
 //patch Date toJSON
-Date.prototype.toJSON = function(){ return moment(this).format(); }
+Date.prototype.toJSON = function () { return moment(this).format(); }
 
 module.exports = function (models, knex) {
     var difficulty = require('./difficulty')(models);
@@ -36,7 +36,8 @@ module.exports = function (models, knex) {
         var translation = req.translation;
 
         if (req.user.id !== config.ANONIMOUS_USER_ID) {
-            new models.UserLanguages({userId: req.user.id}).fetch({require: true}).then(function (ulModel) {
+            new models.UserLanguages({ userId: req.user.id }).fetch({require: false})
+            .then(function (ulModel) {
                 var prefered;
                 if (ulModel) {
                     prefered = ulModel.attributes.prefered.arr; //arr is used because of a bug when storing json arrays
@@ -44,7 +45,7 @@ module.exports = function (models, knex) {
                     ulModel.save({
                         fromLang: translation.fromLang,
                         toLang: translation.toLang,
-                        prefered: {arr: prefered}
+                        prefered: { arr: prefered }
                     });
                 }
                 else {
@@ -57,7 +58,7 @@ module.exports = function (models, knex) {
                         userId: req.user.id,
                         fromLang: translation.fromLang,
                         toLang: translation.toLang,
-                        prefered: {arr: prefered}
+                        prefered: { arr: prefered }
                     }).save();
                 }
             });
@@ -73,7 +74,8 @@ module.exports = function (models, knex) {
             userTranslation.userId = req.user.id;
 
             //save user translation
-            models.UserTranslations.forge(userTranslation).fetch().then(function (model) {
+            models.UserTranslations.forge(userTranslation).fetch({require: false})
+            .then(function (model) {
                 console.log('saveUserTranslation: forge ->', model);
                 if (!model) {
                     models.UserTranslations.forge(userTranslation).save().then(function (item) {
@@ -81,7 +83,7 @@ module.exports = function (models, knex) {
                     });
                 }
                 else {
-                    model.set("userTranslationInsertTime",new Date()).save();
+                    model.set("userTranslationInsertTime", new Date()).save();
                 }
             });
 
@@ -106,8 +108,8 @@ module.exports = function (models, knex) {
 
     function checkTranslation(req, res, doSave) {
         req.translation = req.body;
-        req.translation.translate = req.translation.translate.substr(0,254);
-        req.translation.mainResult = req.translation.mainResult.substr(0,254);
+        req.translation.translate = req.translation.translate.substr(0, 254);
+        req.translation.mainResult = req.translation.mainResult.substr(0, 254);
 
         console.log('checkTranslation: ' + req.translation.translate);
 
@@ -115,7 +117,9 @@ module.exports = function (models, knex) {
             fromLang: req.translation.fromLang,
             toLang: req.translation.toLang,
             translate: req.translation.translate
-        }).fetch({require: false}).then(function (model) {
+        })
+        .fetch({ require: false })
+        .then(function (model) {
             console.log('checkTranslation: Translations.fetch', model);
             if (model) {
                 console.log('translation found for:' + req.translation.translate);
@@ -126,7 +130,7 @@ module.exports = function (models, knex) {
             else {
                 doSave(req.translation);
             }
-        }).catch(function (error){
+        }).catch(function (error) {
             console.log('checkTranslation: error: ', error);
             doSave(req.translation);
         });
@@ -138,10 +142,10 @@ module.exports = function (models, knex) {
         var orders = orderBy.split(',');
 
         var orderByRaw = orders.map(function (order) {
-                return order.split('.').map(function (item) {
-                    return '"' + item + '"';
-                }).join(".");
-            }).join(" " + orderWay + ", ")
+            return order.split('.').map(function (item) {
+                return '"' + item + '"';
+            }).join(".");
+        }).join(" " + orderWay + ", ")
             + " " + orderWay;
 
         return orderByRaw;
@@ -235,25 +239,25 @@ module.exports = function (models, knex) {
                         switch (groupData) {
                             case "Alpha":
                                 qb.andWhereRaw("LOWER(LEFT(translate,1)) like '" +
-                                                    req.query.groupFilter + "%'");
-                                req.query.groupOrderBy.split(',').forEach(function(orderBy){
-                                    qb.orderBy(orderBy,orderWay)
+                                    req.query.groupFilter + "%'");
+                                req.query.groupOrderBy.split(',').forEach(function (orderBy) {
+                                    qb.orderBy(orderBy, orderWay)
                                 });
                                 break;
                             case "Date":
                                 qb.andWhereRaw("DATE(\"userTranslationInsertTime\") = '" +
-                                    moment(req.query.groupFilter).format('YYYY-MM-DD') +"'");
-                                req.query.groupOrderBy.split(',').forEach(function(orderBy){
-                                    qb.orderBy(orderBy,orderWay)
+                                    moment(req.query.groupFilter).format('YYYY-MM-DD') + "'");
+                                req.query.groupOrderBy.split(',').forEach(function (orderBy) {
+                                    qb.orderBy(orderBy, orderWay)
                                 });
                                 break;
                             case "Langs":
-                                console.log('translations:getAll: orderBy: Langs: '+req.query.groupFilter);
+                                console.log('translations:getAll: orderBy: Langs: ' + req.query.groupFilter);
                                 var filter = req.query.groupFilter.trimChars('()');
                                 var langs = filter.split(',');
-                                qb.andWhere({fromLang:langs[0], toLang:langs[1]});
-                                req.query.groupOrderBy.split(',').forEach(function(orderBy){
-                                    qb.orderBy(orderBy,orderWay)
+                                qb.andWhere({ fromLang: langs[0], toLang: langs[1] });
+                                req.query.groupOrderBy.split(',').forEach(function (orderBy) {
+                                    qb.orderBy(orderBy, orderWay)
                                 });
                                 break;
                         }
@@ -269,42 +273,50 @@ module.exports = function (models, knex) {
                             qb.orderByRaw(orderByRaw);
                         }
                         else {
-                            console.log('translations:getAll: orderBy:'+orderBy+" "+orderWay);
+                            console.log('translations:getAll: orderBy:' + orderBy + " " + orderWay);
                             qb.orderBy(orderBy, orderWay);
                         }
                     }
 
                     console.log('translations:getAll: sql:\n\t', qb.toString());
                     qb.debug();
-                }).fetchAll().then(function (collection) {
-                    if (collection) {
-                        res.json(collection);
-                    }
-                    else {
+                }).fetchAll()
+                    .then(function (collection) {
+                        if (collection) {
+                            res.json(collection);
+                        }
+                        else {
+                            res.json(false);
+                        }
+                    }).catch(function (err) {
                         res.json(false);
-                    }
-                });
+                    })
             },
             get: function (req, res) {
                 console.log("Translations.get", req.params.id);
                 models.Translations.query({
                     select: '*'
-                }).where({id: req.params.id}).fetch().then(function (translation) {
-                    if (translation) {
-                        translation.set('rawResult', JSON.parse(translation.get('rawResult')));
-                        res.json(translation);
-                    }
-                    else {
-                        res.json(false);
-                    }
-                });
+                }).where({ id: req.params.id })
+                .fetch({require: false})
+                    .then(function (translation) {
+                        if(translation) {
+                            translation.set('rawResult', JSON.parse(translation.get('rawResult')));
+                            res.json(translation);                            
+                        } else {
+                            res.json(false);
+                        }
+                    })
+                    .catch(function (err) {
+                        res.status(500).json({ error: true, data: { message: err } });
+                    });
             },
             preSave: checkTranslation,
             postSave: saveUserTranslation,
             preDelete: function (req, res, doDelete) {
                 //check user translation.
-                new models.UserTranslations().query({where: {translationId: req.params.id}})
-                    .fetchAll().then(function (translationsModel) {
+                new models.UserTranslations().query({ where: { translationId: req.params.id } })
+                    .fetchAll()
+                    .then(function (translationsModel) {
                         if (translationsModel) {
                             if (translationsModel.models.length === 1) {
                                 if (translationsModel.models[0].get('userId') == req.user.id) {
@@ -319,25 +331,15 @@ module.exports = function (models, knex) {
                                     }
                                 });
                                 //do not delete translation as other users still use it.
-                                res.json({id: req.params.id});
+                                res.json({ id: req.params.id });
                             }
-
-                            //delete user translation samples -> already done by DB integrity rules
-                            /*new models.UserTranslationsSamples().query({where: {translationId: item.id, userId: req.user.id}})
-                             .fetchAll().then(function (modelSamples) {
-                             if (modelSamples) {
-                             _.each(modelSamples.models, function (model) {
-                             model.destroy();
-                             });
-                             }
-                             });*/
                         }
                         else {
                             res.status(404).send('Translation not found');
                         }
                     })
                     .catch(function (err) {
-                        res.status(500).json({error: true, data: {message: err.message}});
+                        res.status(500).json({ error: true, data: { message: err.message } });
                     });
             }
         });
@@ -347,49 +349,48 @@ module.exports = function (models, knex) {
      */
     var translationsSamples = restful(models.UserTranslationsSamples,
         'translations/:translationId/samples', {
-            preSave: function (req, res, doSave) {
-                //check that translation sample does not already exists
-                req.translationSample = req.body;
-                req.translationSample.userId = req.user.id;
+        preSave: function (req, res, doSave) {
+            //check that translation sample does not already exists
+            req.translationSample = req.body;
+            req.translationSample.userId = req.user.id;
 
-                console.log('translationsSamples: preSave ' + req.translationSample.sample);
+            console.log('translationsSamples: preSave ' + req.translationSample.sample);
 
-                new models.UserTranslationsSamples({
-                    userId: req.translationSample.userId,
-                    translationId: req.translationSample.translationId,
-                    sample: req.translationSample.sample
-                }).fetch({
-                    require: false
-                }).then(function (model) {
+            new models.UserTranslationsSamples({
+                userId: req.translationSample.userId,
+                translationId: req.translationSample.translationId,
+                sample: req.translationSample.sample
+            }).fetch({ require: false })
+                .then(function (model) {
                     if (model) {
                         console.log('translationSample found for:' + req.translationSample.sample);
                         req.translationSample.id = model.get("id");
                         res.status(200).send(req.translationSample);
-                    }
-                    else {
+                    } else {
                         doSave(req.translationSample);
                     }
-                });
-            },
-            preDelete: function (req, res, doDelete) {
-                //check translation sample user.
-                new models.UserTranslationsSamples({
-                    id: req.params.id
-                }).fetch({
-                    require: false
                 })
-                    .then(function (model) {
-                        if (model) {
-                            if (model.get('userId') === req.user.id) {
-                                doDelete(req.params);
-                            }
-                            else {
-                                res.status(403).send('Invalid user');
-                            }
+                .catch((err) => {
+                    doSave(req.translationSample);
+                });
+        },
+        preDelete: function (req, res, doDelete) {
+            //check translation sample user.
+            new models.UserTranslationsSamples({
+                id: req.params.id
+            }).fetch({ require: false })
+                .then(function (model) {
+                    if (model) {
+                        if (model.get('userId') === req.user.id) {
+                            doDelete(req.params);
                         }
-                    }); 
-            }
+                        else {
+                            res.status(403).send('Invalid user');
+                        }
+                    }
+                });
         }
+    }
     );
 
     var createDefaultUserLanguages = function (req) {
@@ -421,8 +422,8 @@ module.exports = function (models, knex) {
 
                 models.UserLanguages.query({
                     select: '*'
-                }).where({userId: req.user.id})
-                    .fetch()
+                }).where({ userId: req.user.id })
+                    .fetch({require: false})
                     .then(function (userLangs) {
                         if (userLangs) {
                             userLangs.attributes.prefered = userLangs.attributes.prefered.arr; //arr is used because of a bug when storing json arrays

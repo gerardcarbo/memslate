@@ -30,7 +30,7 @@ module.exports = function (knex, models) {
                             translate: tr.attributes.translate,
                         };
                         //console.log('refreshAnonymousUserTranslations: searching: ', translation );
-                        return new models.Translations(translation).fetch().then(function (translationModel) {
+                        return new models.Translations(translation).fetch({ require: false }).then(function (translationModel) {
                             if (!translationModel) {
                                 console.log('refreshAnonymousUserTranslations: not found:', translation.translate);
                                 return new models.Translations(tr.attributes).save().then(function (savedTranslation) {
@@ -58,7 +58,7 @@ module.exports = function (knex, models) {
                                     return models.UserTranslations.forge({
                                         userId: userId,
                                         translationId: tr.id
-                                    }).fetch().then(function (userTranslation) {
+                                    }).fetch({ require: false }).then(function (userTranslation) {
                                         if (!userTranslation) {
                                             return new models.UserTranslations({
                                                 userId: userId,
@@ -129,7 +129,7 @@ module.exports = function (knex, models) {
                 var query = function () {
                     return new models.MostUsedWords({
                         word: word
-                    }).fetch().then(function (model) {
+                    }).fetch({ require: false }).then(function (model) {
                         if (!model) {
                             i++;
                             console.log('loadMostUsedWords:' + i + ' NOT on DB word: ' + word);
@@ -213,7 +213,7 @@ module.exports = function (knex, models) {
                                 translate: word,
                                 fromLang: 'en',
                                 toLang: lang
-                            }).fetch().then(function (model) {
+                            }).fetch({ require: false }).then(function (model) {
                                 if (!model) {
                                     console.log('NOT on DB word: ' + word);
                                     tasks.push(function () {
@@ -343,7 +343,7 @@ module.exports = function (knex, models) {
                 translate: mainResult,
                 fromLang: toLang,
                 toLang: fromLang
-            }).fetch().then(function (model) {
+            }).fetch({ require: false }).then(function (model) {
                 if (!model) {
                     return translateDict(mainResult, toLang, fromLang, onReverseTranslated).delay(Math.floor(Math.random() * 30) * 100);
                 }
@@ -377,7 +377,7 @@ module.exports = function (knex, models) {
             translate: translate,
             fromLang: fromLang,
             toLang: toLang
-        }).fetch().then(function (model) {
+        }).fetch({ require: false }).then(function (model) {
             if (!model) {
                 return new models.TranslationsAnonymous(translation).save();
             }
@@ -413,7 +413,7 @@ module.exports = function (knex, models) {
         ];
 
         var prGames = games.map(function (game) {
-            return new models.Games(game).fetch().then(function (gameModel) {
+            return new models.Games(game).fetch({ require: false }).then(function (gameModel) {
                 if (!gameModel) {
                     console.log('Creating game: ' + game.name);
                     new models.Games(game).save();

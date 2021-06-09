@@ -6,6 +6,7 @@ var bcrypt = require('bcryptjs'),
     config = require('./config'),
     validator = require('validator'),
     nodemailer = require('nodemailer'),
+    directTransport = require('nodemailer-direct-transport'),
     _ = require('lodash');
 
 module.exports = function (models) {
@@ -74,31 +75,31 @@ module.exports = function (models) {
         console.log("register: ", user);
         new models.User({
             email: user.email
-        }).fetch().then(function (model) {
-                if (model) {
-                    console.log("register: Email already registered");
-                    return res.status(500).send("Email already registered");
-                } else {
-                    var hash = utils.encryptPassword(user.password);
+        }).fetch({ require: false }).then(function (model) {
+            if (model) {
+                console.log("register: Email already registered");
+                return res.status(500).send("Email already registered");
+            } else {
+                var hash = utils.encryptPassword(user.password);
 
-                    user.cryptedPassword = hash;
-                    user.isAdmin = false;
-                    user.updatedAt = new Date();
+                user.cryptedPassword = hash;
+                user.isAdmin = false;
+                user.updatedAt = new Date();
 
-                    var password = user.password;
+                var password = user.password;
 
-                    //do not save pwds
-                    delete user.password;
-                    delete user.password2;
+                //do not save pwds
+                delete user.password;
+                delete user.password2;
 
-                    new models.User(user).save().then(function (userModel) {
-                        console.log("register done!: ", userModel.attributes);
+                new models.User(user).save().then(function (userModel) {
+                    console.log("register done!: ", userModel.attributes);
 
-                        req.body.password = password; //re-put user password for the login phase
-                        login(req, res, next);
-                    }).catch(next);
-                }
-            });
+                    req.body.password = password; //re-put user password for the login phase
+                    login(req, res, next);
+                }).catch(next);
+            }
+        });
     }
 
     function login(req, res, next) {
@@ -108,12 +109,8 @@ module.exports = function (models) {
 
         new models.User({
             email: user.email
-        }).fetch().then(function (userModel) {
-                if (!userModel) {
-                    console.log("login failed: unknown user");
-                    return res.status(401).send("Invalid credentials");
-                }
-
+        }).fetch()
+            .then(function (userModel) {
                 comparePassword(user.password, userModel.get("cryptedPassword"), function (err, match) {
                     if (err) {
                         console.log("login failed: ", err);
@@ -129,8 +126,8 @@ module.exports = function (models) {
                             accessedAt: new Date(),
                             updatedAt: new Date()
                         }).save().then(function (userSessionModel) {
-                            console.log("login token "+newToken+" saved and in cache");
-                            usersCache[newToken] = {user: userModel, session: userSessionModel};
+                            console.log("login token " + newToken + " saved and in cache");
+                            usersCache[newToken] = { user: userModel, session: userSessionModel };
                             console.log("login sending user...");
                             sendUser(res, userModel.attributes, newToken);
                         });
@@ -140,6 +137,10 @@ module.exports = function (models) {
                         return res.status(401).send("Invalid Credentials");
                     }
                 });
+            })
+            .catch(function (err) {
+                console.log("login failed: unknown user", err);
+                return res.status(401).send("Invalid credentials");
             });
     }
 
@@ -168,18 +169,19 @@ module.exports = function (models) {
         res.status(200).send('logout');
     }
 
-    function sendMailAuthFailed(desc, sessionModels)
-    {
-        var transporter = nodemailer.createTransport();
+    function sendMailAuthFailed(desc, sessionModels) {
+        var transporter = nodemailer.createTransport(directTransport({
+            name: 'mail.memslate.com'
+        }));
         transporter.sendMail({
             from: 'Memslate Team ✔ <info@memslate.com>',
             to: "info@memslate.com",
             subject: 'Memslate Authentication Failed ✘',
-            html: desc+"<br><br>Cache tokens:<br><br>"+JSON.stringify(usersCache)+"<br><br>Db Tokens:<br><br>" +
-                    (sessionModels ? JSON.stringify(sessionModels):"")
+            html: desc + "<br><br>Cache tokens:<br><br>" + JSON.stringify(usersCache) + "<br><br>Db Tokens:<br><br>" +
+                (sessionModels ? JSON.stringify(sessionModels) : "")
         }, function (error) {
             if (error) {
-                console.log('sendMailAuthFailed: sending mail failed: ',error);
+                console.log('sendMailAuthFailed: sending mail failed: ', error);
             }
             else {
                 console.log('sendMailAuthFailed: ok');
@@ -196,7 +198,7 @@ module.exports = function (models) {
             delete req.query.token;
         }
 
-        console.log("authenticate: path: "+req.url+" token: "+token);
+        console.log("authenticate: path: " + req.url + " token: " + token);
 
         if (!token) { // use anonymous user
             if (usersCache['anonymous']) {
@@ -208,19 +210,20 @@ module.exports = function (models) {
                 console.log("authenticate: fetching anonymous...");
                 new models.User({
                     email: 'anonymous@memslate.com'
-                }).fetch().then(function (model) {
-                        if (model) {
-                            console.log("authenticate: anonymous fetched from db and returned");
-                            usersCache['anonymous'] = {user: model, session: null};
-                            req.user = model;
-                            next();
-                        }
-                    });
+                }).fetch({ require: false }).then(function (model) {
+                    if (model) {
+                        console.log("authenticate: anonymous fetched from db and returned");
+                        usersCache['anonymous'] = { user: model, session: null };
+                        req.user = model;
+                        next();
+                    }
+                })
+
             }
         }
         else {
             if (token in usersCache) {
-                console.log("authenticate: token in usersCache \r\n",_.keys(usersCache));
+                console.log("authenticate: token in usersCache \r\n", _.keys(usersCache));
                 req.user = usersCache[token].user;
 
                 updateAccessedAt(usersCache[token]);
@@ -229,14 +232,15 @@ module.exports = function (models) {
                 next();
             }
             else { //try to recover session from db
-                console.log("authenticate: fetching "+token+" token ...");
+                console.log("authenticate: fetching " + token + " token ...");
                 new models.UserSessions({
                     token: token
-                }).fetch().then(function (sessionModel) {
+                }).fetch({ require: false })
+                    .then(function (sessionModel) {
                         if (sessionModel) {
-                            new models.User({id: sessionModel.get('userId')}).fetch().then(function (userModel) {
+                            new models.User({ id: sessionModel.get('userId') }).fetch({ require: false }).then(function (userModel) {
                                 if (userModel) {
-                                    usersCache[token] = {user: userModel, session: sessionModel};
+                                    usersCache[token] = { user: userModel, session: sessionModel };
                                     req.user = userModel;
 
                                     updateAccessedAt(usersCache[token]);
@@ -249,18 +253,22 @@ module.exports = function (models) {
                                     console.log('authenticate: userCache: \n', _.keys(usersCache));
                                     res.status(401).send("Invalid user");
 
-                                    sendMailAuthFailed("Invalid user '" + sessionModel.get('userId') + "'")
+                                    next();
                                 }
                             });
                         } else {
-                            console.log("authenticate: Invalid token, returning 401");
-                            console.log('authenticate: userCache: \n', _.keys(usersCache));
-                            res.status(401).send("Invalid token");
+                            res.status(401).send("Invalid user");
+
+                            next();
 
                             new models.UserSessions().fetchAll().then(function (sessionModels) {
                                 sendMailAuthFailed("Invalid token '" + token + "'", sessionModels);
                             });
                         }
+                    })
+                    .catch(function (err) {
+                        console.log('authenticate: fetch error:', err);
+                        res.status(500).send(err);
                     });
             }
         }
@@ -293,9 +301,9 @@ module.exports = function (models) {
         if (accessedAt > updatedAt.adjustDate(numDaysTokenExpiration, numHoursTokenExpiration, numMinutesTokenExpiration)) {
             //clean old session token
             var oldToken = userCache.session.get('token');
-            setTimeout(function() {
+            setTimeout(function () {
                 delete usersCache[oldToken];
-            },5000); //let some time to incoming requests with the old token
+            }, 5000); //let some time to incoming requests with the old token
 
             //create new token and save
             var newToken = uuid.v4();
@@ -327,44 +335,46 @@ module.exports = function (models) {
         new models.User({
             email: email
         }).fetch().then(function (user) {
-                if (user) {
-                    var data = {};
-                    data.newPwd = uuid.v4().replace('-', '').substr(0, 8);
-                    _changePwdInternal(user, data, function (error, savedUser) {
-                        if (error) {
-                            console.log("recoverPwd: _changePwdInternal failed ", error);
-                            return res.status(500).send("Invalid user");
-                        }
-                        else {
-                            console.log("recoverPwd: sending mail to "+email);
+            if (user) {
+                var data = {};
+                data.newPwd = uuid.v4().replace('-', '').substr(0, 8);
+                _changePwdInternal(user, data, function (error, savedUser) {
+                    if (error) {
+                        console.log("recoverPwd: _changePwdInternal failed ", error);
+                        return res.status(500).send("Invalid user");
+                    }
+                    else {
+                        console.log("recoverPwd: sending mail to " + email);
 
-                            var transporter = nodemailer.createTransport();
-                            transporter.sendMail({
-                                from: 'Memslate Team ✔ <info@memslate.com>',
-                                to: email,
-                                subject: 'Memslate Password Recovery ✔',
-                                html: 'hello ' + user.get('name') + ',<br>&nbsp;&nbsp;&nbsp;&nbsp;your new password is <b>' + data.newPwd + '</b>. Please change this password as soon as possible.<br>cheers,<br>&nbsp;&nbsp;&nbsp;&nbsp;The Memslate Team'
-                            }, function (error) {
-                                if (error) {
-                                    console.log('recoverPwd: sending mail failed: ',error);
-                                    return res.status(500).send(error);
-                                }
-                                else {
-                                    console.log('recoverPwd: ok');
-                                    return res.status(200).send();
-                                }
-                            });
+                        var transporter = nodemailer.createTransport(directTransport({
+                            name: 'mail.memslate.com'
+                        }));
+                        transporter.sendMail({
+                            from: 'Memslate Team ✔ <info@memslate.com>',
+                            to: email,
+                            subject: 'Memslate Password Recovery ✔',
+                            html: 'hello ' + user.get('name') + ',<br>&nbsp;&nbsp;&nbsp;&nbsp;your new password is <b>' + data.newPwd + '</b>. Please change this password as soon as possible.<br>cheers,<br>&nbsp;&nbsp;&nbsp;&nbsp;The Memslate Team'
+                        }, function (error) {
+                            if (error) {
+                                console.log('recoverPwd: sending mail failed: ', error);
+                                return res.status(500).send(error);
+                            }
+                            else {
+                                console.log('recoverPwd: ok');
+                                return res.status(200).send();
+                            }
+                        });
 
-                            console.log('recoverPwd: exit');
-                            return;
-                        }
-                    });
-                }
-                else {
-                    console.log("recoverPwd: unknown email");
-                    return res.status(404).send("Invalid email");
-                }
-            });
+                        console.log('recoverPwd: exit');
+                        return;
+                    }
+                });
+            }
+            else {
+                console.log("recoverPwd: unknown email");
+                return res.status(404).send("Invalid email");
+            }
+        });
     }
 
     function _changePwdInternal(user, data, done) {
@@ -383,7 +393,7 @@ module.exports = function (models) {
 
         console.log("changePwd: ", user.get('name'));
 
-        if (user.id==config.ANONIMOUS_USER_ID) {
+        if (user.id == config.ANONIMOUS_USER_ID) {
             return res.status(400).send("Invalid User");
         }
 

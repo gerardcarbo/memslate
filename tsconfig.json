@@ -58,5 +58,7 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "exclude": ["**/node_modules"],
-  "include": ["ionic/www/app/components/**/*.ts"]
+  "include": ["ionic/www/app/components/**/*.ts"],
+  "inlineSourceMap": true /* Emit a single file with source maps instead of having a separate file. */,
+  "inlineSources": true
 }

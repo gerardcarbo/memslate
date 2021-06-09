@@ -17,7 +17,7 @@ function normalizedLevenshteinDistance(word1, word2)
 
 function wordUsageDistance(word)
 {
-    return models.MostUsedWords.forge({word:word}).fetch().then(function(wordUsage){
+    return models.MostUsedWords.forge({word:word}).fetch({ require: false }).then(function(wordUsage){
         if(!wordUsage)
         {
             return 1;

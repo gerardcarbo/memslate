@@ -69,7 +69,7 @@
               },
               function (error) //error
               {
-                self.translation.error = error ? (error.data ? (error.data.message ? error.data.message : error.data.error) : error) : "Unknown Error";
+                self.translation.error = error ? (error.data ? (error.data.message ? error.data.message : error.data.err) : error) : "Unknown Error";
 
                 UI.toast(self.translation.error);
 
