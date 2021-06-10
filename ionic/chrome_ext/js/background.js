@@ -102,7 +102,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
       })
       .catch(function (error) {
         return TranslateService.translate(sl, tl, request.sample)
-          .success(function (translation) {
+          .then(function (translation) {
             onTranslationResponse(TranslationsProviders.getProvider().name, sl, tl, request.word, translation, sendResponse);
             return translation;
           });
@@ -156,13 +156,13 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
               return;
             }
             //first try with tab_lang
-            translateWithService(tab_lang, tl, request, sendResponse).error(function (error) {
+            translateWithService(tab_lang, tl, request, sendResponse).catch(function (error) {
               console.log("'auto' translation failed:", error);
               //... and if failed try to detect word language.
               if (error.status == 400) {
                 TranslateService.detect(request.word)
                   .success(function (data) {
-                    translateWithService(data.lang, tl, request, sendResponse).error(function (error) {
+                    translateWithService(data.lang, tl, request, sendResponse).catch(function (error) {
                       console.log("translation failed:", error);
                       onTranslationError(sl, tl, request.word, error, sendResponse);
                     });

@@ -524,6 +524,8 @@ module Translate {
                                         deferred.resolve(translation);
                                     });
                                 });
+                        } else {
+                            deferred.resolve(translation);
                         }
                     })
                     .catch(function (err) {

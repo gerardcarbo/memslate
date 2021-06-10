@@ -163,7 +163,11 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         //extract sample. Split lines and find hit word
         var sample = "";
         {
-          var lines = hit_elem[0].innerText.match(/((?![.?!] ).)+[.?!]+/g);
+          if(hit_elem[0].innerText.split(' ').length < 3)
+          {
+            hit_elem[0] = hit_elem[0].parentElement;
+          }
+          var lines = hit_elem[0].innerText.match(/((?![.?!] ).)+[.?!]+/g); // split in lines after . or ? or !
           if (!lines) {
             if (hit_elem[0].innerText.indexOf(hit_word) >= 0) {
               sample = hit_elem[0].innerText;
@@ -210,8 +214,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         var bc;
         while (isTransparent(bc = $elm.css("background-color"))) {
           if ($elm.is("html")) {
-            console.log("getBngdColor: Gave up");
-            return;
+            return 'rgb(255,255,255)';
           }
           $elm = $elm.parent();
         }

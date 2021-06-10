@@ -479,6 +479,9 @@ var Translate;
                                 });
                             });
                         }
+                        else {
+                            deferred.resolve(translation);
+                        }
                     })
                         .catch(function (err) {
                         deferred.reject(err);
