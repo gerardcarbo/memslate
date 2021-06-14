@@ -19,7 +19,6 @@ exports.serve = function (serverLogFile)
     var user = require('./user')(knex,models);
     var tasks = require('./tasks')(knex,models);
     var nodemailer = require('nodemailer');
-    var directTransport = require('nodemailer-direct-transport');
     var log4js = require('log4js');
     var fs = require('fs');
 
@@ -43,9 +42,9 @@ exports.serve = function (serverLogFile)
         console.log('Memslate Server: uncaughtException:  stack: ', err.stack);
         //throw err;
 
-        var transporter = nodemailer.createTransport(directTransport({
-            name: 'mail.memslate.com'
-        }));
+        var transporter = nodemailer.createTransport({
+            host: 'mail.memslate.com'
+        });
         
         transporter.sendMail({
             from: 'Memslate Team ✔ <info@memslate.com>',

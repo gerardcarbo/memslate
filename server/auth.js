@@ -6,7 +6,6 @@ var bcrypt = require('bcryptjs'),
     config = require('./config'),
     validator = require('validator'),
     nodemailer = require('nodemailer'),
-    directTransport = require('nodemailer-direct-transport'),
     _ = require('lodash');
 
 module.exports = function (models) {
@@ -170,9 +169,9 @@ module.exports = function (models) {
     }
 
     function sendMailAuthFailed(desc, sessionModels) {
-        var transporter = nodemailer.createTransport(directTransport({
-            name: 'mail.memslate.com'
-        }));
+        var transporter = nodemailer.createTransport({
+            host: 'mail.memslate.com'
+        });
         transporter.sendMail({
             from: 'Memslate Team ✔ <info@memslate.com>',
             to: "info@memslate.com",

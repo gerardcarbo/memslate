@@ -6,12 +6,13 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
   var options = {};
   var tooltip;
   var hit_elem_style;
-  var dblclicked=false;
+  var dblclicked = false;
+  var ctrlKeyPressed = false;
 
   chrome.runtime.onMessage.addListener(function (message) {
     if (message == 'options_changed');
     {
-      chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
+      chrome.extension.sendRequest({ handler: 'get_options' }, function (response) {
         options = JSON.parse(response.options);
         tooltip = undefined;
         console.log('options_changed: get_options: ', options);
@@ -20,9 +21,9 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
   });
 
   //recover the options to setup the content script (add listeners...)
-  chrome.extension.sendRequest({handler: 'get_options'}, function (response) {
+  chrome.extension.sendRequest({ handler: 'get_options' }, function (response) {
 
-	if(!response) return;
+    if (!response) return;
 
     options = JSON.parse(response.options);
     console.log('get_options: ', options);
@@ -34,7 +35,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         tooltip.hide();
       }
       else {
-        tooltip = new Tooltip({dismiss_on: options.dismiss_on});
+        tooltip = new Tooltip({ dismiss_on: options.dismiss_on });
       }
       return tooltip;
     }
@@ -81,13 +82,13 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
         if (text_nodes.length == 0) {
           console.log('no text');
-          return {word: ''};
+          return { word: '' };
         }
 
         var hit_text_node = getExactTextNode(text_nodes, e);
         if (!hit_text_node) {
           console.log('hit between lines');
-          return {word: ''};
+          return { word: '' };
         }
 
         console.log("getHitWord: node: " + hit_text_node.data);
@@ -163,8 +164,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         //extract sample. Split lines and find hit word
         var sample = "";
         {
-          if(hit_elem[0].innerText.split(' ').length < 3)
-          {
+          if (hit_elem[0].innerText.split(' ').length < 4) {
             hit_elem[0] = hit_elem[0].parentElement;
           }
           var lines = hit_elem[0].innerText.match(/((?![.?!] ).)+[.?!]+/g); // split in lines after . or ? or !
@@ -191,9 +191,9 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
         console.log("getHitWord: word: " + hit_word + " sample: " + sample);
 
-        return {word: hit_word, sample: sample};
+        return { word: hit_word, sample: sample };
       }
-      
+
       function isTransparent(color) {
         color = (color || "").replace(/\s+/g, '').toLowerCase();
         switch (color) {
@@ -202,15 +202,15 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
           case "rgba(0,0,0,0)":
             return true;
           default:
-            if(color.includes('rgba')) {
+            if (color.includes('rgba')) {
               var colors = color.split(',');
-              return colors[3].trim()!='1';
+              return colors[3].trim() != '1';
             }
             return false;
         }
       }
 
-      function getBngdColor($elm){
+      function getBngdColor($elm) {
         var bc;
         while (isTransparent(bc = $elm.css("background-color"))) {
           if ($elm.is("html")) {
@@ -228,7 +228,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         return;
       }
 
-      var $hit_elem=$(hit_elem)
+      var $hit_elem = $(hit_elem)
 
       if (/INPUT|TEXTAREA/.test(hit_elem.nodeName) || hit_elem.isContentEditable
         || $hit_elem.parents().filter(function () {
@@ -246,7 +246,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         'background-color': getBngdColor($hit_elem)
       };
 
-      var hit = {word: ''};
+      var hit = { word: '' };
       if (selection.toString()) {
 
         console.log('Selection gotten: ' + selection.toString());
@@ -259,12 +259,12 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
         if (
           // only choose selection if mouse stopped within immediate parent of selection
-        ( $hit_elem.is(sel_container) || $.contains(sel_container, hit_elem) )
+          ($hit_elem.is(sel_container) || $.contains(sel_container, hit_elem))
           // and since it can still be quite a large area
           // narrow it down by only choosing selection if mouse points at the element that is (partially) inside selection
-        && selection.containsNode(hit_elem, true)
-        // But what is the point for the first part of condition? Well, without it, pointing at body for instance would also satisfy the second part
-        // resulting in selection translation showing up in random places
+          && selection.containsNode(hit_elem, true)
+          // But what is the point for the first part of condition? Well, without it, pointing at body for instance would also satisfy the second part
+          // resulting in selection translation showing up in random places
         ) {
           hit.word = selection.toString();
         }
@@ -277,7 +277,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       }
       if (hit.word != '') {
         var previousCursor = hit_elem.style.cursor;
-        hit_elem.style.cursor='progress';
+        hit_elem.style.cursor = 'progress';
         chrome.extension.sendRequest({
           handler: 'translate',
           sl: document.documentElement.lang,
@@ -288,7 +288,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
 
           console.log('response: ', response);
 
-          if(dblclicked) return;
+          if (dblclicked) return;
 
           var translation = MemsExt.deserialize(response.translation);
 
@@ -303,11 +303,21 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
     }
 
     function withOptionsSatisfied(e, do_stuff) {
-      if (options.ctrl_pressed && !e.ctrlKey) return;
+      if (options.ctrl_pressed && !ctrlKeyPressed) return;
       if (options.to_lang) {
         do_stuff();
       }
     }
+
+    $(document).keydown(function (e) {
+      if (e.ctrlKey) {
+        ctrlKeyPressed = true; 
+      }
+    });
+
+    $(document).keyup(function (event) {
+      ctrlKeyPressed = false;
+    });
 
     $(document).on('mousestop', function (e) {
       withOptionsSatisfied(e, function () {
@@ -318,21 +328,21 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
       });
     });
 
-    var downtime=null;
-    $(document).on('mousedown', function() {
+    var downtime = null;
+    $(document).on('mousedown', function () {
       downtime = new Date().getTime();
     });
 
-    $(document).on('click', function(e) {
-      if(e.which!=1) { //check right button
+    $(document).on('click', function (e) {
+      if (e.which != 1) { //check right button
         return;
       }
-      if(e.originalEvent.detail > 1) { //ckeck double click
-        dblclicked=true;
+      if (e.originalEvent.detail > 1) { //ckeck double click
+        dblclicked = true;
         return;
       }
-      dblclicked=false;
-      if((new Date().getTime() - downtime) > 500) { //check selecting
+      dblclicked = false;
+      if ((new Date().getTime() - downtime) > 500) { //check selecting
         return;
       }
 
@@ -343,20 +353,18 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
         if ($(e.target).closest('a').length > 0)
           return;
         if (e.target.tagName === 'A' ||
-            e.target.tagName === 'BUTTON' ||
-            e.target.tagName === 'INPUT' ||
-            e.target.tagName === 'IMG' ||
-            e.target.innerText === '')
-        {
+          e.target.tagName === 'BUTTON' ||
+          e.target.tagName === 'INPUT' ||
+          e.target.tagName === 'IMG' ||
+          e.target.innerText === '') {
           return;
         }
-        if (e.target.parentElement && 
-            (e.target.parentElement.tagName === 'A' ||
+        if (e.target.parentElement &&
+          (e.target.parentElement.tagName === 'A' ||
             e.target.parentElement.tagName === 'BUTTON' ||
             e.target.parentElement.tagName === 'INPUT' ||
             e.target.parentElement.tagName === 'IMG' ||
-            e.target.parentElement.innerText === ''))
-        {
+            e.target.parentElement.innerText === '')) {
           return;
         }
         //process de event
@@ -385,7 +393,7 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
     });
 
     var timer25;
-    var last_mouse_stop = {x: 0, y: 0};
+    var last_mouse_stop = { x: 0, y: 0 };
 
     // setup mousestop event
     $(document).on('mousemove_without_noise', function (e) {
