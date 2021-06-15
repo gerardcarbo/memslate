@@ -66,6 +66,7 @@ app.component("msExtensionOptions", {
   },
   controller: function ($scope, SessionService, UserService, TranslationsProviders, LanguagesService, UI, MemslateExtOptions) {
     var self = this;
+    this.loading = true;
     this.from_lang = MemslateExtOptions.from_lang();
     this.to_lang = MemslateExtOptions.to_lang();
     this.ctrl_pressed = MemslateExtOptions.ctrl_pressed();
@@ -75,8 +76,8 @@ app.component("msExtensionOptions", {
     this.save_translation_sample = MemslateExtOptions.save_translation_sample();
     this.dismiss_on = MemslateExtOptions.dismiss_on();
     this.translate_by_opts = [
-      {name: 'Click on word', value: 'click'},
-      {name: 'Point at word (mouse over)', value: 'point'}
+      {name: 'Click on', value: 'click'},
+      {name: 'Point at (mouse over)', value: 'point'}
     ];
     this.dismiss_on_opts = [
       {name: 'On Mouse Move', value: 'mousemove'},
@@ -93,15 +94,17 @@ app.component("msExtensionOptions", {
         self.to_lang = langs.user.prefered[0];
         self.saveOptions(false);
       }
-    });
 
+      
+    });
+    
     this.getLanguage = function (lang) {
       if (!self.languagesTo) return;
       var item = msUtils.objectFindByKey(self.languagesTo.items, "value", lang);
       if (item) return item.name;
       return;
     };
-
+    
     this.saveOptions = function (showToast) {
       if (!this.to_lang) {
         UI.showAlert('To Language Not Defined', 'You must define a language to translate to.');
@@ -115,15 +118,15 @@ app.component("msExtensionOptions", {
       MemslateExtOptions.delay(this.delay);
       MemslateExtOptions.save_translation_sample(this.save_translation_sample);
       MemslateExtOptions.dismiss_on(this.dismiss_on);
-
+      
       chrome.extension.sendRequest({handler: 'options_changed'});
-
+      
       if (showToast)
-        UI.toast('Options Applied!');
+      UI.toast('Options Applied!');
     };
-
+    
     $scope.$watch('msAppCtrl.not_lang', function (newValue, oldValue) {
-      if (newValue) {
+      if (newValue!=undefined) {
         console.log('extApp.not_lang: ' + newValue);
         var index = 0;
         if ((index = self.not_langs.indexOf(newValue)) == -1) {
@@ -133,8 +136,48 @@ app.component("msExtensionOptions", {
           self.not_langs.splice(index, 1);
         }
         self.not_lang = undefined;
+        self.saveOptions(!self.loading);
       }
     });
+    
+    $scope.$watch('msAppCtrl.from_lang', function (newValue, oldValue) {
+      if (newValue!=undefined) {
+        self.saveOptions(!self.loading);
+      }
+    });   
+    $scope.$watch('msAppCtrl.to_lang', function (newValue, oldValue) {
+      if (newValue!=undefined) {
+        self.saveOptions(!self.loading);
+      }
+    });   
+    $scope.$watch('msAppCtrl.ctrl_pressed', function (newValue, oldValue) {
+      if (newValue!=undefined) {
+        self.saveOptions(!self.loading);
+      }
+    });   
+    $scope.$watch('msAppCtrl.translate_by', function (newValue, oldValue) {
+      if (newValue!=undefined) {
+        self.saveOptions(!self.loading);
+      }
+    });   
+    $scope.$watch('msAppCtrl.delay', function (newValue, oldValue) {
+      if (newValue!=undefined) {
+        self.saveOptions(!self.loading);
+      }
+    });   
+    $scope.$watch('msAppCtrl.save_translation_sample', function (newValue, oldValue) {
+      if (newValue!=undefined) {
+        self.saveOptions(!self.loading);
+      }
+    });   
+    $scope.$watch('msAppCtrl.dismiss_on', function (newValue, oldValue) {
+      if (newValue!=undefined) {
+        self.saveOptions(!self.loading);
+      }
+    });  
+    setTimeout(()=>{
+      this.loading = false;
+    },500);
   }
 });
 
