@@ -367,7 +367,10 @@ module Translate {
             var promise = deferred.promise;
             msUtils.decoratePromise(promise);
 
-            this.$http.get(this.BaseUrlService.getLibreTranslate() + 'detect')
+            this.$http.post(this.BaseUrlService.getLibreTranslate() + 'detect',
+                {
+                    q: text,
+                })
                 .success(function (data) {
                     deferred.resolve(data[0].language);
                 })
@@ -386,31 +389,32 @@ module Translate {
             /*
              * CORS not working when user logged in -> delete Authorization token with withCredentials=false
              */
-            this.$http.post(this.BaseUrlService.getLibreTranslate() + 'translate', {
-                q: text,
-                source: fromLang,
-                target: toLang
-            }
-            ).success((data) => {
-                var translation = new Translate.Translation();
-                translation.fromLang = fromLang;
-                translation.toLang = toLang;
-                translation.translate = text;
+            this.$http.post(this.BaseUrlService.getLibreTranslate() + 'translate',
+                {
+                    q: text,
+                    source: fromLang,
+                    target: toLang
+                })
+                .success((data) => {
+                    var translation = new Translate.Translation();
+                    translation.fromLang = fromLang;
+                    translation.toLang = toLang;
+                    translation.translate = text;
 
-                if (data && data.translatedText && data.translatedText.toLowerCase() != text.toLowerCase()) {
-                    translation.provider = 'li';
-                    translation.mainResult = data.translatedText;
-                    translation.rawResult = data;
-                    translation.transcription = '';
+                    if (data && data.translatedText && data.translatedText.toLowerCase() != text.toLowerCase()) {
+                        translation.provider = 'li';
+                        translation.mainResult = data.translatedText;
+                        translation.rawResult = data;
+                        translation.transcription = '';
 
-                    deferred.resolve(translation);
-                } else {
-                    deferred.reject("Translation not found");
+                        deferred.resolve(translation);
+                    } else {
+                        deferred.reject("Translation not found");
+                    }
                 }
-            }
-            ).error(function (data, status) {
-                deferred.reject({ status: status, data: data });
-            });
+                ).error(function (data, status) {
+                    deferred.reject({ status: status, data: data });
+                });
 
             return promise;
         };
@@ -520,9 +524,9 @@ module Translate {
                                         translation.id = translationRes.id;
                                         deferred.resolve(translation);
                                     },
-                                    (error) => {
-                                        deferred.resolve(translation);
-                                    });
+                                        (error) => {
+                                            deferred.resolve(translation);
+                                        });
                                 });
                         } else {
                             deferred.resolve(translation);

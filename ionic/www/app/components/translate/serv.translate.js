@@ -338,7 +338,9 @@ var Translate;
                 var deferred = this.$q.defer();
                 var promise = deferred.promise;
                 msUtils.decoratePromise(promise);
-                this.$http.get(this.BaseUrlService.getLibreTranslate() + 'detect')
+                this.$http.post(this.BaseUrlService.getLibreTranslate() + 'detect', {
+                    q: text,
+                })
                     .success(function (data) {
                     deferred.resolve(data[0].language);
                 })
@@ -358,7 +360,8 @@ var Translate;
                     q: text,
                     source: fromLang,
                     target: toLang
-                }).success(function (data) {
+                })
+                    .success(function (data) {
                     var translation = new Translate.Translation();
                     translation.fromLang = fromLang;
                     translation.toLang = toLang;

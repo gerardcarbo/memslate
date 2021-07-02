@@ -14,13 +14,13 @@ var MemslateExtOptions =
     if (lang) {
       localStorage['to_lang'] = lang;
     }
-    return localStorage['to_lang'] || "";
+    return localStorage['to_lang'] || "en";
   },
   ctrl_pressed: function(option){
       if (option != undefined) {
           localStorage['ctrl_pressed'] = option;
       }
-      return localStorage['ctrl_pressed'] ? (localStorage['ctrl_pressed'] == 'true' ? true : false) : false;
+      return localStorage['ctrl_pressed'] ? (localStorage['ctrl_pressed'] == 'true' ? true : false) : true;
   },
   not_langs: function (langs) {
     if (langs) {
@@ -32,13 +32,13 @@ var MemslateExtOptions =
     if (arg == 'click' || arg == 'point') {
       localStorage.translate_by = arg;
     }
-    return localStorage.translate_by || 'click';
+    return localStorage.translate_by || 'point';
   },
   delay: function (ms) {
     if (ms != undefined && !isNaN(parseFloat(ms)) && isFinite(ms)) {
       localStorage['delay'] = ms;
     }
-    return localStorage['delay'] == undefined ? 700 : parseInt(localStorage['delay']);
+    return localStorage['delay'] == undefined ? 500 : parseInt(localStorage['delay']);
   },
   save_translation_sample: function (arg) {
     if (arg != undefined) {
@@ -122,7 +122,7 @@ app.component("msExtensionOptions", {
       chrome.extension.sendRequest({handler: 'options_changed'});
       
       if (showToast)
-      UI.toast('Options Applied!');
+      UI.toast('Options Applied!',1000);
     };
     
     $scope.$watch('msAppCtrl.not_lang', function (newValue, oldValue) {

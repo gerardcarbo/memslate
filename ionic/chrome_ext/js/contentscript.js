@@ -284,6 +284,8 @@ if (document.documentElement.innerHTML.indexOf('ng-app="memslate"') == -1) {
           word: hit.word,
           sample: hit.sample
         }, function (response) {
+          if(response==='lang not translated') return;
+          
           hit_elem.style.cursor = previousCursor;
 
           console.log('response: ', response);

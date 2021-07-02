@@ -10,6 +10,12 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
   function onTranslationResponse(provider, sl, tl, word, data, sendResponse) {
     var output, translation = { tl: tl, sl: sl, succeeded: true, word: word };
 
+    if (isLanguageNotTranslated(sl)) {
+      console.log("'auto' -> " + tab_lang + " not translated!");
+      sendResponse('lang not translated');
+      return;
+    }
+
     console.log('onTranslationResponse: raw ' + provider, data);
 
     output = [];
@@ -77,8 +83,7 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
 
   function translateWithService(sl, tl, request, sendResponse) {
     if (sl == 'und' ||
-      sl == tl ||
-      isLanguageNotTranslated(sl)) {
+      sl == tl) {
       var deferred = $q.defer();
       var promise = deferred.promise;
       msUtils.decoratePromise(promise);
@@ -150,19 +155,14 @@ app.run(function ($q, SessionService, TranslationsProviders, TranslateService) {
           console.log("translate: chrome tab lang: " + tab_lang + " sl:" + sl + " tl:" + tl);
 
           if (sl == 'auto') {
-            if (isLanguageNotTranslated(tab_lang)) {
-              console.log("'auto' -> " + tab_lang + " not translated!");
-              sendResponse('');
-              return;
-            }
             //first try with tab_lang
             translateWithService(tab_lang, tl, request, sendResponse).catch(function (error) {
               console.log("'auto' translation failed:", error);
               //... and if failed try to detect word language.
               if (error.status == 400) {
-                TranslateService.detect(request.word)
+                TranslateService.detect(request.sample || request.word)
                   .success(function (data) {
-                    translateWithService(data.lang, tl, request, sendResponse).catch(function (error) {
+                    translateWithService(data, tl, request, sendResponse).catch(function (error) {
                       console.log("translation failed:", error);
                       onTranslationError(sl, tl, request.word, error, sendResponse);
                     });
