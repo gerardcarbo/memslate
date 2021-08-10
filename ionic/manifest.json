@@ -1,7 +1,7 @@
 {
   "name": "Memslate",
   "description": "Memslate > Memorize your Translations",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "memslate-16.png",
@@ -9,7 +9,6 @@
   },
   "content_security_policy": "script-src 'self'; object-src 'self'",
   "permissions": [
-    "tts"
   ],
   "options_page": "chrome_ext/index.html",
   "icons": { "16": "memslate-16.png", "32": "memslate-32.png", "128": "memslate-128.png", "256": "memslate-256.png" },
