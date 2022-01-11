@@ -46,11 +46,6 @@
         </p>
       </div>
 
-      <div ng-if="translation && (translation.provider == 'yd' || translation.provider == 'yt')" class="row powered_by">
-        <a href="http://translate.yandex.com/" class="positive" target="_blank">Yandex Translate</a><span>Powered
-          by&nbsp;</span>
-      </div>
-
       <div ng-if="translation.provider == 'go'">
         <div ng-if="translation.rawResult.dict" ng-repeat="dict in translation.rawResult.dict">
           <p>

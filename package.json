@@ -75,7 +75,8 @@
     "underscore": ">=1.12.1"
   },
   "scripts": {
-    "start_web": "gulp default",
+    "start_web_debug": "gulp default",
+    "server_install": "gulp dokku_install",
     "compile_extension": "gulp -f ./gulpfileChromeExtension.js",
     "tsc_watch": "tsc -w"
   }
