@@ -49,11 +49,6 @@ module Translate {
         _providers = {};
 
         constructor(public $log, public SessionService) {
-            this._providers['Yandex'] = {
-                name: 'Yandex',
-                languages: 'YandexLanguagesService',
-                translate: 'YandexTranslateService'
-            };
             this._providers['Libre'] = {
                 name: 'Libre',
                 languages: 'LibreLanguagesService',
@@ -78,35 +73,6 @@ module Translate {
                 return this._provider;
             }
             return undefined;
-        };
-    }
-
-    export class YandexLanguagesService implements ILanguagesProvider {
-        static $inject = ['$q', '$rootScope', '$http', 'YandexTranslateApiKey'];
-
-        constructor(public $q, public $rootScope, public $http, public YandexTranslateApiKey) {
-        }
-
-        public getLanguages = function () {
-            var yandexGet = this.$q.defer();
-            var promiseYandex = yandexGet.promise;
-
-            this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs',
-                {
-                    params: {
-                        key: this.YandexTranslateApiKey,
-                        ui: 'en'
-                    },
-                    withCredentials: false
-                }
-            ).success(function (data) {
-                yandexGet.resolve(data);
-            })
-                .error(function (data, status) {
-                    yandexGet.reject(status);
-                });
-
-            return promiseYandex;
         };
     }
 
@@ -255,105 +221,6 @@ module Translate {
             }
         };
     }
-
-    export class YandexTranslateService implements ITranslationsProvider {
-        static $inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
-
-        constructor(public $log, public $rootScope, public $http, public $resource, public $q, public $injector, public $timeout, public TranslationRes, public YandexTranslateApiKey, public YandexDictionaryApiKey) {
-            $log.log('YandexTranslateService:constructor');
-        }
-
-        public detect = function (text) {
-            var deferred = this.$q.defer();
-            var promise = deferred.promise;
-            msUtils.decoratePromise(promise);
-
-            this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/detect',
-                {
-                    params: {
-                        key: this.YandexTranslateApiKey,
-                        text: [text]
-                    },
-                    withCredentials: false
-                }
-            ).success(function (data) {
-                deferred.resolve(data);
-            })
-                .error(function (data, status) {
-                    deferred.reject({ status: status, data: data });
-                });
-
-            return promise;
-        };
-
-        public translate = function (fromLang, toLang, text) {
-            var deferred = this.$q.defer();
-            var promise = deferred.promise;
-            msUtils.decoratePromise(promise);
-
-            /*
-             * CORS not working when user logged in -> delete Authorization token with withCredentials=false
-             */
-            this.$http.get('https://dictionary.yandex.net/api/v1/dicservice.json/lookup',
-                {
-                    params: {
-                        key: this.YandexDictionaryApiKey,
-                        lang: fromLang + "-" + toLang,
-                        text: text,
-                        ui: 'en'
-                    },
-                    withCredentials: false
-                }
-            ).success((data) => {
-                var translation = new Translate.Translation();
-                translation.fromLang = fromLang;
-                translation.toLang = toLang;
-                translation.translate = text;
-
-                if (data && data.def && data.def.length > 0) {
-                    translation.provider = 'yd';
-                    translation.mainResult = data.def[0].tr[0].text;
-                    translation.rawResult = data;
-                    translation.transcription = data.def[0].ts;
-
-                    deferred.resolve(translation);
-                }
-                else {
-                    this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate',
-                        {
-                            params: {
-                                key: this.YandexTranslateApiKey,
-                                lang: fromLang + "-" + toLang,
-                                text: text,
-                                ui: 'en'
-                            },
-                            withCredentials: false
-                        }
-                    ).success((dataTranslate) => {
-                        if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
-                            translation.provider = 'yt';
-                            translation.mainResult = dataTranslate.text[0];
-                            translation.rawResult = dataTranslate;
-
-                            deferred.resolve(translation);
-                        }
-                        else {
-                            deferred.reject("Translation not found");
-                        }
-                    })
-                        .error((data, status) => {
-                            deferred.reject({ status: status, data: data });
-                        });
-                }
-            }
-            ).error(function (data, status) {
-                deferred.reject({ status: status, data: data });
-            });
-
-            return promise;
-        };
-    }
-
 
     export class LibreTranslateService implements ITranslationsProvider {
         static $inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'BaseUrlService'];
@@ -566,9 +433,6 @@ module Translate {
 
     servicesMod.service('TranslationsProviders', Translate.TranslationsProviders);
 
-    servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
-    servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
-
     servicesMod.factory('TranslationRes', function ($log, $resource, BaseUrlService) {
         $log.log('TranslationRes: base ' + BaseUrlService.get());
         return $resource(BaseUrlService.get() + 'resources/translations/:id',
@@ -580,10 +444,6 @@ module Translate {
         return $resource(BaseUrlService.get() + 'resources/translations/:translationId/samples/:id',
             { translationId: '@translationId', id: '@id' });
     });
-
-    servicesMod.service('YandexLanguagesService', Translate.YandexLanguagesService);
-
-    servicesMod.service('YandexTranslateService', Translate.YandexTranslateService);
 
     servicesMod.service('LibreLanguagesService', Translate.LibreLanguagesService);
 

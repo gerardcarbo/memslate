@@ -51,11 +51,6 @@ var Translate;
                 }
                 return undefined;
             };
-            this._providers['Yandex'] = {
-                name: 'Yandex',
-                languages: 'YandexLanguagesService',
-                translate: 'YandexTranslateService'
-            };
             this._providers['Libre'] = {
                 name: 'Libre',
                 languages: 'LibreLanguagesService',
@@ -66,34 +61,6 @@ var Translate;
         return TranslationsProviders;
     }());
     Translate.TranslationsProviders = TranslationsProviders;
-    var YandexLanguagesService = /** @class */ (function () {
-        function YandexLanguagesService($q, $rootScope, $http, YandexTranslateApiKey) {
-            this.$q = $q;
-            this.$rootScope = $rootScope;
-            this.$http = $http;
-            this.YandexTranslateApiKey = YandexTranslateApiKey;
-            this.getLanguages = function () {
-                var yandexGet = this.$q.defer();
-                var promiseYandex = yandexGet.promise;
-                this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs', {
-                    params: {
-                        key: this.YandexTranslateApiKey,
-                        ui: 'en'
-                    },
-                    withCredentials: false
-                }).success(function (data) {
-                    yandexGet.resolve(data);
-                })
-                    .error(function (data, status) {
-                    yandexGet.reject(status);
-                });
-                return promiseYandex;
-            };
-        }
-        YandexLanguagesService.$inject = ['$q', '$rootScope', '$http', 'YandexTranslateApiKey'];
-        return YandexLanguagesService;
-    }());
-    Translate.YandexLanguagesService = YandexLanguagesService;
     var LibreLanguagesService = /** @class */ (function () {
         function LibreLanguagesService($q, $rootScope, $http, BaseUrlService) {
             this.$q = $q;
@@ -230,99 +197,6 @@ var Translate;
         return LanguagesService;
     }());
     Translate.LanguagesService = LanguagesService;
-    var YandexTranslateService = /** @class */ (function () {
-        function YandexTranslateService($log, $rootScope, $http, $resource, $q, $injector, $timeout, TranslationRes, YandexTranslateApiKey, YandexDictionaryApiKey) {
-            this.$log = $log;
-            this.$rootScope = $rootScope;
-            this.$http = $http;
-            this.$resource = $resource;
-            this.$q = $q;
-            this.$injector = $injector;
-            this.$timeout = $timeout;
-            this.TranslationRes = TranslationRes;
-            this.YandexTranslateApiKey = YandexTranslateApiKey;
-            this.YandexDictionaryApiKey = YandexDictionaryApiKey;
-            this.detect = function (text) {
-                var deferred = this.$q.defer();
-                var promise = deferred.promise;
-                msUtils.decoratePromise(promise);
-                this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/detect', {
-                    params: {
-                        key: this.YandexTranslateApiKey,
-                        text: [text]
-                    },
-                    withCredentials: false
-                }).success(function (data) {
-                    deferred.resolve(data);
-                })
-                    .error(function (data, status) {
-                    deferred.reject({ status: status, data: data });
-                });
-                return promise;
-            };
-            this.translate = function (fromLang, toLang, text) {
-                var _this_1 = this;
-                var deferred = this.$q.defer();
-                var promise = deferred.promise;
-                msUtils.decoratePromise(promise);
-                /*
-                 * CORS not working when user logged in -> delete Authorization token with withCredentials=false
-                 */
-                this.$http.get('https://dictionary.yandex.net/api/v1/dicservice.json/lookup', {
-                    params: {
-                        key: this.YandexDictionaryApiKey,
-                        lang: fromLang + "-" + toLang,
-                        text: text,
-                        ui: 'en'
-                    },
-                    withCredentials: false
-                }).success(function (data) {
-                    var translation = new Translate.Translation();
-                    translation.fromLang = fromLang;
-                    translation.toLang = toLang;
-                    translation.translate = text;
-                    if (data && data.def && data.def.length > 0) {
-                        translation.provider = 'yd';
-                        translation.mainResult = data.def[0].tr[0].text;
-                        translation.rawResult = data;
-                        translation.transcription = data.def[0].ts;
-                        deferred.resolve(translation);
-                    }
-                    else {
-                        _this_1.$http.get('https://translate.yandex.net/api/v1.5/tr.json/translate', {
-                            params: {
-                                key: _this_1.YandexTranslateApiKey,
-                                lang: fromLang + "-" + toLang,
-                                text: text,
-                                ui: 'en'
-                            },
-                            withCredentials: false
-                        }).success(function (dataTranslate) {
-                            if (dataTranslate.text && dataTranslate.text.length > 0 && dataTranslate.text[0] !== translation.translate) {
-                                translation.provider = 'yt';
-                                translation.mainResult = dataTranslate.text[0];
-                                translation.rawResult = dataTranslate;
-                                deferred.resolve(translation);
-                            }
-                            else {
-                                deferred.reject("Translation not found");
-                            }
-                        })
-                            .error(function (data, status) {
-                            deferred.reject({ status: status, data: data });
-                        });
-                    }
-                }).error(function (data, status) {
-                    deferred.reject({ status: status, data: data });
-                });
-                return promise;
-            };
-            $log.log('YandexTranslateService:constructor');
-        }
-        YandexTranslateService.$inject = ['$log', '$rootScope', '$http', '$resource', '$q', '$injector', '$timeout', 'TranslationRes', 'YandexTranslateApiKey', 'YandexDictionaryApiKey'];
-        return YandexTranslateService;
-    }());
-    Translate.YandexTranslateService = YandexTranslateService;
     var LibreTranslateService = /** @class */ (function () {
         function LibreTranslateService($log, $rootScope, $http, $resource, $q, $injector, $timeout, TranslationRes, BaseUrlService) {
             this.$log = $log;
@@ -517,8 +391,6 @@ var Translate;
         });
     });
     servicesMod.service('TranslationsProviders', Translate.TranslationsProviders);
-    servicesMod.constant('YandexTranslateApiKey', 'trnsl.1.1.20140425T085916Z.05949a2c8c78dfa7.d025a7c757cb09916dca86cb06df4e0686d81430');
-    servicesMod.constant('YandexDictionaryApiKey', 'dict.1.1.20140425T100742Z.a6641c6755e8a074.22e10a5caa7ce385cffe8e2104a66ce60400d0bb');
     servicesMod.factory('TranslationRes', function ($log, $resource, BaseUrlService) {
         $log.log('TranslationRes: base ' + BaseUrlService.get());
         return $resource(BaseUrlService.get() + 'resources/translations/:id', { id: '@id' }, { 'query': { method: 'GET', isArray: true, timeout: 5000 } });
@@ -526,8 +398,6 @@ var Translate;
     servicesMod.factory('TranslationSampleRes', function ($resource, BaseUrlService) {
         return $resource(BaseUrlService.get() + 'resources/translations/:translationId/samples/:id', { translationId: '@translationId', id: '@id' });
     });
-    servicesMod.service('YandexLanguagesService', Translate.YandexLanguagesService);
-    servicesMod.service('YandexTranslateService', Translate.YandexTranslateService);
     servicesMod.service('LibreLanguagesService', Translate.LibreLanguagesService);
     servicesMod.service('LibreTranslateService', Translate.LibreTranslateService);
     servicesMod.service('LanguagesService', Translate.LanguagesService);

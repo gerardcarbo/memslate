@@ -4,7 +4,6 @@
 
 var gulp = require('gulp'),
 	clean = require('gulp-clean'),
-	cleanhtml = require('gulp-cleanhtml'),
 	jshint = require('gulp-jshint'),
 	zip = require('gulp-zip'),
 	merge = require('merge-stream'),
@@ -72,14 +71,12 @@ gulp.task('clean_end', function() {
 gulp.task('copy_html', function() {
 	return merge(
 		gulp.src(['ionic/www/*.html','!ionic/www/googleb656a46304b8158f.html'])
-			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/www')),
 		gulp.src(['ionic/www/app/components/widgets/ms-select.html'])
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/app/components/widgets')),
 		gulp.src(['ionic/www/app/components/app/dialogs/*.html'])
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext/app/components/app/dialogs')),
 		gulp.src('ionic/chrome_ext/*.html')
-			.pipe(cleanhtml())
 			.pipe(gulp.dest('chrome_ext/build/chrome_ext'))
 	);
 });
