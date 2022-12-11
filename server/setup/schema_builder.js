@@ -10,15 +10,19 @@ var sequence = require('when/sequence');
 var _ = require('lodash');
 
 function createFields(Schema, tableName, table, definition) {
+
+    console.log('creating fields for: ', tableName);
+
+    if(!Schema[tableName]) return;
+
     var column;
     var fields = Schema[tableName].fields;
     var columnKeys = _.keys(fields);
 
-    if(!definition)
-    {
+    if (!definition) {
         definition = {};
         //create with all fields
-         _.forEach(columnKeys, function(key){
+        _.forEach(columnKeys, function (key) {
             definition[key] = false;
         })
     }
@@ -87,8 +91,7 @@ function createFields(Schema, tableName, table, definition) {
     });
 };
 
-function createContrains(Schema, tableName, table)
-{
+function createContrains(Schema, tableName, table) {
     var uniques = (Schema[tableName].constrains && Schema[tableName].constrains.uniques ? Schema[tableName].constrains.uniques : null);
     _.forIn(uniques, function (unique) {
         table.unique(unique);
@@ -101,10 +104,10 @@ function createSchema(Schema) {
         //lookup tables fields existence
         return Promise.reduce(tableNames, function (memo1, tableName) {
             return trx.schema.hasTable(tableName).then(function (exists) {
-                if (!exists){
-                    console.log('createSchema: creating table '+tableName);
-                    return trx.schema.createTable(tableName, function(table){
-                        console.log('createSchema: created table '+tableName+': ',Schema[tableName]);
+                if (!exists) {
+                    console.log('createSchema: creating table ' + tableName);
+                    return trx.schema.createTable(tableName, function (table) {
+                        console.log('createSchema: created table ' + tableName + ': ', Schema[tableName]);
                         createFields(Schema, tableName, table);
                         createContrains(Schema, tableName, table);
                     });
@@ -116,7 +119,7 @@ function createSchema(Schema) {
                 }, {}).then(function (columns) {
                     memo1[tableName] = columns;
                 })
-            }).return(memo1);
+            });
         }, {})
             .then(function (tablesDefs) {
                 //check fields existence for each table in definitions

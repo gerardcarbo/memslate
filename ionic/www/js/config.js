@@ -1,8 +1,7 @@
 //release
-msDebug = false;
-msLogger.disableLogger();
+msLogger.enableLogger();
 
 msConfig = {
-  baseUrl: 'https://www.memslate.com/',
-  libreTranslateUrl: 'https://www.memslate.com/libreTranslate/'
+  baseUrl: 'http://localhost/',
+  libreTranslateUrl: 'http://localhost:5000/'
 };

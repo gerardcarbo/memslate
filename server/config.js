@@ -7,6 +7,8 @@ exports.db_url = process.env.DATABASE_URL || 'postgresql://localhost/memslate';
 exports.DEBUG = DEBUG;
 exports.SQL_DEBUG = false;
 
+console.log('db_url: ', exports.db_url)
+
 exports.knex_options = {
     client: exports.db_client,
     connection: exports.db_url,

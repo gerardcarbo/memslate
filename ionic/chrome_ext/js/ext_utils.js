@@ -7,6 +7,10 @@ MemsExt.modifierKeys = {
 MemsExt.deserialize = function (text) {
   var res;
 
+  if(typeof text === 'object') {
+    return text;
+  }
+
   try {
     res = JSON.parse(text);
   }

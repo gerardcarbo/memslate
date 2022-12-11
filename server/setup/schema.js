@@ -20,7 +20,7 @@ var Schema = {
             rawResult: {type: 'text', nullable: false },
             provider: {type: 'string', maxlength: 4, nullable: false },
             insertTime: {type: 'timestamp', defaultToRaw: 'now()'},
-            difficulty: {type: 'real', defaultTo:.5}
+            difficulty: {type: 'double', defaultTo:.5}
         },
         constrains: {
             uniques: [['fromLang','toLang','translate']]
