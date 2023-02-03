@@ -23,38 +23,38 @@ module.exports = function (knex, models) {
             if (anonymousTranlations) {
                 //copy translations
                 return Promise.reduce(anonymousTranlations.models, function (total, tr) {
-                        delete tr.attributes.id;
-                        var translation = {
-                            fromLang: tr.attributes.fromLang,
-                            toLang: tr.attributes.toLang,
-                            translate: tr.attributes.translate,
-                        };
-                        //console.log('refreshAnonymousUserTranslations: searching: ', translation );
-                        return new models.Translations(translation).fetch({ require: false }).then(function (translationModel) {
-                            if (!translationModel) {
-                                console.log('refreshAnonymousUserTranslations: not found:', translation.translate);
-                                return new models.Translations(tr.attributes).save().then(function (savedTranslation) {
-                                    total.translations.push(savedTranslation);
-                                    total.count++;
-                                    return total;
-                                });
-                            }
-                            else {
-                                total.translations.push(translationModel);
+                    delete tr.attributes.id;
+                    var translation = {
+                        fromLang: tr.attributes.fromLang,
+                        toLang: tr.attributes.toLang,
+                        translate: tr.attributes.translate,
+                    };
+                    //console.log('refreshAnonymousUserTranslations: searching: ', translation );
+                    return new models.Translations(translation).fetch({ require: false }).then(function (translationModel) {
+                        if (!translationModel) {
+                            console.log('refreshAnonymousUserTranslations: not found:', translation.translate);
+                            return new models.Translations(tr.attributes).save().then(function (savedTranslation) {
+                                total.translations.push(savedTranslation);
+                                total.count++;
                                 return total;
-                            }
-                        });
-                    }, {count: 0, translations: []})
+                            });
+                        }
+                        else {
+                            total.translations.push(translationModel);
+                            return total;
+                        }
+                    });
+                }, { count: 0, translations: [] })
                     .then(function (translations) {
                         console.log('refreshAnonymousUserTranslations: anonymous translation copy done!!!');
                         console.log('refreshAnonymousUserTranslations: cleaning user translations');
                         return cleanUserTranslations(config.ANONIMOUS_USER_ID)
                             .then(function () {
                                 console.log('refreshAnonymousUserTranslations: cleanAnonymousTranslations done!!!');
-                                console.log('refreshAnonymousUserTranslations: translations copied from anonymousTranslations. Creating '+translations.translations.length+' UserTranslations...');
+                                console.log('refreshAnonymousUserTranslations: translations copied from anonymousTranslations. Creating ' + translations.translations.length + ' UserTranslations...');
                                 var total2 = [translations.count, 0]; //reduce value!
                                 return Promise.reduce(translations.translations, function (total, tr) {
-                                    if(tr.get('translate') == tr.get('mainResult')) return total; //do not copy idem translations
+                                    if (tr.get('translate') == tr.get('mainResult')) return total; //do not copy idem translations
                                     return models.UserTranslations.forge({
                                         userId: userId,
                                         translationId: tr.id
@@ -82,29 +82,27 @@ module.exports = function (knex, models) {
     };
 
     function computeDifficulty() {
-        return models.Translations.query({select:'*', where: {difficulty: 0.5}})
+        return models.Translations.query({ select: '*', where: { difficulty: 0.5 } })
             .fetchAll()
             .then(function (translations) {
-                if (translations && translations.length) {console.log('computeDifficulty: found to compute -> '+translations.length);}
+                if (translations && translations.length) { console.log('computeDifficulty: found to compute -> ' + translations.length); }
                 return Promise.all(translations.map(function (translation) {
                     var wordEn, wordOther;
-                    if(translation.attributes.fromLang=='en')
-                    {
+                    if (translation.attributes.fromLang == 'en') {
                         wordEn = translation.attributes.translate;
                         wordOther = translation.attributes.mainResult;
                     }
-                    else if(translation.attributes.toLang=='en')
-                    {
+                    else if (translation.attributes.toLang == 'en') {
                         wordOther = translation.attributes.translate;
                         wordEn = translation.attributes.mainResult;
                     }
 
-                    if(wordEn) return difficulty.compute(wordEn, wordOther).then(function(difficulty){
-                        return translation.set('difficulty', difficulty).save().then(function(){/*console.log('computeDifficulty: done for '+wordEn+' - '+wordOther+' : '+difficulty)*/});
+                    if (wordEn) return difficulty.compute(wordEn, wordOther).then(function (difficulty) {
+                        return translation.set('difficulty', difficulty).save().then(function () {/*console.log('computeDifficulty: done for '+wordEn+' - '+wordOther+' : '+difficulty)*/ });
                     });
                     return false;
-            }));
-        });
+                }));
+            });
     }
 
     function loadMostUsedWords(fileName, pos) {
@@ -115,7 +113,7 @@ module.exports = function (knex, models) {
 
         console.log('loadMostUsedWords: enter');
 
-        var parser = parse({delimiter: ',', trim: true});
+        var parser = parse({ delimiter: ',', trim: true });
         var queries = [];
         var inserts = [];
 
@@ -123,16 +121,17 @@ module.exports = function (knex, models) {
             var record;
 
             while (record = parser.read()) {
-                var word = record[pos].trim();
+                let word = record[pos].trim();
 
-                //console.log('loadMostUsedWords: readen ('+(i++)+') '+word);
+                console.log('loadMostUsedWords: readen (' + (i++) + ') ' + word);
                 var query = function () {
                     return new models.MostUsedWords({
                         word: word
                     }).fetch({ require: false }).then(function (model) {
+                        console.log(`loadMostUsedWords: query: ${word} model: ${model}`);
                         if (!model) {
                             i++;
-                            console.log('loadMostUsedWords:' + i + ' NOT on DB word: ' + word);
+                            //console.log('loadMostUsedWords:' + i + ' NOT on DB word: ' + word);
                             inserts.push(function () {
                                 index++;
                                 return new models.MostUsedWords({
@@ -155,14 +154,14 @@ module.exports = function (knex, models) {
 
         var doneParsingPr2 = new Promise(function (resolve, reject) {
             parser.on('end', function () {
-                    console.log('loadMostUsedWords: file parsed');
-                    resolve();
-                }
+                console.log('loadMostUsedWords: file parsed');
+                resolve();
+            }
             );
             parser.on('error', function (error) {
-                    console.log('loadMostUsedWords: parser.on(error) ', error);
-                    reject();
-                }
+                console.log('loadMostUsedWords: parser.on(error) ', error);
+                reject();
+            }
             );
         });
 
@@ -185,7 +184,7 @@ module.exports = function (knex, models) {
 
         console.log('addTranslationsAnonymous: ' + start + '->' + limit + ' (' + lang + ')');
 
-        var parser = parse({delimiter: ',', trim: true});
+        var parser = parse({ delimiter: ',', trim: true });
         var tasks = [];
         var queries = [];
 
@@ -203,21 +202,26 @@ module.exports = function (knex, models) {
                     parser.end()
                 }
                 else {
-                    var word = record[pos].trim();
+                    let word = record[pos].trim();
 
                     if (translated[word] === undefined) {
                         translated[word] = word;
                         if (word.length > 3) {
-                            //console.log('addTranslationsAnonymous:Processing word: ' + index + ': ' + word);
+                            console.log('addTranslationsAnonymous:Processing word: ' + index + ': ' + word);
                             var query = new models.TranslationsAnonymous({
                                 translate: word,
                                 fromLang: 'en',
                                 toLang: lang
                             }).fetch({ require: false }).then(function (model) {
                                 if (!model) {
-                                    console.log('NOT on DB word: ' + word);
+                                    //console.log('NOT on DB word: ' + word);
                                     tasks.push(function () {
-                                        return translateDict(word, 'en', lang, onTranslated).delay(Math.floor(Math.random() * 30) * 100);
+                                        try {
+                                            return translateLibreTranslate(word, 'en', lang, onTranslated);
+                                        } catch (exc) {
+                                            console.log('addTranslationsAnonymous: exception on translateLibreTranslate' + exc)
+                                            console.log('addTranslationsAnonymous: stack' + exc.stack)
+                                        }
                                     });
                                 }
                             });
@@ -232,14 +236,14 @@ module.exports = function (knex, models) {
 
         var doneParsingPr = new Promise(function (resolve, reject) {
             parser.on('end', function () {
-                    console.log('addTranslationsAnonymous: file parsed');
-                    resolve();
-                }
+                console.log('addTranslationsAnonymous: file parsed');
+                resolve();
+            }
             );
             parser.on('error', function (error) {
-                    console.log('addTranslationsAnonymous: parser.on(error) ', error);
-                    reject();
-                }
+                console.log('addTranslationsAnonymous: parser.on(error) ', error);
+                reject();
+            }
             );
         });
 
@@ -255,8 +259,8 @@ module.exports = function (knex, models) {
         });
     }
 
-    function translateDict(word, fromLang, toLang, onTranslated, plural) {
-        console.log("translateDict: '" + word + "' ...");
+    function translateDictYandex(word, fromLang, toLang, onTranslated, plural) {
+        console.log("translateDictYandex: '" + word + "' ...");
 
         var options = {
             uri: 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup',
@@ -274,19 +278,17 @@ module.exports = function (knex, models) {
                 return onTranslated(word, fromLang, toLang, result, 'yd');
             }
             else {
-                if(word[word.length-1] == 's') //is plural
+                if (word[word.length - 1] == 's') //is plural
                 {
-                    console.log("Error Translating: " + word + " not found. Trying with '"+word.substring(0,word.length-1)+"'");
-                    return translateDict(word.substring(0,word.length-1),fromLang, toLang, onTranslated, true);
+                    console.log("Error Translating: " + word + " not found. Trying with '" + word.substring(0, word.length - 1) + "'");
+                    return translateDictYandex(word.substring(0, word.length - 1), fromLang, toLang, onTranslated, true);
                 }
-                else
-                {
+                else {
                     console.log("Error Translating: " + word + " not found. Trying with translate service");
-                    if(plural)
-                    {
+                    if (plural) {
                         word += 's'; //reconstruct plural
                     }
-                    return translateTranslate(word, fromLang, toLang, onTranslated);
+                    return translateTranslateYandex(word, fromLang, toLang, onTranslated);
                 }
             }
         }).catch(function (err) {
@@ -294,8 +296,8 @@ module.exports = function (knex, models) {
         });
     }
 
-    function translateTranslate(word, fromLang, toLang, onTranslated) {
-        console.log("translateTranslate: '" + word + "' ...");
+    function translateTranslateYandex(word, fromLang, toLang, onTranslated) {
+        console.log("translateTranslateYandex: '" + word + "' ...");
         var options2 = {
             uri: 'https://translate.yandex.net/api/v1.5/tr.json/translate',
             qs: {
@@ -312,48 +314,98 @@ module.exports = function (knex, models) {
         });
     }
 
-    function onTranslated(word, fromLang, toLang, result, provider) {
-        if (provider == 'yd' && !result.def[0]) return Promise.resolve(true);
-        if (provider == 'yt' && (!result.text || result.text[0] == word)){
-            console.log("onTranslated(yt): translation not found for: "+word);
-            return Promise.resolve(false);
+    function translateLibreTranslate(word, fromLang, toLang, onTranslated) {
+        //console.log("translateLibreTranslate: '" + word + "' ...");
+        var options2 = {
+            method: 'POST',
+            uri: 'http://libretranslate:5000/translate',
+            qs: {
+                q: word,
+                source: fromLang,
+                target: toLang
+            }
+        };
+
+        return request(options2).then(function (data2) {
+            var result2 = JSON.parse(data2);
+            return onTranslated(word, fromLang, toLang, result2, 'li');
+        });
+    }
+
+    function onTranslated(word, fromLang, toLang, data, provider) {
+        if (provider == 'yt' || provider == 'yd') {
+            if (provider == 'yd' && !data.def[0]) return Promise.resolve(true);
+            if (provider == 'yt' && (!data.text || data.text[0] == word)) {
+                console.log("onTranslated(yt): translation not found for: " + word);
+                return Promise.resolve(false);
+            }
+            var mainResult = (provider == 'yd' ? data.def[0].tr[0].text : data.text[0]);
+        }
+        else if (provider == 'li') {
+            var mainResult = "";
+            if (data.translatedText) {
+                mainResult = data.translatedText;
+            }
+            if(data.translatedText.toLowerCase() == word.toLowerCase())
+            {
+                console.log(`onTranslated: ${word} -> ${data.translatedText}`)
+            }
+            if(data.translatedText.split(' ').length > 2) {
+                console.log(`onTranslated: long: ${word} -> ${data.translatedText}`)
+            }
         }
 
-        var mainResult = (provider == 'yd' ? result.def[0].tr[0].text : result.text[0]);
-        mainResult = mainResult.replace('-',' ');
-        mainResult = mainResult.replace('el ','');
-        mainResult = mainResult.replace('la ','');
-        mainResult = mainResult.replace('los ','');
-        mainResult = mainResult.replace('las ','');
-        mainResult = mainResult.replace('the ','');
-        mainResult = mainResult.replace('le ','');
-        mainResult = mainResult.replace('les ','');
+        mainResult = mainResult.replace('-', ' ');
+        mainResult = mainResult.replace('el ', '');
+        mainResult = mainResult.replace('la ', '');
+        mainResult = mainResult.replace('los ', '');
+        mainResult = mainResult.replace('las ', '');
+        mainResult = mainResult.replace('the ', '');
+        mainResult = mainResult.replace('le ', '');
+        mainResult = mainResult.replace('les ', '');
         mainResult = mainResult.trimChars('\'');
         mainResult = mainResult.trimChars('(');
         mainResult = mainResult.trimChars(')');
-        if(mainResult == "" || mainResult == " " || mainResult == "  " || mainResult == "?") {
-            console.log("onTranslated: ERROR no translation for '"+word+"' -> mainResult: '"+mainResult+"'");
+        if (mainResult == "" || mainResult == " " || mainResult == "  " || mainResult == "?") {
+            console.log("onTranslated: ERROR no translation for '" + word + "' -> mainResult: '" + mainResult + "'");
             return Promise.resolve(false);
         }
 
-        var prAdd = addTranslation(word, fromLang, toLang, mainResult, result, provider);
+        try {
+            var prAdd = addTranslation(word, fromLang, toLang, mainResult, data, provider);
 
-        //reverse translation
-        var prRevTransl = new models.TranslationsAnonymous({
+            //reverse translation
+            var prRevTransl = new models.TranslationsAnonymous({
                 translate: mainResult,
                 fromLang: toLang,
                 toLang: fromLang
             }).fetch({ require: false }).then(function (model) {
                 if (!model) {
-                    return translateDict(mainResult, toLang, fromLang, onReverseTranslated).delay(Math.floor(Math.random() * 30) * 100);
+                    if (provider == 'li') {
+                        return translateLibreTranslate(mainResult, toLang, fromLang, onReverseTranslated);
+                    }
+                    return translateDictYandex(mainResult, toLang, fromLang, onReverseTranslated).delay(Math.floor(Math.random() * 30) * 100);
                 }
                 return Promise.resolve(false);
             });
-        return Promise.all([prAdd, prRevTransl]);
+            return Promise.all([prAdd, prRevTransl]);
+        } catch (exc) {
+            console.log("onTranslated: exception: " + exc);
+            return new Promise().resolve(false);
+        }
     }
 
     function onReverseTranslated(word, fromLang, toLang, result, provider) {
-        var mainResult = (provider == 'yd' ? result.def[0].tr[0].text : result.text[0]);
+        var mainResult;
+        if (provider == 'yd') {
+            mainResult = result.def[0].tr[0].text
+        }
+        else if (provider == 'yt') {
+            mainResult = result.text[0]
+        }
+        else if (provider == 'li') {
+            mainResult = result.translatedText
+        }
         return addTranslation(word, fromLang, toLang, mainResult, result, provider);
     }
 
@@ -361,7 +413,7 @@ module.exports = function (knex, models) {
         if (provider == 'yd' && !result.def[0]) return Promise.resolve(false);
         if (provider == 'yt' && !result.text && !result.text[0]) return Promise.resolve(false);
 
-        console.log("addTranslation(" + provider + "): " + translate + " -> " + mainResult);
+        //console.log("addTranslation(" + provider + "): " + translate + " -> " + mainResult);
 
         var translation = {
             provider: provider,
@@ -379,7 +431,9 @@ module.exports = function (knex, models) {
             toLang: toLang
         }).fetch({ require: false }).then(function (model) {
             if (!model) {
-                return new models.TranslationsAnonymous(translation).save();
+                return new models.TranslationsAnonymous(translation).save().catch((exc) => {
+                    console.log('addTranslation: save ' +JSON.stringify(translation)+ ' exc: ' + exc);
+                });
             }
         });
     };

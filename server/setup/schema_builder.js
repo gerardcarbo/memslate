@@ -102,7 +102,8 @@ function createSchema(Schema) {
     var tableNames = _.keys(Schema);
     var tablesTransaction = knex.transaction(function (trx) {
         //lookup tables fields existence
-        return Promise.reduce(tableNames, function (memo1, tableName) {
+        return Promise.reduce(tableNames, function (tables, tableName) {
+            //console.log('createSchema: reducing in '+JSON.stringify(tables)+' table:' + tableName);
             return trx.schema.hasTable(tableName).then(function (exists) {
                 if (!exists) {
                     console.log('createSchema: creating table ' + tableName);
@@ -112,12 +113,19 @@ function createSchema(Schema) {
                         createContrains(Schema, tableName, table);
                     });
                 }
-                return Promise.reduce(Object.keys(Schema[tableName].fields), function (memo2, column) {
+                return Promise.reduce(Object.keys(Schema[tableName].fields), function (columns, column) {
                     return trx.schema.hasColumn(tableName, column).then(function (exists) {
-                        memo2[column] = exists;
-                    }).return(memo2)
+                        columns[column] = exists;
+                        return columns;
+                    })
                 }, {}).then(function (columns) {
-                    memo1[tableName] = columns;
+                    try{
+                    tables[tableName] = columns;
+                    }
+                    catch(exc) {
+                        console.log(`createSchema: exc!:${exc} tables:${JSON.stringify(tables)} tableName:${tableName} columns:${JSON.stringify(columns)}`);
+                    }
+                    return tables;
                 })
             });
         }, {})

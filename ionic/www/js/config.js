@@ -2,6 +2,6 @@
 msLogger.enableLogger();
 
 msConfig = {
-  baseUrl: 'http://localhost/',
-  libreTranslateUrl: 'http://localhost:5000/'
+  baseUrl: 'http://localhost:8080/',
+  libreTranslateUrl: 'http://localhost:8080/libretranslate/'
 };

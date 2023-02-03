@@ -12,7 +12,7 @@ var schema_builder = require('./schema_builder');
 var setup = require('./setup_lib')(knex, models);
 var log4js = require('log4js');
 
-var startTranslation = 14000;
+var startTranslation = 0;
 var limitTranslation = 14000;
 
 var setupLogFile = '/logs/setup.log';
@@ -21,6 +21,13 @@ process.on('uncaughtException', function (err) {
     console.log('uncaughtException: ', err);
     console.log('uncaughtException:  stack: ', err.stack);
     //throw err;
+
+    console.log('uncaughtException: retrying in 5s...');
+    setTimeout(
+        ()=>{
+            start();
+        }
+    , 5000);
 });
 
 function pad(s) {
@@ -30,20 +37,24 @@ function getDay(d) {
     return [d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())].join('-');
 }
 
-//rename old log
-var fs = require('fs');
-fs.stat(setupLogFile, function (err, stat) {
-    if (stat && stat.birthtime) {
-        var date = stat.birthtime;
-        var filename = "/logs/setup." + getDay(date) + "." + pad(date.getHours()) + "h." + pad(date.getMinutes()) + "m.log";
-        fs.renameSync(setupLogFile, filename);
-    }
+start();
 
-    DoSetup();
-});
+function start() {
+    //rename old log
+    var fs = require('fs');
+    fs.stat(setupLogFile, function (err, stat) {
+        if (stat && stat.birthtime) {
+            var date = stat.birthtime;
+            var filename = "/logs/setup." + getDay(date) + "." + pad(date.getHours()) + "h." + pad(date.getMinutes()) + "m.log";
+            fs.renameSync(setupLogFile, filename);
+        }
+
+        DoSetup(fs);
+    });
+}
 
 //setup operations
-function DoSetup() {
+function DoSetup(fs) {
     log4js.configure({
         appenders: {
             out:{ type: 'console' },
@@ -56,7 +67,7 @@ function DoSetup() {
 
     console.log('Tracing to: ' + setupLogFile);
 
-    fs.chmodSync(setupLogFile, '777');
+    fs.chmodSync(setupLogFile, '666');
 
     //create tables, users, games and add translations
     schema_builder.createSchema(Schema)
@@ -66,11 +77,14 @@ function DoSetup() {
         .then(setup.createUsers).then(function () {
             console.log('Users created!!!');
         })
+        .then(setup.createGames).then(function () {
+            console.log('Games created!!!');
+        })
         /*.then(function () {
-         return setup.loadMostUsedWords(__dirname + '/google-20000-english.txt', 0)
-         .then(function () {
-         console.log('LoadMostUsedWords done!!!');
-         });
+            return setup.loadMostUsedWords(__dirname + '/google-20000-english.txt', 0)
+            .then(function () {
+            console.log('LoadMostUsedWords done!!!');
+            });
          })*/
         .then(function () {
             return setup.addTranslationsAnonymous(__dirname + '/google-20000-english.txt', 0, startTranslation, limitTranslation, 'es')
@@ -97,14 +111,13 @@ function DoSetup() {
                     console.log('computeDifficulty done!!!');
                 });
         })
-        .then(setup.createGames).then(function () {
-            console.log('Games created!!!');
-
-            /*console.log(process._getActiveHandles());
-             console.log(process._getActiveRequests());*/
-
-            process.exit();
-            return true;
+        .then(function () {
+            console.log('all done!!!');
+            return new Promise(function (resolve, reject) {
+                setTimeout(function () {
+                    resolve();
+                }, 5000);
+            });
         })
         .catch(function (error) {
             console.log('Setup: exception caught: ', error)
