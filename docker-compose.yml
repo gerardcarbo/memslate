@@ -1,10 +1,10 @@
 version: '3'
 services:
-  web:
+  memslate:
     build: .
     restart: unless-stopped
     ports:
-      - '8080:5001'
+      - '5001:5001'
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/memslate
     depends_on:
@@ -16,7 +16,7 @@ services:
     image: postgres
     restart: unless-stopped
     ports:
-      - '5432:5432'
+      - '127.0.0.1:5432:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -39,12 +39,33 @@ services:
     healthcheck:
       test: ['CMD-SHELL', './venv/bin/python scripts/healthcheck.py']
     ports:
-      - '5000:5000'
+      - '127.0.0.1:5000:5000'
     volumes:
       - libretranslate-local:/home/libretranslate/.local
+  nginx:
+      image: nginx:1.15-alpine
+      restart: unless-stopped
+      volumes:
+        - ./data/nginx:/etc/nginx/conf.d
+        - ./data/certbot/conf:/etc/letsencrypt
+        - ./data/certbot/www:/var/www/certbot
+      ports:
+        - "8080:80"
+        - "443:443"
+      command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  certbot:
+      image: certbot/certbot
+      restart: unless-stopped
+      volumes:
+        - ./data/certbot/conf:/etc/letsencrypt
+        - ./data/certbot/www:/var/www/certbot
+      entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"      
 volumes:
   db:
     driver: local
   libretranslate-local:
     driver: local
-  
+  nginx_conf:
+    driver: local
+  letsencrypt_certs:
+    driver: local
